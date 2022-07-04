@@ -11,9 +11,9 @@
 
 \usepackage{xspace}
 \newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
-\newcommand{\ouralgo}{R\&S-Mixed }
+\newcommand{\ouralgo}{\ensuremath{\mathcal{MSR}3}}
 \title{Feature Selection for Mixed-Effects Models}
-\date{Thursday, 3\textsuperscript{rd} of December, 2020}
+\date{\today}
 \author{Aleksei Sholokhov}
 % \titlegraphic{\hfill\includegraphics[height=1.5cm]{logo.pdf}}
 
@@ -25,13 +25,28 @@
 	\tableofcontents
 \end{frame}
 
-\section{Introduction}
+\section{Feature Selection for Linear Mixed-Effect Models}
 \subsection{Linear Mixed-Effects Models}
-\begin{frame}{Linear Mixed-Effect Models are a type of regression models for grouped data}
+\begin{frame}{Linear Mixed-Effect Models}
 
-	\[
-	\text{Dataset: m groups } (X_i, y_i),\quad i = 1, \dots m
-    \]
+Linear Mixed-Effect (LME) models are often used for analyzing combined data across a range of groups. \newline
+
+They use use covariates to separate the population variability (fixed-effects) from the group variability (random effects). \newline
+
+LMEs borrow strength across groups to estimate key statistics in cases when data within units are sparse or highly variable. \newline
+
+\end{frame}
+
+\begin{frame}{Linear Mixed-Effect Models}
+
+	Dataset: $m$ groups $(X_i, Z_i, y_i),\quad i = 1, \dots m$, each has $n_i$ observations
+	\begin{itemize}
+		\item 	$X_i \in \R^{n_i \times p}$ -- group $i$ design matrix for fixed features
+		\item 	$Z_i \in \R^{n_i \times q}$ -- group $i$ design matrix for random effects
+		\item 	$y_i \in \R^{n_i}$ -- group $i$ observations  
+	\end{itemize}
+	
+
 	\begin{columns}[T,onlytextwidth]
     \column{0.5\textwidth}
 	 \centering Standard Linear Regression:
@@ -50,8 +65,8 @@
    	\end{figure}
    	   		\[
    		\begin{split}
-   			y_i & = X_i(\beta + {\color{red} u_i}) + \varepsilon_i, \quad \varepsilon_i \sim \NN(0, \Lambda_i) \\
-   			{\color{red} u_i} & {\color{red}\sim \NN(0, \Gamma)}
+   			y_i & = X_i\beta + {\color{red}Z_i u_i} + \varepsilon_i, \quad \varepsilon_i \sim \NN(0, \Lambda_i) \\
+   			{\color{red} u_i} & {\color{red}\sim \NN(0, \Gamma4)}
    		\end{split}
    		\]
 
@@ -61,216 +76,133 @@
 
 \begin{frame}{Notation}
 	\eq{
-   		y_i & = \alt<3->{X_i{\color<4,9>{red}\beta} + {\color<3>{red}Z_i}{\color<5,9>{red}u_i}}{{\color<2>{red}X_i}(\beta + u_i)} + \varepsilon_i \quad i = 1\dots m \\
-   		{\color<7>{red}\varepsilon_i} & \sim \NN(0, {\color<8,9>{red}\Lambda_i}) \\
-   		u_i & \sim \NN(0, {\color<6,9>{red}\Gamma})
+   		y_i & = X_i\beta + Z_iu_i + \varepsilon_i \quad i = 1\dots m \\
+   		\varepsilon_i & \sim \NN(0, \Lambda_i) \\
+   		u_i & \sim \NN(0, \Gamma)
    	}   	
    	
    	\begin{itemize}
-   		\item<2-> $X_i \in \R^{n_i \times p}$ -- \only<3>{{\color{red} fixed}}\only<4->{fixed} features, or covariates, \only<3>{{\color{red} $Z_i \in \R^{n_i \times q}$ -- random features }}\only<4->{ $Z_i \in R^{n_i \times q}$ -- random features}
-   		\item<3-> $p$ -- number of fixed features, $q$ -- number of random effects.
-   		\item<4-> $\beta \in \R^p$ -- fixed effects, or mean effects
-   		\item<5-> $u_i \in \R^q$ -- random effects
-   		\item<6-> $\Gamma \in \R^{q \times q}$ -- covariance matrix of random effects
-   		\item<7-> $\varepsilon_i \in \R^{n_i}$ -- observation noise
-   		\item<8-> $\Lambda_i \in R^{n_i \times n_i}$ -- covariance matrix for noise
-   		\item<9-> Unknowns: $\beta$, $u_i$, $\Gamma$, sometimes $\Lambda_i$.
-   		
+   		\item $p$ -- number of fixed features, $q$ -- number of random effects.
+   		\item $\beta \in \R^p$ -- fixed effects, or mean effects
+   		\item $u_i \in \R^q$ -- random effects
+   		\item $\Gamma \in \R^{q \times q}$ -- covariance matrix of random effects, often $\Gamma = \diag{(\gamma)}$
+   		\item $\varepsilon_i \in \R^{n_i}$ -- observation noise
+   		\item $\Lambda_i \in R^{n_i \times n_i}$ -- covariance matrix for noise
    	\end{itemize}
-   	\uncover<10->{
-   	\[
-   		\Gamma = \diag{({\color{red}\gamma})},\ {\color{red}\gamma \in \R^{q}} \quad \text{ and } \Lambda_i \text{ are known.}
-   	\]
-   	}
+   	Unknowns: $\beta$, $u_i$, $\gamma$, sometimes $\Lambda_i$.
 \end{frame}
 
-\begin{frame}[fragile]{Likelihood for Mixed Models}
-Suppose we have a linear mixed effects model 
-
+\begin{frame}{Likelihood for Mixed Models}
+Negative log-likelihood:
 \eq{
-	\label{eq:lmm_setup}
-	Y_i & = X_i\beta + Z_iu_i + \varepsilon_i \\
-	u_i & \sim \NN(0, \Gamma), \ \Gamma = \diag{\gamma} \\
-	\varepsilon_i & \sim \NN(0, \Lambda_i)\\
-}
-where $\beta$, $\gamma$, and $u_i$ are unknown model parameters, and $\lambda_i$ are known.
-
-
-	Noticing that $Z_iu_i + \varepsilon_i \sim \NN(0, Z_i\Gamma Z_i^T + \Lambda_i)$ we get the negative log-likelihood:
-	 \eq{
 	\label{eq:lmm_objective}
-	\mathcal{L}(\beta, \gamma) & = \sum_{i = 1}^m \half(y_i - X_i\beta)^T(Z_i\Gamma Z_i^T + \Lambda_i)^{-1}(y_i - X_i\beta) + \\ & + \half\log{\det{\pa{Z_i \Gamma Z_i^T + \Lambda_i}}}
+	\mathcal{L}(\beta, \gamma) & = \sum_{i = 1}^m \half(y_i - X_i\beta)^T(Z_i\Gamma Z_i^T + \Lambda_i)^{-1}(y_i - X_i\beta) + \\ & + \half\log{\det{\pa{Z_i \Gamma Z_i^T + \Lambda_i}}}, \quad \Gamma = \diag{(\gamma)}
 	}
-
-\end{frame}
-	
-\subsection{Feature Selection for Mixed Models}
-\begin{frame}{Feature Selection for Mixed Models}
-
-Consider the following feature selection setup:
-
+Maximum likelihood estimates for $\beta$ and $\gamma$ solve the problem:
 \eq{
-	\min_{\beta, \gamma} & \LL(\beta, \gamma) \\
-	\text{s.t. } & \|\beta\|_0 \leq k \\
-	& \|\gamma\|_0 \leq j \\
-	& \gamma \geq 0
+	\mathcal{LME} \quad \min_{\beta \in \R^p,\, \gamma \in \R^{q}_+} \LL(\beta, \gamma)
 }
 
-where $k$ and $j$ is the size of the sparse support for the fixed and random effects respectively.
-
-This is a very hard problem to solve directly.
-
-\end{frame}
-
-\begin{frame}{Methods for Feature Selection}
-There are several ways to address this setup:
-  \begin{columns}[T,onlytextwidth]
-    \column{0.33\textwidth}
-    (0) Exhaustive Search:
-\[
-	\begin{split}
-	\min_{\beta, \gamma} & \LL(\beta, \gamma) \\
-	\text{s.t. } & \|\beta\|_0 \leq k \\
-	& \|\gamma\|_0 \leq j \\
-	& \gamma \geq 0
-	\end{split}
-\]
-
-    \column{0.33\textwidth}
-    \uncover<2->{
-    \centering
-    (1) $\ell_1$-relaxation:
-\[
-	\begin{split}
-	\min_{\beta, \gamma} & \LL(\beta, \gamma) \\
-	\text{s.t. } & \|\beta\|_{\color{red}1} \leq {\color{red} \lambda_\beta} \\
-	& \|\gamma\|_{\color{red}1} \leq {\color{red} \lambda_\gamma} \\
-	& \gamma \geq 0
-	\end{split}
-\]
-	}
-	\column{0.33\textwidth}
-	\uncover<3->{
-    \centering
-    (3) Other types of sparsity-inducing penalties\\ ($\ell_p$, $SCAD$).
-    }
-  \end{columns}
-  
- \onslide<1-3>{
-	\begin{columns}[T, onlytextwidth]
-	\column{0.33\textwidth}
-	\onslide<1-3>{
-	\centering
-	AIC \cite{Vaida2005}\\
-	BIC \cite{Jones2011}\\
-	}
-	\column{0.33\textwidth}
-	\onslide<2-3>{
-	\centering
-	M-ALASSO \cite{Bondell2010} \\
-	ALASSO \cite{Lin2013} \\
-	}
-	\column{0.33\textwidth}
-	\onslide<3>{
-	\centering
-	SCAD \cite{Fan2001}\\
-	SCAD-P \cite{Fan2012}
-	}
-	\end{columns}
-}
-
-\onslide<4->{
-	\begin{center}
-	(2) SR3-type Relaxation \cite{Zheng2019}
-	\eq{
-	\min_{\beta, \gamma, {\color{red}\hbeta}, {\color{red}\tgamma}} & \LL(\beta, \gamma) + {\color{red}\frac{\lambda_\beta}{2}\|\beta - \tbeta\|^2_2 + \frac{\lambda_{\gamma}}{2}\|\gamma - \tgamma\|_2^2}\\
-	\text{s.t. } 	& \|{\color{red}\tbeta}\|_0 \leq k \\
-					& \|{\color{red}\tgamma}\|_0 \leq j, \  \gamma \geq 0
-	}
-	\end{center}
-	}
-  
- 
-
-\end{frame}
-\section{Proposed Algorithm}
-\begin{frame}{Relax-and-Split from Optimization Perspective}
+To select covariates we add a sparsity-promoting regularizer $R(\beta, \gamma)$
 \eq{
-	{\color<2, 3>{red}\min}_{{\color<2>{red}\beta, \gamma,} {\color<3>{red}\tbeta, \tgamma}} & {\color<2>{red}\LL(\beta, \gamma)} + {\color<2,3>{red}\frac{{\color<4>{red}\lambda_\beta}}{2}\|\beta - \tbeta\|^2_2} + {\color<2,3>{red}\frac{{\color<4>{red}\lambda_\gamma}}{2}\|\gamma - \tgamma\|_2^2}\\
-	\text{s.t. } 	& {\color<3>{red}\|\tbeta\|_0 \leq k, \ \|\tgamma\|_0 \leq j} \\ 
-		& {\color<2>{red}\gamma \geq 0}, \ {\color<3>{red}\tgamma \geq 0}
-	}
-We'll find $\beta^*$, $\gamma^*$, $\tbeta^*$, and $\tgamma^*$ via alternating partial minimization:
+	\mathcal{FS-LME} \quad \min_{\beta \in \R^p,\, \gamma \in \R^{q}_+} \LL(\beta, \gamma) + R(\beta, \gamma)
+}
 
 \begin{itemize}
-	\item<2-> Minimization w.r.t. $\beta$ and $\gamma$ is done via \textbf{Interior Point Method}.
-	\item<3-> Minimization w.r.t. $\tbeta$ and $\tgamma$ is \textbf{projection} of $\beta$ and $\gamma$ onto $\ell_0$-balls.
-	\item<4-> $\lambda_\beta$ and $\lambda_\gamma$ are \textbf{iteratively increased} until $\tbeta \approx \beta$ and $\tgamma \approx \gamma$.
+	\item $\LL(\beta, \gamma)$ is smooth on its domain, quadratic w.r.t. $\beta$ and $\bar\eta$-weakly-convex w.r.t. $\gamma$.
+	\item $R(\beta, \gamma)$ is closed, proper, convex, with easily computed \textit{prox operator}
 \end{itemize}
-\only<-4>{
-\visible<3>{
-	\eq{
-		\tbeta^{(k+1)} \leftarrow \proj_{\|\beta\|_0 \leq k}(\beta^{(k)}) \quad &\implies \quad \text{Take max k from } \beta \text{, rest to 0} \\
-		\tgamma^{(k+1)} \leftarrow \proj_{\|\gamma\|_0 \leq s}(\gamma^{(k)})\quad &\implies \quad \text{Take max j from }\gamma \text{, rest to 0}
-		}
-}
-}
-\only<5->{
-\textbf{Advantages}:
-\begin{enumerate}
-	\item Interpretable hyperparameters.
-	\item No model bias when the $k-$subspace is chosen.
-\end{enumerate}
-}
+
 \end{frame}
 
-%\begin{frame}{Interior Point Method}
-%The Lagrangian of the barrier relaxation is:
-%	\eq{
-%	F_\mu(v, \beta, \gamma) & = \LL(\beta, \gamma) +  \frac{\lambda_\beta}{2}\|\beta - \tbeta^{(k)}\|^2_2 + \frac{\lambda_\gamma}{2}\|\gamma - \tgamma^{(k)}\|_2^2 + \\ & + \mu\sum_{i=1}^{q}\log(\gamma_i) - v^T\gamma \\
-%	}
-%	The descent direction is chosen as:
-%	\eq{
-%	\nabla^2F_\mu\begin{bmatrix}
-%		\Delta v \\
-%		\Delta \beta \\
-%		\Delta \gamma
-%	\end{bmatrix} = -\nabla F_\mu\begin{bmatrix}
-%		\Delta v \\
-%		\Delta \beta \\
-%		\Delta \gamma
-%	\end{bmatrix}
-%	\text{, step is: }
-%	\begin{cases}
-%	v^{(k+1)} = v^{(k)} + \alpha_k \Delta v \\
-%	\gamma^{(k+1)} = \gamma^{(k)} + \alpha_k \Delta\gamma \\
-%	\beta^{(k+1)} = \beta^{(k)} + \alpha_k \Delta \beta
-%	\end{cases}
-%	}
-%	and $\alpha_k$ is chosen such that
-%	\eq{
-%	& \gamma^{(k+1)} \geq 0,\ v^{(k+1)} \geq 0 \\
-%	& \|\nabla F_\mu(v^{(k+1)}, \beta^{(k+1)}, \gamma^{(k+1)})\| \leq 0.99\|\nabla F_\mu(v^{(k)}, \beta^{(k)}, \gamma^{(k)})\| 
-%	}
-%\end{frame}
+\begin{frame}{Regularization}
+\begin{itemize}
+	\item $R(\beta, \gamma)$ is closed, proper, convex, with easily computed \textit{prox operator}
+\end{itemize}
 
-\begin{frame}{R\&S-Mixed}
-The pseudocode of the proposed algorithm:
-{\small
-\begin{algorithm}[H]
-	$\lambda_\beta = 0$; $\lambda_\gamma = 0$ \\
-	\Repeat{$\tbeta \approx \beta, \tgamma \approx \gamma$}{
-	$\lambda_\beta \leftarrow 2(1 + \lambda_\beta)$ \\
-	$\lambda_\gamma \leftarrow 2(1 + \lambda_\gamma)$\\
-	\Repeat{converges}{
-		$\tbeta^{(k+1)} \leftarrow \proj_{\|\beta\|_0 \leq k}(\beta^{(k)})$\\ 
-		$\tgamma^{(k+1)} \leftarrow \proj_{\|\gamma\|_0 \leq s}(\gamma^{(k)})$ \\
-		$\beta^{(k+1)}, \gamma^{(k+1)} \leftarrow \argmin_{\gamma \geq 0, \beta}\LL(\beta, \gamma) + \frac{\lambda_\beta}{2}\|\beta - \tbeta^{(k)}\|^2_2 + \frac{\lambda_\gamma}{2}\|\gamma - \tgamma^{(k)}\|_2^2$
+\eq{
+	\prox_{\alpha R + \delta_{\CC}}(\tbeta, \tgamma) & := \argmin_{(\beta, \gamma) \in \CC} R(\beta, \gamma) + \frac{1}{2\alpha}\|(\beta, \gamma) - (\tbeta, \tgamma)\|_2^2, \\ & \text{ where } \CC := \R^p \times R^q_+ \\
+}
+
+Examples: 
+\begin{itemize}
+	\item $R(x) = \lambda\sum_{j=1}^p w_j\|x_j\|_1$ -- LASSO and Adaptive LASSO penalties \cite{Bondell2010,Lin2013}
+	\item $R(x) = \lambda \|x\|_0$ -- $\ell_0$ penalty \cite{Vaida2005,Jones2011}
+	\item $R(x)$ -- SCAD penalty (\cite{Fan2001,Fan2012})
+\end{itemize}
+
+TODO: add picture
+
+\end{frame}
+
+\begin{frame}{SR3-Relaxation for Mixed-Effect Models}
+Original problem $\mathcal{FS-LME}$:
+\eq{
+	\min_{\beta \in \R^p,\, \gamma \in \R^{q}_+} \LL(\beta, \gamma) + R(\beta, \gamma)
+}
+Relaxed problem $\ouralgo$:
+\eq{
+	\label{eq:msr3_formulation_explicit}
+	\min_{\beta, \tbeta \in \R^p,\, \gamma, \tgamma \in \R^{q}_+} \LL(\beta, \gamma) + \phi_\mu(\gamma) + \kappa_\eta(\beta - \tbeta, \gamma - \tgamma) + R(\beta, \gamma)
+}
+where the \textit{relaxation} $\kappa_\eta$ decouples the likelihood and the regularizer 
+\eq{
+	\kappa_\eta(\beta - \tbeta, \gamma - \tgamma) := \frac{\eta}{2}\|\beta - \tbeta\|^2_2 + \frac{\eta + \bar\eta}{2}\|\gamma - \tgamma\|_2^2
+}
+and the \textit{projection function} $\phi_\mu$ replaces $\gamma \geq 0$ with a log-barrier 
+\eq{
+	\phi_\mu(\gamma) := \begin{cases}
+		-\mu\sum_{i=1}^q \ln(\gamma_i/\mu), & \mu > 0 \\
+		\delta_{\R_+^q}(\gamma), & \mu = 0 \\
+		+\infty, & \mu < 0
+	\end{cases}
+} 
+\end{frame}
+
+\begin{frame}{Value Function Reformulation}
+$\ouralgo$-relaxation replaces the original likelihood $\LL$ with a \textit{value function} $u_{\eta,\mu}$:
+\eq{
+	\label{eq:value_function_definition}
+	u_{\eta,\mu}(\tbeta,\tgamma) & := \min_{(\beta, \gamma)} \LL_{\eta,\mu}((\beta, \gamma),(\tbeta, \tgamma)) \\  & := \min_{(\beta, \gamma)} \LL(\beta, \gamma) + \phi_\mu(\gamma) + \kappa_\eta(\beta - \tbeta, \gamma - \tgamma)
+}
+so $\ouralgo$-formulation~(\ref{eq:msr3_formulation_explicit}) becomes
+\eq{
+	\min_{(\tbeta, \tgamma) \in \CC} u_{\eta,\mu}(\tbeta, \tgamma) + R(\tbeta, \tgamma)
+}
+When $\bar\eta$ is larger than the weak-convexity constant
+\begin{itemize}
+	\item $u_{\eta,\mu}$ is well-defined and continuously differentiable.
+	\item Solutions $(\tbeta^*, \tgamma^*)$ for $\ouralgo$ converge to solutions $(\beta^*, \gamma^*)$ of $\mathcal{FS-LME}$ \\ when $\mu \rightarrow 0$ and $\eta \rightarrow \infty$.
+\end{itemize}
+
+\textbf{Key observation}: in practice, we don't need accurate solutions for~(\ref{eq:value_function_definition}): a few Newton iterations is enough.
+\end{frame}
+
+\begin{frame}{Value Function Reformulation}
+TODO: insert image here
+\end{frame}
+
+\begin{frame}{Designing an Algorithm}
+	Gradient of a Lagrangian:
+	\eq{
+		G_{\nu,\eta}((\beta,\gamma,v),(\tbeta,\tgamma)) := \begin{bmatrix}
+			\nabla_\beta \LL(\beta, \gamma) + \eta(\beta-\tbeta) \\
+			\nabla_\gamma \LL(\beta, \gamma) + (\bar\eta + \eta)(\gamma-\tgamma) - v\\
+			v \bigodot \gamma - \mu\textbf{1}
+		\end{bmatrix}
 	}
-	}
-	\BlankLine
-\end{algorithm}
-	}
+	
+\textbf{Lemma:} For every $(\mu,\eta) \in \R_+\times\R_{++}$,
+\eq{
+	(\hat\beta,\hat\gamma) = \argmin_{(\beta,\gamma)}\LL_{\eta,\mu}((\beta, \gamma),(\tbeta, \tgamma)) \\
+	\text{(equivalent to)} \\
+	\exists \hat{v} \in \R_{+}^q \text{ s.t. } G_{\nu,\eta}((\beta,\gamma,\hat{v}),(\tbeta,\tgamma)) = 0
+}
+If $\mu > 0$, then $\hat{v} = -\nabla\phi_\mu(\hat{\gamma})$, and if $\mu = 0$, then $\hat{v}$ is the unique KKT multiplier associated with the constraint $0 \leq \gamma$.
+\end{frame}
+
+\begin{frame}{$\ouralgo$ Algorithm}
+\input{../extras/08Pseudocode}
 \end{frame}
 
 \section{Experiments}
