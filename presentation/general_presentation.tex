@@ -10,22 +10,20 @@
 % PRESETS OF PACKAGES AND MATH %
 
 \usepackage{xspace}
+\usepackage{caption}
+\usepackage{subcaption}
 \newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
 \newcommand{\ouralgo}{\ensuremath{\mathcal{MSR}3}}
-\title{Feature Selection for Mixed-Effects Models}
+\title{A Relaxation Approach to Feature Selection for Mixed-Effects Models}
 \date{\today}
-\author{Aleksei Sholokhov}
+\author{Aleksei Sholokhov, James V. Burke, Peng Zheng, and Aleksandr Aravkin}
 % \titlegraphic{\hfill\includegraphics[height=1.5cm]{logo.pdf}}
 
 \begin{document}
 
 \maketitle
 
-\begin{frame}{Plan}
-	\tableofcontents
-\end{frame}
-
-\section{Feature Selection for Linear Mixed-Effect Models}
+\section{Relaxed for Linear Mixed-Effect Models}
 \subsection{Linear Mixed-Effects Models}
 \begin{frame}{Linear Mixed-Effect Models}
 
@@ -131,7 +129,31 @@ Examples:
 	\item $R(x)$ -- SCAD penalty (\cite{Fan2001,Fan2012})
 \end{itemize}
 
-TODO: add picture
+\begin{figure}
+     \centering
+     \begin{subfigure}[b]{0.25\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{Figures/l0_regularizer.pdf}
+         \caption{$\ell_0$}
+     \end{subfigure}%
+     \begin{subfigure}[b]{0.25\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{Figures/l1_regularizer.pdf}
+         \caption{$\ell_1$}
+     \end{subfigure}%
+     \begin{subfigure}[b]{0.25\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{Figures/lh_regularizer.pdf}
+         \caption{$\ell_p,\, p=1/2$}
+     \end{subfigure}%
+     \begin{subfigure}[b]{0.25\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{Figures/scad_regularizer.pdf}
+         \caption{SCAD}
+     \end{subfigure}
+     \caption{Three simple graphs}
+     \label{fig:three graphs}
+\end{figure}
 
 \end{frame}
 
@@ -143,7 +165,7 @@ Original problem $\mathcal{FS-LME}$:
 Relaxed problem $\ouralgo$:
 \eq{
 	\label{eq:msr3_formulation_explicit}
-	\min_{\beta, \tbeta \in \R^p,\, \gamma, \tgamma \in \R^{q}_+} \LL(\beta, \gamma) + \phi_\mu(\gamma) + \kappa_\eta(\beta - \tbeta, \gamma - \tgamma) + R(\beta, \gamma)
+	\min_{\beta, \tbeta \in \R^p,\, \gamma, \tgamma \in \R^{q}_+} \LL(\beta, \gamma) + \phi_\mu(\gamma) + \kappa_\eta(\beta - \tbeta, \gamma - \tgamma) + R(\tbeta, \tgamma)
 }
 where the \textit{relaxation} $\kappa_\eta$ decouples the likelihood and the regularizer 
 \eq{
@@ -175,11 +197,14 @@ When $\bar\eta$ is larger than the weak-convexity constant
 	\item Solutions $(\tbeta^*, \tgamma^*)$ for $\ouralgo$ converge to solutions $(\beta^*, \gamma^*)$ of $\mathcal{FS-LME}$ \\ when $\mu \rightarrow 0$ and $\eta \rightarrow \infty$.
 \end{itemize}
 
-\textbf{Key observation}: in practice, we don't need accurate solutions for~(\ref{eq:value_function_definition}): a few Newton iterations is enough.
+\textbf{Key observation}: in practice, we don't need accurate solutions for~(\ref{eq:value_function_definition}): a few Newton iterations keep the solution close to the central path.
 \end{frame}
 
 \begin{frame}{Value Function Reformulation}
-TODO: insert image here
+\begin{figure}
+	\includegraphics[width=0.7\textwidth]{Figures/intuition_current.pdf}
+	\caption{\label{fig:intuition_sr3} Comparison of the level-sets for the original likelihood (left) and $\ouralgo$-likelihood (right), for fixed (top) and random (bottom) effects.}
+\end{figure}
 \end{frame}
 
 \begin{frame}{Designing an Algorithm}
@@ -194,184 +219,70 @@ TODO: insert image here
 	
 \textbf{Lemma:} For every $(\mu,\eta) \in \R_+\times\R_{++}$,
 \eq{
-	(\hat\beta,\hat\gamma) = \argmin_{(\beta,\gamma)}\LL_{\eta,\mu}((\beta, \gamma),(\tbeta, \tgamma)) \\
-	\text{(equivalent to)} \\
-	\exists \hat{v} \in \R_{+}^q \text{ s.t. } G_{\nu,\eta}((\beta,\gamma,\hat{v}),(\tbeta,\tgamma)) = 0
+	&(\hat\beta,\hat\gamma) = \argmin_{(\beta,\gamma)}\LL_{\eta,\mu}((\beta, \gamma),(\tbeta, \tgamma)) \\
+	& \iff \\
+	& \exists \hat{v} \in \R_{+}^q \text{ s.t. } G_{\nu,\eta}((\beta,\gamma,\hat{v}),(\tbeta,\tgamma)) = 0
 }
 If $\mu > 0$, then $\hat{v} = -\nabla\phi_\mu(\hat{\gamma})$, and if $\mu = 0$, then $\hat{v}$ is the unique KKT multiplier associated with the constraint $0 \leq \gamma$.
 \end{frame}
 
-\begin{frame}{$\ouralgo$ Algorithm}
+\begin{frame}{$\ouralgo$-fast Algorithm}
 \input{../extras/08Pseudocode}
 \end{frame}
 
 \section{Experiments}
 \subsection{Application to Synthetic Problems}
 
-\begin{frame}{Performance in Comparison to Other Algorithms}
+\begin{frame}{Application to Synthetic Problems}
+\textbf{The Experiment} 
 \begin{itemize}
-	\item \textbf{Scenario 1}: $n=30$, $n_i=5$, $p = 9$, $q = 4$, with true parameters $\beta = (1, 1, 0, \dots, 0)$ and the covariance matrix $\Gamma$ being: 
-		\eq{
-			\Gamma = \begin{bmatrix}
-				9 & 4.8 & 0.6 & 0 \\
-				4.8 & 4 & 1 & 0 \\
-				0.6 & 1 & 1 & 0\\
-				0 & 0 & 0 & 0
-			\end{bmatrix}
-		}
-	\item \textbf{Scenario 2}: everything as in Scenario 1, but $n=60$ and $n_i=10$.
+	\item The number of fixed effects $p$ and random effects $q$ is 20.
+	\item $\beta = \gamma = \frac{1}{2}[1,2,3,\dots,10, 0\dots,0]$
+	\item 9 groups with sizes [10, 15, 4, 8, 3, 5, 18, 9, 6]
+	\item $X_i \sim \NN(0, I)^p$, $Z_i = X_i$, $\varepsilon_i \sim \NN(0, 0.3^2I)$
+	\item Each experiment is repeated 100 times.
+	\item Grid-search for $\eta \in [10^{-4}, 10^{2}]$, golden search for $\lambda \in [0, 10^5]$
+	\item Final model is chosen to maximize BIC
 \end{itemize}
-\textbf{Competitors}:
-\begin{itemize}
-	\item \textbf{ALASSO:} 2 stage: A-LASSO+Newton and A-LASSO+PCO
-	\item \textbf{M-ALASSO:} Adaptive LASSO + EM Algorithm
-	\item \textbf{SCAD-P:} SCAD + Proxy Matrix for $\Gamma$
-	\item \textbf{rPQL:} Quasi-Likelihood + Adaptive LASSO (for GLMMs)
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Performance in Comparison to Other Algorithms}
-\begin{table}[H]
-\begin{center}
-\begin{tabular}{|l|l|c|c|c|c|c|}
-\hline
-Setup & Algoritm & \% C & \% CF & \% CR & MSE & TIME \\
-\hline 
-\hline
-$n = 30$, $n_i = 5$ & \textbf{\ouralgo} & 58 & 72 & 78 & 0.66 & 0.015 \\
-& rPQL & 88 & 98 & 88 & 0.88 & 26-59 \\ 
-& M-ALASSO & 71 & 73 & 79 & - & -\\
-& ALASSO & 79 & 81 & 96 & - & - \\
-& SCAD-P & - & 90 & 86 & - & - \\
-\hline 
-$n = 60$, $n_i = 10$ & \textbf{\ouralgo} & 98 & 100  & 98 & 0.69& 0.018 \\
-& rPQL & 98 & 99 & 98 & 0.97 &  26-59 \\ 
-& M-ALASSO & 83 & 83 & 89 & - & - \\
-& ALASSO & 95 & 96 & 99 & - & -\\
-& SCAD-P & 100 & 100 & 100 & - & - \\
-\hline
-	
-\end{tabular}
-\end{center}
-\caption{\label{table:krishna_setup_results} Comparison of feature selection algorithms. \% CF -- percent of models where true fixed effects were identified correctly, \% CR -- percent of models where true random effects were identified correctly, \% C -- both fixed and random effects were identified correctly.}	
+\begin{table}
+	\input{../extras/performance_table_short_current}
 \end{table}
-	
 \end{frame}
 
-\begin{frame}{Scalability Experiment}
+\begin{frame}{Application to Synthetic Problems}
+\begin{figure}
+	\includegraphics[width=\textwidth]{Figures/performance_picture_current.pdf}
+\end{figure}
+Benefits:
 \begin{itemize}
-	\item $n = 60$, $n_i = 10$
-	\item $p = q \in [4, 7, 10, \dots, 90]$, 200 experiments for each.
-	\item $X_i = Z_i$, columns are drawn form $\NN(0, \Psi)$ where
-	\[
-		\Psi = \begin{bmatrix}
-			9 & 4.8 & 0.6 \\
-			4.8 & 4 & 1 \\
-			0.6 & 1 & 1 \\
-		\end{bmatrix}
-	\]
-	\item 50\% random coordinate in $\beta$ are active
-	\item 70\% of those are also active in $\gamma$
+	\item $\ouralgo$-relaxation has similar (and sometimes better!) feature selection performance than the original likelihood.
+	\item $\ouralgo$-fast optimization accelerates the compute time by $\sim 10^2$.
 \end{itemize}
+Setbacks:
+   \begin{itemize}
+   	\item $\eta$ is a new hyperparameter to tune.
+   \end{itemize}
 \end{frame}
 
-\begin{frame}{Scalability Experiment}
-		\begin{center}
-			\includegraphics<+>[width=0.8\textwidth]{Figures/scalability_accuracy}
-			%\includegraphics<+>[width=0.8\textwidth]{Figures/scalability_mse}
-		\end{center}
+\begin{frame}{$\ell_0$-based Covariate Selection for Bullying Study from GBD}
+	\begin{figure}
+		\includegraphics[width=\textwidth]{Figures/bullying_data_assessment_selection.pdf}
+		\caption{Fixed and random covariate selection for Bullying dataset from~\cite{GBD}. The model selected 9 covariates, 7 of which were historically significant, and did not select 4 covariates, 1 of which was historically significant.}
+	\end{figure}
 \end{frame}
 
-\subsection{Application to Real-World Problems}
-
-\begin{frame}{Contact Rate Modeling for COVID-19 Forecasting}
+\begin{frame}{Thank You!}
+	The code is available on GitHub: \\
+	\href{github.com/aksholokhov/pysr3}{https://github.com/aksholokhov/pysr3}
 	\begin{itemize}
-		\item $n = 60$ groups (countries and US states), $n_i \approx 50$
-		\item $Y_i$ -- contact rate for COVID SEIIR Model 
-		\item $p=q=5$ covariates related to temperature, mobility, population, testing; plus intercept.
+		\item All estimators are fully compatible to \texttt{sklearn} library.
+		\item Implements SR3 for linear, generalized-linear, and linear mixed-effect models.
+		\item Has tutorials, tests, and documentation.
 	\end{itemize}
-\end{frame}
-
-\begin{frame}{Contact Rate Modeling for COVID-19 Forecasting}
-	\begin{center}
-		\includegraphics<+>[width=\textwidth]{Figures/fit_Alaska}
-		\includegraphics<+>[width=\textwidth]{Figures/fit_Slovenia}
-		\includegraphics<+>[width=\textwidth]{Figures/fit_Switzerland}
-		\includegraphics<+>[width=\textwidth]{Figures/fit_Turkey}
-	\end{center}
-\end{frame}
-
-\begin{frame}{Burden of Anxiety and Depression as Result of Bullying}
-	\begin{itemize}
-		\item $m = 10$ cohort studies, $n = 77$, highly unbalanced 
-		\item $p = 13$, $q = 12$ (\texttt{time} was preselected fixed-only)
-		\item Covariates are related to studies' designs.
-	\end{itemize}
-\end{frame}
-
-\begin{frame}{Burden of Anxiety and Depression as Result of Bullying}
-	\begin{center}
-		\includegraphics[width=\textwidth]{Figures/bullying_data.csv_inclusion}
-		%\includegraphics<+>[width=\textwidth]{Figures/bullying_data.csv_fixed_feature_selection}
-		%\includegraphics<+>[width=\textwidth]{Figures/bullying_data.csv_random_feature_selection}
-
-	\end{center}
-\end{frame}
-\section{Future Work}
-\begin{frame}{Future Work: Theory}
-\begin{theorem}[Conditions for Convergence to True Estimator]
-	Under certain conditions the method converges in a finite number of iterations to $(\hat\beta, \hat\gamma)$ which projections $(\tbeta, \tgamma)$ belong to a $k$- and $j$-subspaces respectively that contain the true minimum $(\beta^*,\gamma^*)$.
-\end{theorem}
-\begin{theorem}[Consistency of Estimator]
-	There exists a local minimizer $(\hat{\beta}, \hat{\gamma})$ for the proposed loss function, such that it is asymptotically consistent with true minimum $(\beta^*, \gamma^*)$. 
-\end{theorem}
-\begin{theorem}[Consistency in Zeros]
-	If some coordinates of the true minimizer ($\beta^*, \gamma^*$) are zero, then it is also zero in $(\hat{\beta}, \hat{\gamma})$, given that the later is sufficiently close to the former.
-\end{theorem}
-\begin{theorem}[Asymptotic Normality]
-	The proposed estimator $(\hat{\beta}, \hat{\gamma})$ asymptotically normally distributed around true minimizer ($\beta^*, \gamma^*$) in its true non-zero $k+j$-subspace.
-\end{theorem}	
-\end{frame}
-
-\begin{frame}{Future work: Algorithm}
-	\textbf{Question:} Will exponential smoothing of projection improve the accuracy? 
-	{\small
-	\begin{algorithm}[H]
-	$\lambda_\beta = 0$; $\lambda_\gamma = 0$ \\
-	\Repeat{$\tbeta \approx \beta, \tgamma \approx \gamma$}{
-	$\lambda_\beta \leftarrow 2(1 + \lambda_\beta)$ \\
-	$\lambda_\gamma \leftarrow 2(1 + \lambda_\gamma)$\\
-	\Repeat{converges}{
-		$\tbeta^{(k+1)} \leftarrow {\color{red}\delta}\proj_{\|\beta\|_0 \leq k}(\beta^{(k)}) + {\color{red}(1-\delta)\tbeta^{(k)}}$\\
-		$\tgamma^{(k+1)} \leftarrow {\color{red}\delta}\proj_{\|\gamma\|_0 \leq s}(\gamma^{(k)}) + {\color{red}(1-\delta)\tgamma^{(k)}}$\\
-		$\beta^{(k+1)}, \gamma^{(k+1)} \leftarrow \argmin_{\gamma \geq 0, \beta}\LL(\beta, \gamma) + \frac{\lambda_\beta}{2}\|\beta - \tbeta^{(k)}\|^2_2 + \frac{\lambda_\gamma}{2}\|\gamma - \tgamma^{(k)}\|_2^2$
-	}
-	}
-	\BlankLine
-	\end{algorithm}
-	}
-	\end{frame}
 	
-\begin{frame}{Future Work: Implementation}
-		Can we increase $\lambda_\beta$ and $\lambda_\gamma$ in a more careful way to avoid potential stacking? 
-		The approach can be based on the theorem:
-		\begin{theorem}[Distance Between Minima]
-	For a fixed dataset $(X_i, Y_i)$ and relaxation parameters $\lambda_\beta$, $\lambda_\gamma$ the distance between $(\beta^*, \gamma^*)$, the unconstrained minimizers of relaxed problem, and their projections $(\tbeta^*, \tgamma^*)$ is bounded by a constant $M$ depending on $(X_i, Y_i)$ and the relaxation parameters.
-		\end{theorem}
-\end{frame}
-
-\begin{frame}{The End}
-	\begin{center}
-		\large Thank you for your attention!
-	\end{center}
-\end{frame}
-
-
-\begin{frame}[allowframebreaks]{References}
-
-  \bibliography{bibliography}
-  \bibliographystyle{alpha}
-
+	\textbf{References}: 
+	\bibliographystyle{plain}
+	\bibliography{bibliography.bib}
 \end{frame}
 
 \end{document}

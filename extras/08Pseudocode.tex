@@ -10,14 +10,14 @@ $\beta^+, \tbeta^+\leftarrow\beta_0$;
     $\beta \leftarrow \beta^+$; \quad $\gamma \leftarrow \gamma^+$; \quad $\tbeta \leftarrow \tbeta^+$; \quad $\tgamma \leftarrow \tgamma^+$ \\
 %    $A \leftarrow \nbla G_\mu((\beta, \gamma, v), (\tbeta, \tgamma))$\\
   %  $b \leftarrow G_\mu((\beta, \gamma, v), (\tbeta, \tgamma))$\\
-    $[dv, d\beta, d\gamma] \leftarrow  \nabla G_\mu((\beta, \gamma, v), (\tbeta, \tgamma))^{-1}  G_\mu((\beta, \gamma, v), (\tbeta, \tgamma))$ \tcp*[f]{Newton Iteration}\\ 
+    $[dv, d\beta, d\gamma] \leftarrow  \nabla G_\mu((\beta, \gamma, v), (\tbeta, \tgamma))^{-1}  G_\mu((\beta, \gamma, v), (\tbeta, \tgamma))$
     $\alpha \leftarrow 0.99\times\min\left(1, -\frac{\gamma_i}{d\gamma_i}, \forall i :\ d\gamma_i < 0\right)$\\
     $\beta^+ \leftarrow \beta + \alpha d\beta$; \quad $\gamma^+ = \gamma + \alpha d\gamma$; \quad  $v^+ \leftarrow v + \alpha dv$\\
     \lIf{$\|\gamma^+\odot v^+ - q^{-1}{\gamma^+}^Tv^+ \mathbf{1}\| > 0.5q^{-1}{v^+}^T\gamma^+$}{continue}
     \Else{ 
         $\tbeta^+ = \prox_{\alpha R}(\beta^+)$;
         \    $\tgamma^+ = \prox_{\alpha R + \delta_{\R_+}}(\gamma^+)$; 
-        \    $\mu = \frac{1}{10}\frac{{v^+}^T\gamma^+}{q}$ \tcp*[f]{Near central path} 
+        \    $\mu = \frac{1}{10}\frac{{v^+}^T\gamma^+}{q}$
     }
 %	\tcp*[h]{Keep iterating until convergence} \\
     \texttt{progress} = ($\|\beta^+ - \beta\| \geq \text{tol}$ or $\|\gamma^+ - \gamma\|  \geq \text{tol}$ or $\|\tbeta^+ - \tbeta\| \geq \text{tol}$ or $\|\tgamma^+ - \tgamma\| \geq \text{tol}$)\\
