@@ -1,0 +1,18 @@
+\frametitle{Likelihood for Mixed Models}
+Suppose we have a linear mixed effects model
+
+\eq{
+	\label{eq:lmm_setup}
+	Y_i & = X_i\beta + Z_iu_i + \varepsilon_i \\
+	u_i & \sim \NN(0, \Gamma), \ \Gamma = \diag{\gamma} \\
+	\varepsilon_i & \sim \NN(0, \Lambda_i)\\
+}
+where $\beta$, $\gamma$, and $u_i$ are unknown model parameters, and $\lambda_i$ are known.
+
+
+	Noticing that $Z_iu_i + \varepsilon_i \sim \NN(0, Z_i\Gamma Z_i^T + \Lambda_i)$ we get the negative log-likelihood:
+	 \eq{
+	\label{eq:lmm_objective}
+	\mathcal{L}(\beta, \gamma) & = \sum_{i = 1}^m \half(y_i - X_i\beta)^T(Z_i\Gamma Z_i^T + \Lambda_i)^{-1}(y_i - X_i\beta) + \\ & + \half\log{\det{\pa{Z_i \Gamma Z_i^T + \Lambda_i}}}
+	}
+

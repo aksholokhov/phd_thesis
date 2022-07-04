@@ -1,0 +1,86 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2576
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fswiss\fcharset0 Helvetica-Bold;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww13680\viewh17580\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 1) Title\
+\
+Good Morning, \
+My name is Aleksei Sholokhov. I am a third-year PhD from AMATH. Today I am going to talk to you about my work on feature selection methods for mixed models. \
+\
+2) Table of Content\
+\
+I\'92ll start with giving some background on Mixed Models and feature selection for them. Then I\'92ll introduce the approach I am working on currently and outline the logic behind it. Then we\'92ll study the performance of our algorithm on synthetic and real-world examples, to identify the strong sides of the algorithm and the settings where its performance falls short. I\'92ll conclude the presentation on future work: what needs to be done and what impact we expect to get at the end. \
+\
+3) Linear Mixed-Effects Models \
+\
+Mixed-effects models are the type of models for clustered data. Suppose we have a linear regression problem on some 
+\f1\b clustered
+\f0\b0  data. 
+\f1\b By clustered I mean that we have m groups
+\f0\b0  in our dataset and each point belongs to one, and groups are not necessarily equal in their size. We can start with fitting a 
+\f1\b least squares model
+\f0\b0 , however, this model does not use the information about clusters. We can try fitting 
+\f1\b all linear regression individually
+\f0\b0 , but for groups with small amount of data we\'92ll won\'92t get a statistically reliable models. \
+\
+Mixed-effect models can be seen as 
+\f1\b an approach in between these two
+\f0\b0 , where each cluster has its own regression, but all these regressions are bounded with a common prior and so not independent. In particular, let\'92s allow the coefficients to have adjustments u_i, which are normally distributed with mean zero and covariance matrix Gamma. This is a simplest example of a linear mixed-effect model. \
+\
+4) Notation. \
+\
+Let me introduce the terminology\'85.\
+\
+5) Likelihood for Mixed Models\
+\
+Suppose we have a linear mixed model as we discussed above. In order to get estimators for unknown parameters it\'92s common to use 
+\f1\b maximal likelihood approach
+\f0\b0 . In particular, we can write down the likelihood of this statistical model by noticing that 
+\f1\b it can be seen as a linear model where the observation noise is correlated
+\f0\b0  within groups. This immediately gives us the formulation of a negative log-likelihood for this model. 
+\f1\b This is an important formulation and I am going to use this
+\f0\b0  as a building block in the following slides. \
+\
+What we can notice immediately is that the model is 
+\f1\b quadratic
+\f0\b0  with respect to beta 
+\f1\b but non-convex
+\f0\b0  with respect to gamma. \
+\
+6) Now we move to the topic of feature selection in this kinds of models. People share a common understanding of feature selection as a process of obtaining the model which combines good generalizability with using as little covariates as possible. Equally saying, selects only significant covariates. There is no, however, a common formally defined feature selection setup, as it depends on the notions of quality and significance, which are domain-specific or problem specific. \
+\
+For the purposes of this work we formulate feature selection as follows\'85.\
+\
+Where k and j are the size of support, equally, the maximal number of covariates allowed to be used in the model. We assume they\'92re known for this second. \
+This is an NP-hard problem: it can be viewed as a variation of a Knapsack problem. \
+\
+7) Methods for feature selection\
+\
+Many currently existing feature selection approaches can be viewed as different types or relaxation for this intractable setup. \
+\
+First, if k and j are small we still can do define a way of comparing two given models and do exhaustive search to find the best one. This line of reasoning gives us subset selection methods, and AIC and BIC based methods. \
+\
+Another way to address this setup is to relax zero norm with some higher order norm. A popular choice is a first norm which gives us shrinkage penalty methods, such as LASSO. \
+\
+There are works on many other sparsity induced penalties such as SCAD, or Lp norms with p from 0 to 1. \
+\
+The approach we propose can also be seen as a relaxation of this setup. In particular, instead of relaxing zero-norm constraint we introduce sparse counterparts of the original variables beta and gamma hat. The original variables now unconstrained, which separates the difficulty of optimization from the difficulty of constraints. Let\'92s discuss it in more details. \
+\
+8) Relax and Split for feature selection\
+\
+In particular, let\'92s discuss this loss function from the optimization point of view. We use alternating partial minimization procedure. \
+1. Partial minimization wrt beta-hat and gamma-hat\
+\
+2. Partial minimization wrt. Beta and gamma \
+\
+We\'92re working with this formulation because it has several 
+\f1\b advantages. 
+\f0\b0 Namely, \
+1. The absence of zero-norm constraint allows us to use efficient second order methods,\
+2. It preserves \
+\
+There are three aspects to discuss here: \
+}

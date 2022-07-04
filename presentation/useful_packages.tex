@@ -1,0 +1,104 @@
+
+%%%%%%%%%%%%
+% PACKAGES %
+%%%%%%%%%%%%
+
+% kek 
+\usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+\usepackage[utf8]{inputenc} % For Spanish characters
+\usepackage[english]{babel} % USEnglish localization
+% =========== General Formatting =============
+\usepackage{microtype} % Slightly tweak font spacing for aesthetics
+\usepackage{fancyhdr} % Allows for nice header and footer
+\usepackage{appendix} % Enables appendices
+\usepackage{enumerate} % Custom numerate, useful for i,ii,iii... I,II,III...
+% \usepackage{hyperref} % For hyperlinks in the PDF
+\usepackage{extramarks} % 
+\usepackage{fontawesome} % For web icons
+
+% =============== Math ===============
+\usepackage{amsmath} % Standard math packages
+\usepackage{amsthm} % Math Theorems
+\usepackage{amssymb} % Math Symbols
+\usepackage{amsfonts} % Math Fonts
+\usepackage{mathtools} % Extra math tools such as PairedDelimiter
+\usepackage{upgreek} % Nice sigma => \upsigma
+\usepackage{array} % Enables array features
+\usepackage{siunitx} % For SI Unit easy formatting
+\usepackage{dsfont} % For math. indicators
+
+% =============== Figures ===============
+\usepackage{float} % Float features
+\usepackage{wrapfig} % Al­lows fig­ures or ta­bles to have text wrapped around them
+\usepackage{tikz} % Diagram and figure creation and rendering
+% =============== Tables ===============
+\usepackage{booktabs} % Horizontal rules in tables
+\usepackage{float} % Required for tables and figures in the multi
+\usepackage{multirow} % Combined rows in tables
+\usepackage{multicol} % Combined columns in tables
+\usepackage{colortbl} % Color cells
+%\usepackage{longtable} % Tables than span multipages
+
+% =============== Bibliography ==========
+\usepackage{natbib} % Lots of useful versions of \cite
+
+% % =============== Listings ============
+\usepackage{listings} % Main package for inserting code
+\usepackage[scaled]{beramono} % For using the beramono font
+% % =============== Algorithms ===============
+\usepackage[linesnumbered,lined,boxed,commentsnumbered]{algorithm2e} % Allows for algorithm description
+\usepackage[noend]{algpseudocode}
+% =============== Other ===============
+\usepackage{datetime} % Date-Time formatting
+\usepackage{ulem} % For strikethrough text \st{}
+\usepackage[colorinlistoftodos]{todonotes} % useful for leaving todonotes
+\usepackage{textcomp} %Text Com­pan­ion fonts
+
+\usepackage{pdfpages} % Insert pdfs
+\usepackage{lipsum} % Used for inserting dummy 'Lorem ipsum' text into the template
+% \usepackage[space]{grffile} % insert files with spaces
+\usepackage{pdflscape} % Individual horizontal pages
+\usepackage[many]{tcolorbox} % Color boxes for comment
+%\usepackage{xargs} % Expanded arguments features
+%\usepackage{fix-cm} % Computer-Modern at arbitrarysizes
+%\usepackage{eurosym} % Eurosymbol
+
+%%%%%%%%%%%%%%%%%
+% TODO COMMANDS %
+%%%%%%%%%%%%%%%%%
+\usepackage[colorinlistoftodos]{todonotes} % useful for leaving todonotes
+\newcommand{\hightodo}[1]{\todo[inline,backgroundcolor=red!90!yellow!80!white]{\textbf{\userId}: #1}}
+\newcommand{\lowtodo}[1]{\todo[inline,backgroundcolor=blue!30!white]{\textbf{\userId}: #1}}
+\newcommand{\ask}[2]{\todo[inline,backgroundcolor=Orchid!40!white]{
+	\textbf{Ask #1} #2}}
+\newcommand{\critical}[1]{\todo[inline, backgroundcolor=BrickRed!50!white]{\textbf{Critical:} #1}}
+\newcommand{\search}[1]{\todo[inline, backgroundcolor=blue!30!white]{\textbf{Search:} #1}}
+\newcommand{\edit}[1]{\todo[inline, backgroundcolor=CornflowerBlue!30!white]{\textbf{Edit:} #1}}
+\newcommand{\verify}[1]{\todo[inline, backgroundcolor=Apricot!50!white]{\textbf{Verify:} #1}}
+\newcommand{\experiment}[1]{\todo[inline, backgroundcolor=Green!50!white]{\textbf{Verify:} #1}}
+\newcommand{\delegate}[2]{\todo[inline, background=Lavender]{\textbf{For #1:} #2}}
+
+% Tips
+\newtcolorbox{tip}{colframe=white, colback=gray!10!white}
+
+% Mettings
+\newcounter{meetingscounter}
+\setcounter{meetingscounter}{1}
+\newtcolorbox{meeting}[4]{colframe=white, colback=white, colbacktitle=gray!10!white, 
+	coltitle=black, fonttitle=\bfseries, breakable,
+	subtitle style={boxrule=0.4pt, colback=white},
+	title={
+		\begin{tabular}{p{2.5cm}p{2.5cm}p{2.5cm}p{2.5cm}l}
+		\underline{Meeting \arabic{meetingscounter}}  &  \stepcounter{meetingscounter} \faCalendar\ #2 &  \faClockO\ #3 & \faMapMarker\ #4 & \faUsers\ #1
+		\end{tabular}
+		}
+	}
+
+% Thick strike out
+\newcommand{\cancelled}[1]{%
+    \renewcommand{\ULthickness}{3pt}%
+       \sout{#1}%
+    \renewcommand{\ULthickness}{.4pt}% Resetting to ulem default
+}
+
+\newcommand{\done}[1]{\sout{#1}}

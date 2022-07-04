@@ -1,0 +1,9 @@
+\babel@toc {english}{}
+\beamer@sectionintoc {1}{Introduction}{3}{0}{1}
+\beamer@subsectionintoc {1}{1}{Linear Mixed-Effects Models}{3}{0}{1}
+\beamer@subsectionintoc {1}{2}{Feature Selection for Mixed Models}{15}{0}{1}
+\beamer@sectionintoc {2}{Proposed Algorithm}{20}{0}{2}
+\beamer@sectionintoc {3}{Experiments}{26}{0}{3}
+\beamer@subsectionintoc {3}{1}{Application to Synthetic Problems}{26}{0}{3}
+\beamer@subsectionintoc {3}{2}{Application to Real-World Problems}{30}{0}{3}
+\beamer@sectionintoc {4}{Future Work}{37}{0}{4}
