@@ -1,0 +1,28 @@
+\label{appendix:pseudocode}
+\begin{algorithm}[H]
+\SetAlgoLined
+$\beta^+, \tbeta^+\leftarrow\beta_0$; \quad $\gamma^+, \tgamma^+\leftarrow\gamma_0$; \quad \texttt{outer\_iter = 0} \\
+\While{\texttt{outer\_iter} $<$ \texttt{max\_iter}  \ and \ ($\|\tbeta^+ - \tbeta\| \geq \text{tol}$ or $\|\tgamma^+ - \tgamma\| \geq \text{tol}$) \\}{
+$v^+ \leftarrow 1 \in \R^q$; \quad $\mu \leftarrow \frac{{v^+}^T\gamma^+}{10 q}$; \quad \texttt{inner\_iter = 0}\\
+ \While{\texttt{inner\_iter} $<$ \texttt{max\_iter}  \ and \ $\|G_\emu(\beta^+, \gamma^+, v^+)\|$ $>$ \texttt{tol}   \ and  \ ($\|\beta^+ - \beta\| \geq \text{tol}$ or $\|\gamma^+ - \gamma\|  \geq \text{tol}$)\\}{
+    $\beta \leftarrow \beta^+$; \quad $\gamma \leftarrow \gamma^+$; \quad $\tbeta \leftarrow \tbeta^+$; \quad $\tgamma \leftarrow \tgamma^+$ \\
+%    $A \leftarrow \nabla G_\emu((\beta, \gamma, v), (\tbeta, \tgamma))$\\
+  %  $b \leftarrow G_\emu((\beta, \gamma, v), (\tbeta, \tgamma))$\\
+    $[dv, d\beta, d\gamma] \leftarrow  \nabla G_\emu((\beta, \gamma, v), (\tbeta, \tgamma))^{-1}  G_\emu((\beta, \gamma, v), (\tbeta, \tgamma))$ \tcp*[f]{Newton Iteration}\\ 
+    $\alpha \leftarrow 0.99\times\min\left(1, -\frac{\gamma_i}{d\gamma_i}, \forall i :\ d\gamma_i < 0\right)$\\
+    $\beta^+ \leftarrow \beta + \alpha d\beta$; \quad $\gamma^+ = \gamma + \alpha d\gamma$; \quad  $v^+ \leftarrow v + \alpha dv$\\
+    \If{$\|\gamma^+\odot v^+ - q^{-1}{\gamma^+}^Tv^+ \mathbf{1}\| > 0.5q^{-1}{v^+}^T\gamma^+$}{
+  %  	\tcp*[h]{Not in the neighborhood of the central path yet}\\
+    	continue \tcp*[f]{Keep doing Newton iterations}\\
+    }
+    \Else{ 
+        $\mu \leftarrow \frac{{v^+}^T\gamma^+}{10 q}$ \tcp*[f]{Near central path}\\
+    }
+    \texttt{inner\_iter += 1}
+%	\tcp*[h]{Keep iterating until convergence} \\
+ }
+ $\tbeta^+ = \prox_{\alpha R}(\beta^+)$; \quad $\tgamma^+ = \prox_{\alpha R + \delta_{\R_+}}(\gamma^+)$; \quad \texttt{outer\_iter += 1}
+ }
+ \Return{$\tbeta^+$, $\tgamma^+$}
+ \caption{\label{alg:pgd_for_value_function}MSR3 (Proximal Gradient Descent for the Value function)}
+\end{algorithm}

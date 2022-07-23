@@ -14,28 +14,34 @@
 \usepackage{subcaption}
 \newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
 \newcommand{\ouralgo}{\ensuremath{\mathcal{MSR}3}}
-\title{A Relaxation Approach to Feature Selection for Mixed-Effects Models}
+\title{A Relaxation Approach to Feature Selection \newline for Linear Mixed-Effects Models}
 \date{\today}
-\author{Aleksei Sholokhov, James V. Burke, Peng Zheng, and Aleksandr Aravkin}
-% \titlegraphic{\hfill\includegraphics[height=1.5cm]{logo.pdf}}
+\author{Aleksei Sholokhov, James V. Burke, Peng Zheng, Damian Santomauro, and Aleksandr Aravkin}
+\titlegraphic{\includegraphics[width=0.5\textwidth]{Figures/UW_amath.pdf}\hspace{3em}\includegraphics[height=1cm]{Figures/IHME_Logo.jpg}}
 
 \begin{document}
 
 \maketitle
 
 \section{Relaxed for Linear Mixed-Effect Models}
-\subsection{Linear Mixed-Effects Models}
-\begin{frame}{Linear Mixed-Effect Models}
+\subsection{Mixed-Effects Models}
+\begin{frame}{Mixed-Effect Models}
 
-Linear Mixed-Effect (LME) models are often used for analyzing combined data across a range of groups. \newline
+\begin{itemize}
+	\item Used for analyzing \textbf{combined data} across a range of \textbf{groups}.
+	\item Use covariates to separate the \textbf{population variability} from the \textbf{group variability}.
+	\item \textbf{Borrow strength} across groups to estimate key statistics. % when data within units are sparse or highly variable.
+	\item Often seek \textbf{sparse models} that only use \textbf{most informative} covariates. 
+\end{itemize}
 
-They use use covariates to separate the population variability (fixed-effects) from the group variability (random effects). \newline
-
-LMEs borrow strength across groups to estimate key statistics in cases when data within units are sparse or highly variable. \newline
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\textwidth]{Figures/ihme_predictions.png}\footnote{Picture is taken from \href{covid19.healthdata.org}{covid19.healthdata.org} }
+\end{figure}
 
 \end{frame}
 
-\begin{frame}{Linear Mixed-Effect Models}
+\begin{frame}{Linear Mixed-Effect (LME) Models}
 
 	Dataset: $m$ groups $(X_i, Z_i, y_i),\quad i = 1, \dots m$, each has $n_i$ observations
 	\begin{itemize}
@@ -64,7 +70,7 @@ LMEs borrow strength across groups to estimate key statistics in cases when data
    	   		\[
    		\begin{split}
    			y_i & = X_i\beta + {\color{red}Z_i u_i} + \varepsilon_i, \quad \varepsilon_i \sim \NN(0, \Lambda_i) \\
-   			{\color{red} u_i} & {\color{red}\sim \NN(0, \Gamma4)}
+   			{\color{red} u_i} & {\color{red}\sim \NN(0, \Gamma)}
    		\end{split}
    		\]
 
@@ -115,7 +121,7 @@ To select covariates we add a sparsity-promoting regularizer $R(\beta, \gamma)$
 
 \begin{frame}{Regularization}
 \begin{itemize}
-	\item $R(\beta, \gamma)$ is closed, proper, convex, with easily computed \textit{prox operator}
+	\item $R(\beta, \gamma)$ is closed, proper, with easily computed \textit{prox operator}
 \end{itemize}
 
 \eq{
@@ -151,13 +157,13 @@ Examples:
          \includegraphics[width=\textwidth]{Figures/scad_regularizer.pdf}
          \caption{SCAD}
      \end{subfigure}
-     \caption{Three simple graphs}
+     \caption{Four commonly-used regularizers which promote sparsity}
      \label{fig:three graphs}
 \end{figure}
 
 \end{frame}
 
-\begin{frame}{SR3-Relaxation for Mixed-Effect Models}
+\begin{frame}{SR3-Relaxation for Mixed-Effect Models ($\ouralgo$)}
 Original problem $\mathcal{FS-LME}$:
 \eq{
 	\min_{\beta \in \R^p,\, \gamma \in \R^{q}_+} \LL(\beta, \gamma) + R(\beta, \gamma)
@@ -169,9 +175,9 @@ Relaxed problem $\ouralgo$:
 }
 where the \textit{relaxation} $\kappa_\eta$ decouples the likelihood and the regularizer 
 \eq{
-	\kappa_\eta(\beta - \tbeta, \gamma - \tgamma) := \frac{\eta}{2}\|\beta - \tbeta\|^2_2 + \frac{\eta + \bar\eta}{2}\|\gamma - \tgamma\|_2^2
+	\kappa_\eta(\beta - \tbeta, \gamma - \tgamma) := \frac{\eta}{2}\|\beta - \tbeta\|^2_2 + \frac{\eta}{2}\|\gamma - \tgamma\|_2^2, \quad \eta > \bar\eta
 }
-and the \textit{projection function} $\phi_\mu$ replaces $\gamma \geq 0$ with a log-barrier 
+and the \textit{perspective mapping} $\phi_\mu$ replaces $\gamma \geq 0$ with a log-barrier 
 \eq{
 	\phi_\mu(\gamma) := \begin{cases}
 		-\mu\sum_{i=1}^q \ln(\gamma_i/\mu), & \mu > 0 \\
@@ -191,13 +197,20 @@ so $\ouralgo$-formulation~(\ref{eq:msr3_formulation_explicit}) becomes
 \eq{
 	\min_{(\tbeta, \tgamma) \in \CC} u_{\eta,\mu}(\tbeta, \tgamma) + R(\tbeta, \tgamma)
 }
-When $\bar\eta$ is larger than the weak-convexity constant
+When $\eta$ is larger than the weak-convexity constant
 \begin{itemize}
 	\item $u_{\eta,\mu}$ is well-defined and continuously differentiable.
-	\item Solutions $(\tbeta^*, \tgamma^*)$ for $\ouralgo$ converge to solutions $(\beta^*, \gamma^*)$ of $\mathcal{FS-LME}$ \\ when $\mu \rightarrow 0$ and $\eta \rightarrow \infty$.
+	\item As $\mu \rightarrow 0$ and $\eta \rightarrow \infty$, cluster points of solutions to $\ouralgo$ are first-order stationary points for $\mathcal{FS-LME}$ \\ 
 \end{itemize}
 
 \textbf{Key observation}: in practice, we don't need accurate solutions for~(\ref{eq:value_function_definition}): a few Newton iterations keep the solution close to the central path.
+\end{frame}
+
+\begin{frame}{Value Function Reformulation}
+\begin{figure}
+	\includegraphics[width=\textwidth]{Figures/intuition_prev_paper}
+	\caption{\label{fig:intuition_prev} Picture from \cite{Zheng2018RelaxAndSplit}: for a linear problem, value function relaxation ``squashes'' level-sets simplifying the optimization landscape.}
+\end{figure}
 \end{frame}
 
 \begin{frame}{Value Function Reformulation}
@@ -208,15 +221,15 @@ When $\bar\eta$ is larger than the weak-convexity constant
 \end{frame}
 
 \begin{frame}{Designing an Algorithm}
-	Gradient of a Lagrangian:
+	$G_{\nu,\eta}$ encodes both gradient of a Lagrangian (lines 1-2) and the complementarity condition (line 3):
 	\eq{
 		G_{\nu,\eta}((\beta,\gamma,v),(\tbeta,\tgamma)) := \begin{bmatrix}
 			\nabla_\beta \LL(\beta, \gamma) + \eta(\beta-\tbeta) \\
-			\nabla_\gamma \LL(\beta, \gamma) + (\bar\eta + \eta)(\gamma-\tgamma) - v\\
+			\nabla_\gamma \LL(\beta, \gamma) + \eta(\gamma-\tgamma) - v\\
 			v \bigodot \gamma - \mu\textbf{1}
 		\end{bmatrix}
 	}
-	
+	We apply Newton method to $G$ while geometrically decreasing $\mu$. \\
 \textbf{Lemma:} For every $(\mu,\eta) \in \R_+\times\R_{++}$,
 \eq{
 	&(\hat\beta,\hat\gamma) = \argmin_{(\beta,\gamma)}\LL_{\eta,\mu}((\beta, \gamma),(\tbeta, \tgamma)) \\
@@ -255,13 +268,19 @@ If $\mu > 0$, then $\hat{v} = -\nabla\phi_\mu(\hat{\gamma})$, and if $\mu = 0$, 
 \end{figure}
 Benefits:
 \begin{itemize}
-	\item $\ouralgo$-relaxation has similar (and sometimes better!) feature selection performance than the original likelihood.
+	\item $\ouralgo$-relaxation improves feature selection performance than the original likelihood.
 	\item $\ouralgo$-fast optimization accelerates the compute time by $\sim 10^2$.
 \end{itemize}
-Setbacks:
+Challenge:
    \begin{itemize}
-   	\item $\eta$ is a new hyperparameter to tune.
+   	\item Initialization of $\eta$ is problem-specific
    \end{itemize}
+\end{frame}
+
+\begin{frame}{Choice of $\eta$}
+	\begin{figure}
+		\includegraphics[width=\textwidth]{Figures/eta_L1.pdf}
+	\end{figure}
 \end{frame}
 
 \begin{frame}{$\ell_0$-based Covariate Selection for Bullying Study from GBD}
@@ -272,14 +291,14 @@ Setbacks:
 \end{frame}
 
 \begin{frame}{Thank You!}
-	The code is available on GitHub: \\
-	\href{github.com/aksholokhov/pysr3}{https://github.com/aksholokhov/pysr3}
+	The code is available on GitHub: \href{github.com/aksholokhov/pysr3}{https://github.com/aksholokhov/pysr3}
 	\begin{itemize}
 		\item All estimators are fully compatible to \texttt{sklearn} library.
 		\item Implements SR3 for linear, generalized-linear, and linear mixed-effect models.
 		\item Has tutorials, tests, and documentation.
 	\end{itemize}
-	
+\end{frame}
+\begin{frame}{References}
 	\textbf{References}: 
 	\bibliographystyle{plain}
 	\bibliography{bibliography.bib}
