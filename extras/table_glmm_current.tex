@@ -1,0 +1,11 @@
+\begin{tabular}{lrrrr}
+\toprule
+Algorithm &        MSR3-Fast ($\ell_1$)&         \texttt{glmmLasso}\footnote{\href{https://rdrr.io/cran/glmmLasso/man/glmmLasso.html}{https://rdrr.io/cran/glmmLasso/man/glmmLasso.html}} \cite{groll2014variable}  &            \texttt{lmmLasso}\footnote{\href{https://rdrr.io/cran/lmmlasso/}{https://rdrr.io/cran/lmmlasso/}}\cite{schelldorfer2011estimation} & PGD ($\ell_1$) \\
+\midrule
+Accuracy, \% &     {\bf 88} &        48 &          66 & 73  \\
+FE Accuracy, \% &      {\bf 86} &        52  &          47 & 56\\
+RE Accuracy, \% &     {\bf 91} &        45  &         84 & {\bf 91} \\
+Time, sec        & {\bf 0.19} &  1.37  &  11.51 & 38.39 \\
+Iterations, num  &      34 &        50 &             - & 7693 \\
+\bottomrule
+\end{tabular}

@@ -1,0 +1,80 @@
+For conciseness, let us define the mismatch $\xi_i = Y_i - X_i\beta$. We also omit the dependence on $\beta$, as it's fixed at this point. The loss function \ref{eq:lmm_objective} takes the form 
+\eq{
+	\label{eq:lmm_simplified_gamma}
+	\LL\pa{\gamma} = \sum_{i = 1}^m\half\xi_i^T\pa{\Omega_i(\gamma)}^{-1}\xi_i + \half\log\det\pa{\Omega_i(\gamma)}.
+}
+
+The derivative of the objective w.r.t $\gamma_j$, the $j$'th diagonal element of the matrix $\Gamma$ is
+
+\eq{
+	\pderiv{\xi_i^T\Omega_i^{-1}\xi_i}{\Gamma_{jj}} & = \trace \left[\left(\pderiv{\xi_i^T\Omega_i^{-1}\xi_i}{\Omega_i}\right)\pderiv{\Omega}{\Gamma_{jj}}\right] = \trace\left[\left(-\Omega_i^{-T}\xi_i\xi_i^T\Omega_i^{-T}\right)^T Z_i\pderiv{\Gamma}{\Gamma_{jj}}Z_i^T\right] =  
+}
+
+where $\pderiv{\Gamma}{\Gamma_{jj}}$ is a structure matrix, which, in a general case, is equal to a single-entry matrix $J^{jj}$ with $jj$'th element is equal to 1 and zeroes elsewhere. Substituting this back we get
+\eq{
+	= \trace\left[\left(-\Omega_i^{-T}\xi_i\xi_i^T\Omega_i^{-T}\right)^T Z^j_i{Z^j_i}^T\right] = 
+} 
+where $Z^j_i$ is a $j$'th column of the matrix $Z_i$. Making a circular swap we end up with
+
+\eq{
+	= \trace\left[-{Z^j_i}^T\Omega_i^{-T}\xi_i\xi_i^T\Omega_i^{-T} Z^j_i\right] = - ({Z_i^j}^T\Omega_i^{-T}\xi_i)^2
+} 
+
+Similarly,
+
+\eq{
+	\pderiv{\log\det\Omega_i}{\Gamma_{jj}} = \trace\left[\left(\pderiv{\log\det\Omega_i}{\Omega_i}\right)\pderiv{\Omega_i}{\Gamma_{jj}}\right] = \trace\left[\Omega_i^{-1}Z_i^j{Z_i^j}^T\right] = {Z_i^j}^T\Omega_i^{-1}Z_i^j
+}
+
+Taking into account that $\Omega_i$ is symmetric, we have 
+
+\eq{
+	\left[\nabla_\gamma \LL\pa{\beta, \gamma}\right]_j = \sum_{i = 1}^m  - ({Z_i^j}^T\Omega_i^{-T}\xi_i)^2 + {Z_i^j}^T\Omega_i^{-1}Z_i^j = 
+}
+
+or, in vector form
+
+\eq{
+    = \sum_{i = 1}^m  \diag{{Z_i}^T\Omega_i^{-1}Z_i} - ({Z_i}^T\Omega_i^{-T}\xi_i)^{\circ 2} =
+}
+
+where $\circ$ denotes the Hadamard (element-wise) product. Using the Cholesky decomposition $\Omega_i = L_iL_i^T$ we can calculate it more effectively, using only one triangular matrix inversion:
+
+\eq{
+    = \sum_{i = 1}^m \left[ \sum_{\text{rows}}\left(L_i^{-1}Z_i\right)^{\circ 2} -  [(L_i^{-1}Z_i)^{T}(L_i^{-1}\xi_i)]^{\circ 2}\right]
+}
+
+Notice, that the loss function (\ref{eq:lmm_objective}) and the optimal $\beta$ solution (\ref{eq:beta_formula}) can also be effectively computed using Cholesky:
+
+\eq{
+	\LL\pa{\gamma} = \sum_{i = 1}^m \half\xi_i^T\pa{\Omega_i(\gamma)}^{-1}\xi_i + \half\log\det\pa{\Omega_i(\gamma)} = \sum_{i = 1}^m \half\ \|L_i^{-1}\xi_i\|^2 - \sum_{j = 1}^k \log{[L^{-1}_i]}_{jj}
+}
+
+\eq{
+	\beta_{k+1} & = \argmin_{\beta}\LL(\beta, \gamma_{k}) = \left(\sum_{i = 1}^m X_i^T\Omega_i^{-1}X_i\right)^{-1}\sum_{i = 1}^mX_i^T\Omega_i^{-1}y_i = \\
+	& = \left(\sum_{i = 1}^m (L_i^{-1}X_i)^TL_i^{-1}X_i\right)^{-1}\sum_{i = 1}^m (L_i^{-1}X_i)^TL_i^{-1}y_i 
+}
+
+
+
+
+The Hessian w.r.t. $\gamma$ also can be found:
+
+\eq{
+	\frac{\partial^2 \LL\pa{\beta, \gamma}}{\partial \gamma_j^2} & = \sum_{i=1}^m -2({Z_i^j}^T\Omega_i^{-T}\xi_i)\trace\left[\frac{\partial{Z_i^j}^T\Omega_i^{-T}\xi_i}{\partial \Omega_i}\frac{\partial \Omega_i}{\partial \Gamma_{jj}} \right] + \trace\left[\frac{\partial{Z_i^j}^T\Omega_i^{-1}Z_i^j}{\partial \Omega_i}\frac{\partial \Omega_i}{\partial \Gamma_{jj}} \right] = \\
+	& = \sum_{i=1}^m 2({Z_i^j}^T\Omega_i^{-T}\xi_i)\trace\left[\Omega_i^{-1}Z_i^j{\xi_i}^T\Omega_i^{-1}Z_i^j{Z_i^j}^T \right] - ({Z_i^j}^T\Omega_i^{-T}Z_i^j)^2 = \\
+	& = \sum_{i=1}^m 2({Z_i^j}^T\Omega_i^{-T}\xi_i)({Z_i^j}^T\Omega_i^{-1}Z_i^j)({\xi_i}^T\Omega_i^{-1}Z_i^j) - ({Z_i^j}^T\Omega_i^{-T}Z_i^j)^2
+}
+
+\eq{
+	\frac{\partial^2 \LL\pa{\beta, \gamma}}{\partial \gamma_j\partial \gamma_k} & = \sum_{i=1}^m -2({Z_i^j}^T\Omega_i^{-T}\xi_i)\trace\left[\frac{\partial{Z_i^j}^T\Omega_i^{-T}\xi_i}{\partial \Omega_i}\frac{\partial \Omega_i}{\partial \Gamma_{kk}} \right] + \trace\left[\frac{\partial{Z_i^j}^T\Omega_i^{-1}Z_i^j}{\partial \Omega_i}\frac{\partial \Omega_i}{\partial \Gamma_{kk}} \right] = \\
+	& = \sum_{i=1}^m 2({Z_i^j}^T\Omega_i^{-T}\xi_i)\trace\left[\Omega_i^{-1}Z_i^j{\xi_i}^T\Omega_i^{-1}Z_i^k{Z_i^k}^T \right] - ({Z_i^j}^T\Omega_i^{-T}Z_i^k)^2 = \\
+	& = \sum_{i=1}^m 2(\xi_i^T\Omega_i^{-T}{Z_i^j})({Z_i^j}^T\Omega_i^{-1}Z_i^k)({Z_i^k}^T\Omega_i^{-1}{\xi_i}) - ({Z_i^j}^T\Omega_i^{-T}Z_i^k)^2
+}
+
+\eq{
+	\label{eq:lmm_hessian_gamma}
+	\nabla^2_\gamma\LL\pa{\beta, \gamma} = \half\sum_{i = 1}^m -(Z_i^T\Omega_i^{-T}Z_i)^{\circ 2}  + 2\diag(Z_i^T\Omega_i^{-T}\xi_i)(Z_i^T\Omega^{-1}Z_i)\diag(\xi_i^T\Omega^{-T}Z_i) = \\
+	= \half\sum_{i = 1}^m -(Z_i^T\Omega_i^{-T}Z_i)^{\circ 2} + 2(Z_i^T\Omega_i^{-T}\xi_i)(\xi_i^T\Omega^{-T}Z_i)^T\circ(Z_i^T\Omega^{-1}Z_i)
+}
+

@@ -1,0 +1,9 @@
+\begin{tabular}{llrr}
+\toprule
+{} & Regularizer &       PGD &  SR3-PGD \\
+\midrule
+0 &         CAD &  0.976744 &      1.0 \\
+1 &          L1 &  0.977778 &      1.0 \\
+2 &          L0 &  0.721311 &      1.0 \\
+\bottomrule
+\end{tabular}

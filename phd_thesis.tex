@@ -1,0 +1,158 @@
+\documentclass[12pt,a4paper]{book}
+
+% PRESETS OF PACKAGES AND MATH %
+\input{latex-macros/useful_packages}
+\input{math_macros-jim}
+
+\usepackage{natbib}
+% Color 
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\plum}[1]{\textcolor{Plum}{#1}}
+\newcommand{\teal}[1]{\textcolor{teal}{#1}}
+
+
+%%%%% USER CONFIGURATION %%%%%
+\newcommand{\userName}{Aleksei Sholokhov}
+\newcommand{\userId}{Lesha}
+\newcommand{\department}{Department of Applied Mathematics}
+\newcommand{\institution}{University of Washington}
+\newcommand{\projectNameShort}{Feature Selection for Mixed Models}
+\newcommand{\doctitle}{Doctoral Thesis}
+\newcommand{\projectNameLong}{}
+
+% Cast
+\newcommand{\Peng}[1][]{\textbf{Peng\ifthenelse{\equal{#1}{}}{ }{ (#1):}}}
+\newcommand{\Sasha}[1][]{\textbf{Sasha\ifthenelse{\equal{#1}{}}{ }{ (#1):}}}
+\newcommand{\Lesha}[1][]{\textbf{\userId\ifthenelse{\equal{#1}{}}{ }{ (#1):}}}
+\newcommand{\Brad}[1][]{\textbf{Brad\ifthenelse{\equal{#1}{}}{ }{ (#1):}}}
+\newcommand{\Jim}[1][]{\textbf{Jim\ifthenelse{\equal{#1}{}}{ }{ (#1):}}}
+\newcommand{\ouralgo}{R\&S-Mixed }
+
+% Commands which are specific for this document 
+\DeclareMathOperator{\bBeta}{\bar{\beta}}
+\DeclareMathOperator{\bgamma}{\bar{\gamma}}
+\DeclareMathOperator{\bSigma}{\bar{\Sigma}}
+
+%%%%%%%%%%%%%%%
+% PAGE FORMAT %
+%%%%%%%%%%%%%%%
+
+\pagestyle{fancy}
+\setlength\parindent{0in}
+\setlength\parskip{0.1in}
+\setlength\headheight{15pt}
+\linespread{1.18}
+
+%%%%%%%%%%% HEADER / FOOTER %%%%%%%%%%%
+\chead{\textit{\projectNameShort}}
+\lhead{\textsc{\userName}}
+\rhead{\textsc{\doctitle}}
+\rfoot{}
+\cfoot{\color{gray} \textsc{\thepage~/~\pageref*{LastPage}}}
+\lfoot{}
+
+% University Logo
+%\newcommand{\univlogo}{%
+%  \noindent % University Logo
+%  \begin{wrapfigure}{r}{0.25\textwidth}
+%    \vspace{-24pt}
+%    \begin{center}
+%      \includegraphics[width=0.25\textwidth]{Images/univ-logo.jpg}
+%    \end{center}
+%    \vspace{-10pt}
+%  \end{wrapfigure}
+%}
+
+%\renewcommand{\thesection}{\Roman{section}}
+% \renewcommand{\thesubsection}{\thesection.\Roman{subsection}}
+
+%%%%%%%%%%%%
+% CAPTIONS %
+%%%%%%%%%%%%
+
+%%%% Paragraph separation
+%\setlength{\parskip}{.5em}
+
+\numberwithin{equation}{section} % Number equations within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{figure}{section} % Number figures within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{table}{section} % Number tables within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+
+%%%%%%%%%%%%
+% DOCUMENT %
+%%%%%%%%%%%%
+
+\begin{document}
+
+\title{\doctitle}
+~\\
+{\center
+{\large 
+{\huge
+Covariate Selection Techniques for Linear Mixed-Effects Models with Applications to Population Health Problems }
+\\[10mm]
+\userName
+\\[40mm]
+{\center
+\textbf{Committee}\\
+Aleksandr Aravkin (co-chair),\\
+Nathan Kutz (co-chair), \\
+James Burke, \\
+Jonathan Wakefield (GSR)
+}
+\\[40mm]
+{A thesis proposal submitted in fulfillment\\ of the requirements for the degree of}
+\\[5mm]
+{Doctor of Philosophy}
+\\[15mm]
+\department
+\\[5mm]
+\institution
+}
+\\[10mm]
+\textit{Last modified: \today}
+
+}  
+
+\newpage
+{\center \textbf{Abstract}\\[5mm]}
+
+Linear Mixed-Effects models are widely used technique for modeling clustered data, such as cohort studies, longitudinal data analysis, and meta-research. In this work we address an important practical problem of simultaneous selection of fixed and random effects in this type of models. Our approach is based on the Relax-and-Split methodology, which uses a relaxation technique together with partial minimization to efficiently solve non-convex problems. We use it to relax the constraints on the maximal number of included covariates and then apply an interior point method to obtain a solution. The performance of the resulting estimator is studied on synthetic data, as well as on two real-data applications: covariates selection for modeling the contact rate for COVID-19, and the estimation of burden of anxiety and depression disorders as results of bullying. These experiments show that the proposed method is advantageous in terms of execution time and selection quality. In addition, several theoretical questions are discussed as a part of future work that would contribute to understanding of convergence conditions of Relax-and-Split based methods in general.
+
+
+\newpage
+\tableofcontents
+
+\listoftodos
+
+\chapter{MSR3}
+\include{msr3}
+
+\chapter{PINODE}
+\include{pinode}
+
+\input{cs}
+
+\bibliographystyle{apalike}
+\bibliography{bibliography}
+
+\clearpage
+
+\appendix
+\chapter{Appendix}
+\section{Acknowledgement}
+\input{appendix/acknowledgements}
+
+\section{Derivatives of Marginalized Log-likelihood for Linear Mixed Models}
+\label{appendix:derivatives_of_lmm}
+\input{appendix/derivatives_of_lmms}
+
+\section{Description of Datasets}
+\subsection{GBD Bullying Data}
+\input{appendix/bullying_features_description}
+
+\subsection{COVID-19 Contact Rate Forecasting Data}
+\input{tables/covid_groups_description}
+\input{tables/covid_coefficients}
+
+\end{document}
