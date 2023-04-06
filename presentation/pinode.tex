@@ -1,0 +1,68 @@
+\section{Reduced-Order Models}
+\subsection{Intro to Reduced-Order Models (ROMs)}
+
+\begin{frame}{Reduced-Order Models}
+
+Schematics, terminology, notation
+
+\end{frame}
+
+\begin{frame}{Variations of ROMs}
+	Linear, nonlinear, citations
+\end{frame}
+
+
+\begin{frame}{Physics-Informed Loss}
+Definition of Physics-informed ML.
+
+Derivation of PI loss through chain rule. 
+
+Problem with evaluating RHS of differential equations.
+
+Interpretation with cross-borrowing strength. 
+\end{frame}
+
+\begin{frame}{Physics-Informed Koopman Networks}
+	Linear latent dynamics
+	
+	Paper
+	
+	Not a rom so not suitable for downstream tasks. 
+\end{frame}
+
+\begin{frame}{Physics-Informed Neural ODEs (PINODE)}
+	Nonlinearity in latent space
+	- require a lot of data
+	- picky to initialization
+	- good interpolation bad extrapolation	
+\end{frame}
+
+\begin{frame}{PINODE Results on Burgers}
+	Add PI loss => Fixes most of the issues
+	(example with Burgers)
+	Points learned
+	- Inform the model about unseen conditions
+	Paper reference
+\end{frame}
+
+\begin{frame}{PINODE Active}
+	> PIKN: "we use it and it works"
+	> PINODE: "this is how you need to use it right"
+	> PINODE-Active: can we use it right automatically?
+	
+	Loop scheme
+\end{frame}
+
+\begin{frame}{PINODE Active Results}
+	Best result (Burgers)
+\end{frame}
+
+\begin{frame}{PINODE-CS}
+	Application of the above 
+	Loss and setup
+\end{frame}
+
+\begin{frame}{PINODE-CS Results}
+	Results on Burgers
+	Maybe results on a harder problem
+\end{frame}

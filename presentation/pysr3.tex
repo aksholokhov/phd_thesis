@@ -1,37 +1,12 @@
-\documentclass[8pt]{beamer}
-\input{useful_packages}
-\input{math_macros}
+\section{Linear Mixed-Effect Models}
+\subsection{ Mixed-Effects Models}
+\begin{frame}{Feature Selection for Mixed-Effect Models}
 
-
-% \usetheme[progressbar=frametitle]{metropolis}
-\usepackage{appendixnumberbeamer}
-
-
-% PRESETS OF PACKAGES AND MATH %
-
-\usepackage{xspace}
-\usepackage{caption}
-\usepackage{subcaption}
-\newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
-\newcommand{\ouralgo}{\ensuremath{\mathcal{MSR}3}}
-\title{A Relaxation Approach to Feature Selection \newline for Linear Mixed-Effects Models}
-\date{\today}
-\author{Aleksei Sholokhov, James V. Burke, Peng Zheng, Damian Santomauro, and Aleksandr Aravkin}
-\titlegraphic{\includegraphics[width=0.5\textwidth]{Figures/UW_amath.pdf}\hspace{3em}\includegraphics[height=1cm]{Figures/IHME_Logo.jpg}}
-
-\begin{document}
-
-\maketitle
-
-\section{Relaxed for Linear Mixed-Effect Models}
-\subsection{Mixed-Effects Models}
-\begin{frame}{Mixed-Effect Models}
-
+Mixed-effect models
 \begin{itemize}
 	\item Used for analyzing \textbf{combined data} across a range of \textbf{groups}.
 	\item Use covariates to separate the \textbf{population variability} from the \textbf{group variability}.
 	\item \textbf{Borrow strength} across groups to estimate key statistics. % when data within units are sparse or highly variable.
-	\item Often seek \textbf{sparse models} that only use \textbf{most informative} covariates. 
 \end{itemize}
 
 \begin{figure}
@@ -41,38 +16,69 @@
 
 \end{frame}
 
+\begin{frame}{Feature Selection for Mixed-Effect Models}
+Practitioners:
+\begin{itemize}
+	\item Often seek \textbf{sparse models} that select \textbf{most informative} covariates. 
+	\item Want to be \textbf{flexible but efficient} in using various sparsity-promoting terms.
+	\item Want a library to be \textbf{universal and compatible} with e.g. \texttt{sklearn}.
+\end{itemize}
+\vspace{1em}
+
+Sparse Relaxed Regularized Regression ($\mathcal{SR}3$) \cite{Zheng2018RelaxAndSplit} showed great results for t linear models:
+
+\begin{figure}
+	\includegraphics[width=0.7\textwidth]{Figures/intuition_prev_paper.png}
+\end{figure}
+
+\vspace{1em}
+\textit{\textbf{Goal}: create a feature selection library that uses a relaxation approach for feature-selection in mixed-effect models.}
+
+\end{frame}
+
+
 \begin{frame}{Linear Mixed-Effect (LME) Models}
 
 	Dataset: $m$ groups $(X_i, Z_i, y_i),\quad i = 1, \dots m$, each has $n_i$ observations
 	\begin{itemize}
 		\item 	$X_i \in \R^{n_i \times p}$ -- group $i$ design matrix for fixed features
-		\item 	$Z_i \in \R^{n_i \times q}$ -- group $i$ design matrix for random effects
+		\item 	$Z_i \in \R^{n_i \times q}$ -- group $i$ design matrix for random features
 		\item 	$y_i \in \R^{n_i}$ -- group $i$ observations  
 	\end{itemize}
 	
 
 	\begin{columns}[T,onlytextwidth]
+	
     \column{0.5\textwidth}
-	 \centering Standard Linear Regression:
-   	\begin{figure}
-   		\includegraphics[width=0.9\textwidth]{Figures/lme_example_mean_prediction}
-   	\end{figure}
-   	\[
-   		y = X\beta + \varepsilon, \quad \varepsilon \sim \NN(0, \Lambda) 
-   	\]
-
-   	
-    \column{0.5\textwidth}
-    	\centering  Linear Mixed-Effect Model:
-   	\begin{figure}
-   		\includegraphics[width=0.9\textwidth]{Figures/lme_example_random_prediction}
-   	\end{figure}
-   	   		\[
+    \vspace{3em}
+    Model:
+	 	\[
    		\begin{split}
-   			y_i & = X_i\beta + {\color{red}Z_i u_i} + \varepsilon_i, \quad \varepsilon_i \sim \NN(0, \Lambda_i) \\
+   			y_i & = X_i\beta + {\color{red}Z_i u_i} + \varepsilon_i \\
+   			 \varepsilon_i & \sim \NN(0, \Lambda_i) \\
    			{\color{red} u_i} & {\color{red}\sim \NN(0, \Gamma)}
    		\end{split}
    		\]
+   		
+   	Equivalently:
+   		\[
+   		\begin{split}
+   			y_i & = X_i\beta + \textcolor{red}{\omega_i} \\
+   			{\color{red} \omega_i} & {\color{red}\sim \NN(0, Z_i\Gamma Z_i^T + \Lambda_i)}
+   		\end{split}
+   		\]
+   	
+   	Simplifying assumption: 
+   	\[
+   		\Gamma = \diag(\gamma)
+   	\]
+   	
+    \column{0.5\textwidth}
+    	\centering  
+   	\begin{figure}
+   		\includegraphics[width=0.9\textwidth]{Figures/lme_example_random_prediction}
+   	\end{figure}
+   	   		
 
    	
   \end{columns}
@@ -97,24 +103,26 @@
 \end{frame}
 
 \begin{frame}{Likelihood for Mixed Models}
-Negative log-likelihood:
-\eq{
-	\label{eq:lmm_objective}
-	\mathcal{L}(\beta, \gamma) & = \sum_{i = 1}^m \half(y_i - X_i\beta)^T(Z_i\Gamma Z_i^T + \Lambda_i)^{-1}(y_i - X_i\beta) + \\ & + \half\log{\det{\pa{Z_i \Gamma Z_i^T + \Lambda_i}}}, \quad \Gamma = \diag{(\gamma)}
-	}
-Maximum likelihood estimates for $\beta$ and $\gamma$ solve the problem:
-\eq{
-	\mathcal{LME} \quad \min_{\beta \in \R^p,\, \gamma \in \R^{q}_+} \LL(\beta, \gamma)
-}
+%Maximum likelihood estimates for $\beta$ and $\gamma$ solve the problem:
+%\eq{
+%	\mathcal{LME} \quad \min_{\beta \in \R^p,\, \gamma \in \R^{q}_+} \LL(\beta, \gamma)
+%}
 
-To select covariates we add a sparsity-promoting regularizer $R(\beta, \gamma)$
+Optimization problem:
 \eq{
 	\mathcal{FS-LME} \quad \min_{\beta \in \R^p,\, \gamma \in \R^{q}_+} \LL(\beta, \gamma) + R(\beta, \gamma)
 }
 
+Where $\LL$:
+\eq{
+	\label{eq:lmm_objective}
+	\mathcal{L}(\beta, \gamma) & = \sum_{i = 1}^m \half(y_i - X_i\beta)^T(Z_i\Gamma Z_i^T + \Lambda_i)^{-1}(y_i - X_i\beta) + \\ & + \half\log{\det{\pa{Z_i \Gamma Z_i^T + \Lambda_i}}}, \quad \Gamma = \diag{(\gamma)}
+	}
+
+
 \begin{itemize}
 	\item $\LL(\beta, \gamma)$ is smooth on its domain, quadratic w.r.t. $\beta$ and $\bar\eta$-weakly-convex w.r.t. $\gamma$.
-	\item $R(\beta, \gamma)$ is closed, proper, convex, with easily computed \textit{prox operator}
+	\item $R(\beta, \gamma)$ is closed, proper, with easily computed \textit{prox operator}
 \end{itemize}
 
 \end{frame}
@@ -191,27 +199,28 @@ and the \textit{perspective mapping} $\phi_\mu$ replaces $\gamma \geq 0$ with a 
 $\ouralgo$-relaxation replaces the original likelihood $\LL$ with a \textit{value function} $u_{\eta,\mu}$:
 \eq{
 	\label{eq:value_function_definition}
-	u_{\eta,\mu}(\tbeta,\tgamma) & := \min_{(\beta, \gamma)} \LL_{\eta,\mu}((\beta, \gamma),(\tbeta, \tgamma)) \\  & := \min_{(\beta, \gamma)} \LL(\beta, \gamma) + \phi_\mu(\gamma) + \kappa_\eta(\beta - \tbeta, \gamma - \tgamma)
+	v_{\eta,\mu}(\tbeta,\tgamma) & := \min_{(\beta, \gamma)} \LL_{\eta,\mu}((\beta, \gamma),(\tbeta, \tgamma)) \\  & := \min_{(\beta, \gamma)} \LL(\beta, \gamma) + \phi_\mu(\gamma) + \kappa_\eta(\beta - \tbeta, \gamma - \tgamma)
 }
 so $\ouralgo$-formulation~(\ref{eq:msr3_formulation_explicit}) becomes
 \eq{
-	\min_{(\tbeta, \tgamma) \in \CC} u_{\eta,\mu}(\tbeta, \tgamma) + R(\tbeta, \tgamma)
+	\min_{\beta \in \R^p,\, \gamma \in \R^{q}_+} v_{\eta,\mu}(\tbeta, \tgamma) + R(\tbeta, \tgamma)
 }
 When $\eta$ is larger than the weak-convexity constant
 \begin{itemize}
-	\item $u_{\eta,\mu}$ is well-defined and continuously differentiable.
+	\item $v_{\eta,\mu}$ is well-defined and continuously differentiable.
 	\item As $\mu \rightarrow 0$ and $\eta \rightarrow \infty$, cluster points of solutions to $\ouralgo$ are first-order stationary points for $\mathcal{FS-LME}$ \\ 
+	\item $v_{\eta, \mu}$ don't need to be evaluated precisely.
 \end{itemize}
 
-\textbf{Key observation}: in practice, we don't need accurate solutions for~(\ref{eq:value_function_definition}): a few Newton iterations keep the solution close to the central path.
+% \textbf{Key observation}: in practice, we don't need accurate solutions for~(\ref{eq:value_function_definition}): a few Newton iterations keep the solution close to the central path.
 \end{frame}
 
-\begin{frame}{Value Function Reformulation}
-\begin{figure}
-	\includegraphics[width=\textwidth]{Figures/intuition_prev_paper}
-	\caption{\label{fig:intuition_prev} Picture from \cite{Zheng2018RelaxAndSplit}: for a linear problem, value function relaxation ``squashes'' level-sets simplifying the optimization landscape.}
-\end{figure}
-\end{frame}
+%\begin{frame}{Value Function Reformulation}
+%\begin{figure}
+%	\includegraphics[width=\textwidth]{Figures/intuition_prev_paper}
+%	\caption{\label{fig:intuition_prev} Picture from \cite{Zheng2018RelaxAndSplit}: for a linear problem, value function relaxation ``squashes'' level-sets simplifying the optimization landscape.}
+%\end{figure}
+%\end{frame}
 
 \begin{frame}{Value Function Reformulation}
 \begin{figure}
@@ -247,7 +256,6 @@ If $\mu > 0$, then $\hat{v} = -\nabla\phi_\mu(\hat{\gamma})$, and if $\mu = 0$, 
 \subsection{Application to Synthetic Problems}
 
 \begin{frame}{Application to Synthetic Problems}
-\textbf{The Experiment} 
 \begin{itemize}
 	\item The number of fixed effects $p$ and random effects $q$ is 20.
 	\item $\beta = \gamma = \frac{1}{2}[1,2,3,\dots,10, 0\dots,0]$
@@ -257,24 +265,20 @@ If $\mu > 0$, then $\hat{v} = -\nabla\phi_\mu(\hat{\gamma})$, and if $\mu = 0$, 
 	\item Grid-search for $\eta \in [10^{-4}, 10^{2}]$, golden search for $\lambda \in [0, 10^5]$
 	\item Final model is chosen to maximize BIC
 \end{itemize}
-\begin{table}
-	\input{../extras/performance_table_short_current}
-\end{table}
+\begin{figure}
+	\includegraphics[width=\textwidth]{Figures/performance_without_msr3.pdf}
+\end{figure}
+\begin{itemize}
+	\item[\textcolor{green}{+}] $\ouralgo$-relaxation improves feature selection performance of the original likelihood.
+	\item[\textcolor{green}{+}] $\ouralgo$-fast optimization accelerates the compute time by $\sim 10^2$.
+   	\item[\textcolor{red}{--}] Initialization of $\eta$ is problem-specific
+\end{itemize}
 \end{frame}
 
-\begin{frame}{Application to Synthetic Problems}
-\begin{figure}
-	\includegraphics[width=\textwidth]{Figures/performance_picture_current.pdf}
-\end{figure}
-Benefits:
-\begin{itemize}
-	\item $\ouralgo$-relaxation improves feature selection performance than the original likelihood.
-	\item $\ouralgo$-fast optimization accelerates the compute time by $\sim 10^2$.
-\end{itemize}
-Challenge:
-   \begin{itemize}
-   	\item Initialization of $\eta$ is problem-specific
-   \end{itemize}
+\begin{frame}{Comparison to Other Libraries}
+\begin{table}
+	\input{../extras/table_glmm_current.tex}
+\end{table}
 \end{frame}
 
 \begin{frame}{Choice of $\eta$}
@@ -290,7 +294,7 @@ Challenge:
 	\end{figure}
 \end{frame}
 
-\begin{frame}{Thank You!}
+\begin{frame}{Software}
 	The code is available on GitHub: \href{github.com/aksholokhov/pysr3}{https://github.com/aksholokhov/pysr3}
 	\begin{itemize}
 		\item All estimators are fully compatible to \texttt{sklearn} library.
@@ -298,10 +302,3 @@ Challenge:
 		\item Has tutorials, tests, and documentation.
 	\end{itemize}
 \end{frame}
-\begin{frame}{References}
-	\textbf{References}: 
-	\bibliographystyle{plain}
-	\bibliography{bibliography.bib}
-\end{frame}
-
-\end{document}
