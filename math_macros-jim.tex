@@ -33,11 +33,15 @@
 \DeclareMathOperator{\dom}{\mathrm{dom}}
 \newcommand{\Diag}[1]{\mathrm{Diag}\left(#1\right)}
 \newcommand{\diag}[1]{\mathrm{diag}\left(#1\right)}
+\newcommand{\conv}{\mathrm{conv}}
+\newcommand{\clco}{\overline{\conv}}
+\newcommand{\gammax}{{\gam_{\mbox{\tiny max}}}}
 \def\prox{{\mathrm{prox}}}
 \DeclareMathOperator*{\proj}{\mathrm{Proj}}
 \DeclareMathOperator*{\sign}{\mathrm{sign}}
 \DeclareMathOperator*{\argmax}{\mathrm{argmax}}
 \DeclareMathOperator*{\argmin}{\mathrm{argmin}}
+\newcommand{\intr}[1]{\mathrm{int}\left( #1\right)}
 
 \newcommand*{\pdef}{\ensuremath{\mathbb{S}_{++}}}
 \newcommand*{\psdef}{\ensuremath{\mathbb{S}_{+}}}
@@ -74,6 +78,7 @@
 \DeclareMathOperator{\DD}{\mathcal{D}}
 \DeclareMathOperator{\BB}{\mathcal{B}}
 \def\MM{\mathcal{M}}
+\def\uball{\mathbb{B}}
 %\def\S{\mathcal{S}}
 
 %% \tilde symbols
@@ -180,6 +185,7 @@
 \def\hy{{\hat y}}
 \def\hr{{\hat r}}
 \def\hR{{\widehat R}}
+\def\tR{{\widetilde R}}
 \def\hs{{\hat s}}
 \def\bv{{\bar v}}
 \def\tx{{\tilde x}}
@@ -193,7 +199,7 @@
 \def\one{\mathbf{1}}
 \def\zero{\mathbf{0}}
 \def\lam{\lambda}
-\def\blam{{\bar\lambda}}
+\def\blam{{\bar\eta}}
 \def\lamb{\lambda_b}
 \def\lamg{\lambda_g}
 \def\Lam{\Lambda}
@@ -222,9 +228,11 @@
 \def\bgam{{\bar\gam}}
 \def\Gam{\Gamma}
 \def\bOmega{{\overline\Omega}}
+\def\bomega{{\bar\omega}}
 \def\del{\delta}
 \def\Del{\Delta}
 \def\eps{\epsilon}
+\def\beps{{\bar\epsilon}}
 \newcommand{\lDel}{\mbox{\small$\Del$}}
 \def\Sig{\Sigma}
 \def\sig{\sigma}
@@ -237,6 +245,7 @@
 \def\tLL{{\widetilde\LL}}
 \def\hLL{{\widehat\LL_\mu}}
 \def\hDD{{\widehat\DD}}
+\def\Dfr{\mathfrak{D}}
 \def\LLlam{{\LL_\lam}}
 \def\hOmega{{\widehat\Omega}}
 \def\mmax{\text{max}}

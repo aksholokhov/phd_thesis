@@ -129,6 +129,12 @@ solving the optimization problem
 	\label{eq:ml_lme_optimization_setup}
 	\min_{\beta, \Gamma} & \ \LL_{ML}(\beta, \Gamma)  \quad \mbox{s.t.} \quad \ \Gamma \in \bS_{+}^{q}.
 }
+
+\begin{theorem}[Existence of a Minimizer, Theorem 1 from \cite{aravkin2022jimtheory}]\label{thm:basic existence}
+Let the assumptions in the statement of problem \eqref{eq:ml_lme_optimization_setup} hold. Then optimal solutions to
+\eqref{eq:ml_lme_optimization_setup} exist.
+\end{theorem}
+
 At this point, we bring in three basic definitions from variational analysis~\cite{rockafellar2009variational}. 
 
 \begin{definition}[Epigraph and level sets]
@@ -423,8 +429,6 @@ R(x) = \sum_{i = 1}^p r_i(x_i),
 with typical choices for the component functions $r_i$ given in Table \ref{table:proxes}.
 
 
-
-
 \subsection{Variable Selection via Proximal Gradient Descent}
 
 Since $\LL$ is differentiable on its domain and 
@@ -481,7 +485,30 @@ When $R(x)$ has the form given in \eqref{eq:R sep}, we have
 
 \edit{Make section "Evaluating proximal operators" using Appendix}
 
-Table \ref{table:proxes} provides closed form expressions for the proximal operators 
+Under the assumption that $R$ is level-compact \cite{aravkin2022jimtheory} extended Theorem \ref{thm:basic existence} to the regularized case as follows:
+
+\begin{theorem}[Existence of a Minimizer for \ref{eq:lme_loss_original_in_x}, \cite{aravkin2022jimtheory}, Theorem 2]
+
+\label{thm:basic existence2}
+Let the assumptions in the statement of problem \eqref{eq:lme_diagonal_setup} hold.
+%define $\LL(\beta,\gam):=\LL_{ML}(\beta, \Diag{\gamma})$
+Suppose $\map{\hR}{\R^p\times\R^q_+}{\R\cup\{+\infty\}}$ 
+is lsc and level compact (i.e., $\epi{R}:=\lset{(\bg,\nu)}{R\bg\le\nu}$ is closed
+and $\lset{\bg}{R\bg\le\nu}$ is bounded for all $\nu\in\R$).
+Then $\LL+\hR$ is level compact and solutions to
+the following optimization problem exist:
+\eq{
+\label{eq:extended loss}
+\min_{\beta\in\R^p, \gamma\in\R^q_+}  \LL(\beta, \gamma) + 
+\hR(\beta, \gamma) .
+}
+\end{theorem}
+
+In practice, it is often advisable to include a constraint of the form 
+$\gamma\le\gammax$ for $\gam\in\R^q_{++}$ chosen
+sufficiently large since an excessively large variance usually indicates 
+that the model is poorly posed and needs review. 
+Such a constraint is also numerically expedient since it prevents $\gam$ from diverging. Table \ref{table:proxes} provides closed form expressions for the proximal operators 
 of commonly used regularizers. 
 %All regularizers in this list are separable except $R(x) = \delta_{\|x\|_0 \leq k}$, for which the solution also has an analytically closed form.
 %Again when $R$ is separable with the $r_i$ coming from Table \ref{table:proxes}, 
@@ -489,7 +516,7 @@ of commonly used regularizers.
 For all of these cases,  the following theorem gives closed form expressions for
 $\prox_{\alpha R + \delta_{\CC}}(z)$.
 
-\begin{theorem}[$\prox$ for bounded $\gamma$]     \label{thm:prox_of_positive_quadrant}
+\begin{theorem}[Proximal operator for bounded $\gamma$]     \label{thm:prox_of_positive_quadrant}
 We consider modified regularizers $r(\gamma)$ from the Table \ref{table:proxes} 
 % and let $v = (\beta, \gamma)$. % \in \CC \subset R^{p + q}$.
 that include an additional constraint on $\gamma$ of the form 
@@ -545,10 +572,10 @@ We have the following results.
     remainder to $0$.
     \end{enumerate}
 \end{theorem}
-The proof of the Theorem \ref{thm:prox_of_positive_quadrant} is provided in Appendix \ref{ch:proxes_appendix}. 
+The proof of the Theorem \ref{thm:prox_of_positive_quadrant} is provided in Appendix \ref{appendix:proxes}. 
 %\textcolor{red}{Aleksei, please check proof of appendix is all in terms of $\gamma$, rather than $v = (\beta, \gamma)$.}
 The  PGD algorithm is detailed in Algorithm~\ref{alg:pgd_for_lme}.
-{The algorithm's step-size $\alpha$ depends on the Lipschitz constant; an upper-bound is given in Appendix \ref{sec:lipschitz_constant}. In practice, $\alpha$ is computed using a line-search, since the available estimate for $L$ is very conservative.}
+{The algorithm's step-size $\alpha$ depends on the Lipschitz constant; an upper-bound is given in Appendix \ref{appendix:lipschitz_constant}. In practice, $\alpha$ is computed using a line-search, since the available estimate for $L$ is very conservative.}
 
 \smallskip
 
@@ -617,11 +644,10 @@ modest value can be used~\citep{Zheng2019SR3}, e.g. $\eta=1$.
 
 To understand the algorithm and logic behind the objective~\eqref{eq:lme_loss_sr3}, we define a value function $u_\eta(w)$ and the solution set $S_\eta(w)$:
 \eq{
-\label{eq:value_function_definition}
 		u_\eta(w) & = \min_x \ \LL(x) + \delta_{\CC}(x) + \kappa_{\eta}(x-w)\\
 		S_\eta(w) & = \argmin_x \LL(x) + \delta_{\CC}(x) + \kappa_{\eta}(x-w).
 }
-Substituting (\ref{eq:value_function_definition}) into (\ref{eq:lme_loss_sr3}) the problem transforms into the problem of optimizing a regularized value function:
+Substituting the above into (\ref{eq:lme_loss_sr3}) the problem transforms into the problem of optimizing a regularized value function:
 \eq{
 	\label{eq:value_function_optimization}
 	\min_{w} u_\eta(w) + R(w)
@@ -1083,7 +1109,7 @@ For example, there is an active literature on converting estimates between relat
 
 
 \section{Theoretical Analysis}
-\ask{Jim}{What would be the best way to introduce theoretical results to my thesis?}
+\input{msr3-theory}
 
 \section{Software Implementation}
 To ensure reproducibility of this research, all new algorithms have been implemented as a part of the \texttt{pysr3}\footnote{Available at \href{https://github.com/aksholokhov/pysr3}{https://github.com/aksholokhov/pysr3}} library. This library implements functionality for fitting linear mixed models and selecting covariates. The user interface was designed to be fully compliant with the standards\footnote{\href{https://scikit-learn.org/stable/developers/develop.html}{https://scikit-learn.org/stable/developers/develop.html}} of \texttt{sklearn} library to minimize learning time. 

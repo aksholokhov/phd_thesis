@@ -1,0 +1,15 @@
+Recall that a function $\LL(x)$ is called L-Lipschitz smooth when 
+
+\eq{
+    \|\nabla \LL(x) - \nabla \LL(y)\|_2 \leq L\|x-y\|_2
+}
+
+To find the Lipschitz-constant of the function $\LL_{ML}$ (\ref{eq:lmm_objective}) we will use the fact that $\LL(x)$ is L-Lipschitz if and only if $\|\nabla^2 \LL(x)\| \leq L$ for any $x$. Hence, to upper-bound L we need to upper-bound the norms of Hessians. % from (\ref{eq:all_derivatives}).
+Assume that $\|y_i - X_i\beta\| \leq \rho$ where $\rho > 0$. We get % Using the same technique as in (\ref{eq:trick_with_norm}), we get that 
+
+\eq{
+    \left\|\nabla^2\LL(x)\right\|_2 & = \left\|\begin{bmatrix} \nabla^2_{\beta\beta}\LL(\beta, \gamma) & \nabla^2_{\beta\gamma}\LL(\beta, \gamma) \\ \nabla^2_{\gamma\beta}\LL(\beta, \gamma) & \nabla^2_{\gamma\gamma}\LL(\beta, \gamma) \end{bmatrix} \right\| \leq \sum_{i=1}^m \left\| \begin{bmatrix}\frac{\|X_i\|_2^2}{\|\Lambda_i\|_2} & \frac{\rho\|X_i\|_2\|Z_i\|^2_2}{\|\Lambda_i\|^2} \\ \frac{\rho\|X_i\|_2\|Z_i\|^2_2}{\|\Lambda_i\|^2} & \frac{\rho\|Z_i\|_2^4}{\|\Lambda_i\|_2^3} \end{bmatrix} \right\| \\  & \leq \sum_{i=1}^m\max\left(\frac{\|X_i\|_2^2}{\|\Lambda_i\|_2},  \frac{\rho\|X_i\|_2\|Z_i\|^2_2}{\|\Lambda_i\|^2},  \frac{\rho\|X_i\|_2\|Z_i\|^2_2}{\|\Lambda_i\|^2}, \frac{\rho\|Z_i\|_2^4}{\|\Lambda_i\|_2^3}\right) = L
+}
+
+The assumption $\|y_i - X_i\beta\| \leq \rho$ is typically enforced artificially by introducing a box-constraint for $\beta$. Unfortunately, if the assumption is violated then $\nabla\LL$ is not globally Lipschitz on its domain, as noted in \cite{aravkin2022jimtheory}. Nonetheless, it is possible to obtain convergence results with the inclusion of a line search or trust region strategy, see e.g. \cite{Burke-Engle18}.
+ 

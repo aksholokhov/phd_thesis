@@ -1,0 +1,185 @@
+\paragraph{SCAD}
+
+For a scalar variable $x \in \R$, SCAD-regularizer is defined as 
+\eq{
+r(x) = \begin{cases} 
+    \sigma |x|, & |x| \leq \sigma \\
+    \frac{-x^2 + 2\rho\sigma |x| - \sigma^2}{2(\rho - 1)}, & \sigma < |x| < \rho\sigma \\ \frac{\sigma^2(\rho + 1)}{2}, & |x| > \rho\sigma 
+    \end{cases}
+}
+To evaluate the $\prox_{\alpha r}$ operator we need to solve the following minimization problem:
+
+\eq{
+    \label{eq:prox_separated_minimization}
+    \min_{x} r(x) + \frac{1}{2\alpha}(x - z)^2
+}
+
+For $\alpha = 1$, the solution was derived by \cite{fan1997comments}. 
+Here we extend it  for an arbitrary $\alpha$. %to use it with PGD algorithm, this derivation closely follows its original source; we provide it for the sake of completeness. 
+To identify the set of stationary points $\{x^*\}$ of a non-smooth function $f(x)$, we the optimality condition
+\eq{
+    0 \in \partial_x f(x^*)
+}
+where $\partial_x f(x)$ denotes a sub-differential set of $f$ at the point $x$. For the prox problem, we get % \ref{eq:prox_separated_minimization}  yields:
+\eq{
+    0 \in \frac{1}{\alpha}(x^* - z) + \partial r(x)_{x = x^*}
+}
+Since $r(x)$ is piece-wise defined the precise value of $\partial r(x)_{x = x^*}$ will depend on $x^*$:
+\begin{enumerate}
+    \item Let $0 < x^* \leq \sigma$, then we have $\partial r(x)_{x = x^*} = \{x^*\}$ and so
+    \eq{
+        x = z - \sigma\alpha, \quad z \in [\sigma\alpha, \sigma + \sigma\alpha]
+    }
+    \item Let $-\sigma\alpha \leq x^* < 0$, then we have $\partial r(x)_{x = x^*} = \{-x^*\}$ and so
+    \eq{
+        x = z + \sigma\alpha, \quad z \in [-\sigma - \sigma\alpha, -\sigma\alpha]
+    }
+    \item Let $x^* = 0$, then $\partial r(x)_{x = x^*} = [-1, 1]$, which yields
+    \eq{
+        \frac{1}{\alpha}(x^* - z) \in -\sigma[-1, 1] \quad \Rightarrow \quad      z \in [-\sigma\alpha, \sigma\alpha]
+    }
+%    or
+%%    \eq{
+%%        x^* \in z + [-\sigma\alpha, \sigma\alpha]
+%%    }
+%%    Given that $x^* = 0$, it provides us with the condition on $z$:
+%    \eq{
+%        z \in [-\sigma\alpha, \sigma\alpha]
+%    }
+    \item Let $\sigma < x^* < \rho\sigma$, then $r(x)_{x = x^*} = \frac{-{x^*}^2 + 2\rho\sigma x^* - \sigma^2}{2(\rho - 1)}$, which gives us 
+    \eq{
+        \frac{1}{\alpha}(x^* - z) = \frac{x^* - \rho\sigma}{\rho - 1}
+    }
+    To ensure that the stationary point is indeed a minimizer, we need to ensure that 
+    \eq{ 
+        \frac{1}{\alpha} - \frac{1}{\rho - 1} > 0 \quad \Rightarrow \quad \alpha < \rho - 1.
+    }
+Rearranging the terms to express $x^*$ as a function of $z$ we get % the value of prox minimizer:
+    \eq{
+        x^* = \frac{(\rho - 1)z - \lambda\rho\sigma}{\rho - 1 - \alpha} \quad \Rightarrow \quad         z \in [\sigma + \alpha\sigma, \rho\sigma]
+    }
+%    Flipping this expression back to $z$ being a function of $x^*$ we get
+%    \eq{
+%        z = \frac{x^*(\rho - 1 + \lambda) + \alpha\rho\sigma}{\rho - 1} \in\left[\frac{\sigma(\rho - 1 - \alpha) + \alpha\rho\sigma}{\rho - 1}, \frac{\sigma\rho(\rho - 1 - \alpha) + \alpha\rho\sigma}{\rho - 1} \right]
+%    }
+%    which, after algebraic simplifications, becomes
+%    \eq{
+%        z \in [\sigma + \alpha\sigma, \rho\sigma]
+%    }
+    \item Let $-\rho\sigma < x^* < -\sigma$, then, similarly to the previous case, we get 
+    \eq{
+        \frac{1}{\alpha}(x^* - z) = \frac{x^*+\rho\sigma}{\rho - 1}
+    }
+    %where the sign of the second term in the denominator changes due presence of absolute value. 
+    Rearranging the terms to express $x$ in terms of $z$ we get:
+    \eq{
+        x^* = \frac{(\rho - 1)z + \lambda\rho\sigma}{\rho - 1 - \alpha} \quad \Rightarrow \quad       z \in [-\sigma -\alpha\sigma, -\sigma]
+    }
+%    Rearranging the terms to express $z$ in terms of $x^*$, and using that $-\sigma\rho < x^* < \sigma$ we get \eq{
+%        z \in [-\sigma -\alpha\sigma, -\sigma]
+%    }
+    \item Finally, when $|x^*| \geq \sigma\rho$ we have $\partial r(x)_{x = x^*} = \{0\}$ and so 
+    \eq{
+        x^* = z, \quad |z| \geq \sigma\rho
+    }
+    Bundling all six cases together,  we have
+    %when $\alpha + 1  < \rho$ and we get 
+    \eq{
+    \label{eq:scadProx}
+        \prox_{\alpha r}(z) = \begin{cases} \sign(z)(|z| - \sigma\alpha)_+, & |z| \leq \sigma(1+\alpha) \\ \frac{(\rho - 1)z - \sign(z)\rho \sigma\alpha}{\rho - 1 - \alpha}, & \sigma(1+\alpha) < |z| \leq \max(\rho,1+\alpha)\sigma \\ z, & |z| > \max(\rho, 1+\alpha)\sigma \end{cases}
+    }
+The middle branch is active only when $\rho > 1+\alpha$. One special case of this is when $\alpha = 1$, and then~\eqref{eq:scadProx} recovers    the classic result by \cite{Fan2001}. 
+    
+To get $\prox_{\alpha r + \delta_{\R_+}}(z)$ from $\prox_{\alpha r}(z)$ we only need to notice that (1) the minimizer $x^*$ of 
+\eq{
+    \min_x r(x) + \delta_{\R_+} + \frac{1}{\alpha}(x - z)^2
+}
+can never be negative, and that (2) when the minimizer $x^*$ is exactly zero we get:
+\eq{
+    \frac{1}{\alpha}(x^* - z) \in -\partial(r(x)|_{x = x^*} + \delta_{\R_+}(x)|_{x = x^*})% = -[-\infty, 0] + [-\sigma, \sigma]) = [-\sigma, +\infty]
+    \quad \Rightarrow \quad     z \in [-\infty, \sigma\alpha]
+}
+%which gives us the condition on $z$:
+%\eq{
+%    z \in [-\infty, \sigma\alpha]
+%}
+%Similarly, when $\C$ also includes the upper-bound constraint for REML likelihood, the ``largest'' branch $|x^*| \geq \rho$ gets affected. Namely, when $\rho\sigma \leq |x^*| < \bar\gamma$ we still get $\partial r(x)_{x = x^*} = \{0\}$ and so
+%\eq{
+%    x^* = z,  \sigma\rho \leq \quad |z| < \bar\gamma
+%}
+%However, in case of $x^* = \bar\gamma$ we get
+%\eq{
+%    \frac{1}{\alpha}(x^* - z) \in -\partial(r(x)|_{x = x^*} + \delta_{\R_{\leq \bar\gamma}}(x)|_{x = x^*}) = -(\{0\} + [0, +\infty])  = [-\infty, 0]
+%}
+%which happens when $z \geq \bar\gamma$. 
+    
+\end{enumerate}
+
+\paragraph{A-LASSO}
+
+A-LASSO regularizer is defined as 
+\eq{
+    r(x) = w|x|
+}
+where $w=1/|\hat{x}|$ with $\hat{x}$ the solution of a non-regularized problem (\cite{Zou2006}). 
+%For the purposes of deriving the proximal operator of A-LASSO, $w$ is a constant and positive scalar value. 
+The derivation of the proximal operator of A-LASSO nearly matches the steps 1, 2, and 3 that of SCAD above. We wish to evaluate
+\eq{
+    \min_{x} w|x| + \frac{1}{2\alpha}(x - z)^2
+}
+as a function of $z$.
+The sub-differential optimality criterion yields
+\eq{
+    0 \in \frac{1}{\alpha}(x^* - z) + w\partial |x|
+}
+\begin{enumerate}
+\item Let $0 < x^*$, then we have $\partial r(x)_{x = x^*} = \{x^*\}$ and so
+    \eq{
+        x^* = z - \alpha w, \quad z > \alpha w
+    }
+    \item Let $x^* < 0$, then we have $\partial r(x)_{x = x^*} = \{-x^*\}$ and so
+    \eq{
+        x^* = z + \alpha w, \quad z < -\alpha w
+    }
+    \item Let $x^* = 0$, then $\partial r(x)_{x = x^*} = [-1, 1]$, which yields
+    \eq{
+        \frac{1}{\alpha}(x^* - z) \in [-w, w] \quad \Rightarrow \quad      z \in [-\alpha w, \alpha w]
+    }
+%    or
+%    \eq{
+%        x^* \in z + [-\alpha w, \alpha w]
+%    }
+%    Given that $x^* = 0$, it yields the condition on $z$:
+%    \eq{
+%        z \in [-\alpha w, \alpha w]
+%    }
+\end{enumerate}
+Combining all cases together we get
+\eq{
+    \prox_{\alpha r}(z) = \sign(z)(|z| - \alpha w)_+
+}
+Finally, $\prox_{\alpha r + \delta_{\R}}(z)$ can be derived by noticing that, in this case, (1) $x^* \geq 0$, and (2) when $x^* = 0$ the sub-differential changes due to the presence of the delta-function:
+\eq{
+    x^* = 0 \implies \frac{1}{\alpha}(x^* - z) \in -([-\alpha w, \alpha w] + [-\infty, 0]) = [-\alpha w, +\infty]
+}
+which gives us the condition 
+\eq{
+    x^* = z, \quad z \in [-\infty, \alpha w].
+}
+
+%Similar situation arises when $\C$ includes the upper-bound box constraint for REML. For $|x^*| = \bar\gamma$ we get that 
+%\eq{
+%    x^* = 0 \implies \frac{1}{\alpha}(x^* - z) \in -(w + [0, +\infty]) = [-\alpha w, +\infty]
+%}
+%which gives us the condition 
+%\eq{
+%    x^* = \bar\gamma, \text{ when } \quad z \geq \bar\gamma + \alpha w
+%}
+
+\paragraph{LASSO} LASSO is a particular case of A-LASSO above when $w = 1$. 
+
+\paragraph{$\ell_0$-regularizer} Comparing to its counterparts above, the regularizer $R(x) = \delta_{\|x\|\leq k}(x)$ is non-separable. However, the proximal operator of it can still be evaluated analytically:
+\eq{
+    \left[\prox_{\alpha R}(z)\right]_i = \left[\argmin_{\|x\| \leq k} \frac{1}{2\alpha}\|x - z\|^2\right]_i = \begin{cases}z_i, & i \in \II_{k}\\ 0, & \text{ otherwise}\end{cases}
+}
+where $\II_k$ is a set of $k$ largest in their absolute value coordinates of $z$. To get $\prox_{\alpha R + \delta_{\R_+}}$ we replace $\II_k$ with a set of $k$ largest positive coordinates of $z$, and set the rest of the coordinates to $0$.
