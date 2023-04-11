@@ -1,0 +1,219 @@
+The key tool to prove existence of minimizers for both the likelihood and the penalized likelihood 
+is the function $\map{f}{\R^n\times\bS_{++}^n}{\R}$ given by
+\eq{\label{eq:key1}
+f(r,M):=\half[r^TM^{-1}r+\ln |M|]\ .
+}
+%studied in \cite[Eq. (12)]{zheng2021trimmed} it is shown that.
+If $M=U\Diag{\mu}U^T$ is the eigenvalue decomposition for $M$ where
+$U^TU=I$, and $\tr=U^Tr$, then 
+\eq{\label{eq:key2}
+f(r,M)=\half\left[\sum_{i=1}^n \frac{\tr_i^2}{\mu_i}+\ln(\mu_i)\right]. 
+}
+For $\rho>0$, observe that
+\(
+\frac{\rho^2}{\omega}+\ln(\omega)
+\) 
+is greater that both $\ln(\omega)$ and $1+2\ln(\rho)$ for all $\omega>0$.
+Therefore, using the facts $\mu_\mmax(M)=\norm{M}$ and $\norm{\tr}_\infty\ge(\norm{\tr}/\sqrt{n})
+=(\norm{r}/\sqrt{n})$, we have
+\eq{\label{eq:eigbd}
+f(r,M)&\ge\half\sum_{i=1}^n \max\{\ln\mu_i,\,1+2\ln|\tr_i|\}
+\\ &\ge
+\max\{1\!+\!2\ln(\norm{r}/\sqrt{n})\!+\!\frac{n\!-\!1}{2}\ln\mu_\mmin(M),\
+\ln\norm{M}\!+\!\frac{n\!-\!1}{2}\ln\mu_\mmin(M)\}
+\\ &
+\ge\max\{\ln(\norm{r}^2/n),\ln\norm{M}\} + \frac{n\!-\!1}{2}\ln\mu_\mmin(M),
+}
+where $\mu_\mmin(M)$ and $\mu_\mmax(M)$ are the smallest
+and largest eigenvalue of $M$, respectively.
+%In \cite{zheng2021trimmed} this is used to show that
+%\[
+%f(r,M)\ge \frac{N}{2}\min\{\ln(\alf),1+2\ln(\alf)\}
+%\]
+%for all $(r,M)\in \R^N\times \bS_{++}^N$ satisfying
+%\eq{\label{eq:basic bound}
+%\min_i\max\{|\tr_i|,\, \mu_i\}\ge \alf.
+%}
+%%An immediate consequence of this result is 
+%In \cite{zheng2021trimmed}, it is shown 
+%that $f$ possesses a key level compactness property.
+%is level bounded, that is,
+%\[
+%\lim_{\norm{(r,M)}\rightarrow \infty}f(r,M)=\infty.
+%\]
+We have the following result due to \cite{zheng2021trimmed}
+modified slightly with an independent proof. 
+%Since our statement differs from that given in \cite{zheng2021trimmed},we provide a proof.
+\begin{lemma}[Level Compactness of $f$]
+\label{lem:levelcompact1}\cite[Theorem 1]{zheng2021trimmed}
+Let $f$ be as given in \eqref{eq:key1}. Then, given $\rho\in\R$ and $\alf>0$, the set 
+\[
+\DD_{\rho,\alf}:=
+\lset{(r,M)\in \R^n\times \bS_{++}^n}{f(r,M)\le \rho\ \text{and}\
+\mu_\mmin(M)\ge\alf}
+\] 
+is compact, where $\mu_\mmin(M)$ and $\mu_\mmax(M)$ are the smallest
+and largest eigenvalue of $M$, respectively.
+\end{lemma}
+\begin{proof}
+If $\DD_{\rho,\alf}=\emptyset$, it is compact so we assume it is not empty.
+Since $f$ is continuous on $\DD_{\rho,\alf}$, we need only show that this set 
+is bounded. The boundedness of this set follows immediately from \eqref{eq:eigbd}. Indeed, if
+%For this we assume to the contrary that 
+$\{(r^k,M_k)\}\subset \R^n\times \bS_{++}^n$ 
+diverges in norm then,  
+without loss of generality, either $\norm{r^k}\rightarrow \infty$
+or $\mu_\mmax(M)=\norm{M_k}\rightarrow\infty$, or both in which case 
+\eqref{eq:eigbd} tells us that $f(r^k,M_k)\rightarrow\infty$.
+%For $k\in\N$, let $M_k=U_k\Diag{\mu^k}U_k^T$ 
+%be the eigenvalue decomposition for $M_k$, where
+%$U_k^TU_k=I$ and $\mu^k\in\R^n_+$. If $\tr^k=U_k^Tr^k$, then 
+%\eq{\label{eq:key2}
+%f(r,M)=\half\left[\sum_{i=1}^n \frac{(\tr^k_i)^2}{\mu^k_i}+\ln(\mu^k_i)\right]. 
+%}
+%If $\norm{M_k}\rightarrow\infty$,
+%then \eqref{eq:eigbd} tells us that
+%\[
+%f(r^k,M_k)\ge \half \ln(\mu_\mmax(M_k))+\frac{n-1}{2}\ln(\alf)\rightarrow\infty.
+%\]
+%Hence, it must be the case that $\{M_k\}$ is bounded and 
+%$\norm{r^k}\rightarrow \infty$. 
+%%Let 
+%%$\hat\alf\ge\norm{M_k}=\mu_\mmax(M_k)$
+%%for all $k\in\N$.
+%%Since $\norm{r^k}=\norm{\tr^k}$, with no loss in generality, we may assume
+%%$\norm{\tr^k}_\infty\uparrow\infty$. 
+%Again, by \eqref{eq:eigbd},
+%$f(r^k,M_k)\ge 1\!+\!2\ln(\norm{r^k}/\sqrt{n})\!+\!\frac{n\!-\!1}{2}\ln\alf$.
+%This contradiction establishes the result.
+\end{proof}
+Observe that
+\[
+\LL_{ML}(\beta,\Gam)=f( r(\beta), \Omega(\Gam)) %+R(\beta,\gam),
+\]
+where $\map{r}{\R^p}{n}$ and
+$\map{\Omega}{\R^q}{\bS^n}$ are the affine transformations
+\[\begin{aligned}
+ r(\beta)&:=X\beta-Y,\qquad\text{and}
+\\
+\Omega(\Gam)&:=
+\Diag{\Lambda_1+Z_1\Gam Z_1^T,\dots,
+\Lambda_m+Z_m\Gam Z_m^T}.
+\end{aligned}\]
+For 
+%$\gam\in\R_+^q$ with
+%$\gam_\mmin:=\mu_\mmin(\Gam)$ and 
+$i=1,\dots,m$, define
+\[
+\omega^i_\mmin:=
+\mu_{\text{min}}(\Lambda_i)+\mu_\mmin(\Gam) %\gam_\mmin
+\sig^2_{\text{min}}(Z_i)\quad \mbox{ and }
+\quad
+\omega_\mmin:=
+\min_{i=1,\dots,m}\omega^i_\mmin,
+\]
+where $\mu_{\text{min}}(\Psi)$ 
+and $\sig_{\text{min}}(\Phi)$ 
+are the smallest eigenvalues and singular-values of 
+$\Psi$ and $\Phi$,
+respectively. 
+By \cite[Theorem 3.1]{ABBP2021},
+\eq{\label{eq:eig1}
+0<\talf:=\mu_{\text{min}}(\Lambda)\le \omega_{\text{min}}
+\le \mu_{\text{min}}(\Omega(\Gam))\quad \forall\ \Gam\in\bS_{+}^{q}.
+}
+%Consequently, \eqref{eq:basic bound} is satisfied 
+%by $M=\Omega(\Gam)$ with $\alf=\talf$
+%for all
+%$(\beta,\Gam)\in\R^p\times \bS_{+}^{q}$.
+
+
+
+\paragraph{\bf Proof for Theorem~\ref{thm:basic existence}}
+
+The bound \eqref{eq:eig1}  
+tell us that 
+\[
+\hat\DD:=\lset{(r,\Omega(\Gam))}{r\in\R^n,\, \Gam\in\bS_{+}^{q}
+\ \text{and}\ f(r,\Omega(\Gam))\le\rho}
+\subset\DD_{\talf,\rho}.
+\]
+In particular, 
+$\LL$ is bounded below by \eqref{eq:eigbd}.
+Hence there exists a sequence 
+$\{(\beta^k,\Gam^k)\}\subset\R^p\times\bS_{+}^{q}$
+such that 
+\[
+\LL_{ML}(\beta^k,\Gam_k)\downarrow
+\inf_{\beta\in\R^p,\Gam\in\bS_{+}^{q}}\LL_{ML}(\beta,\Gam).
+\]
+Let $\rho=\LL_{ML}(\beta^0,\Gam_0)$.
+Since $f$ is continuous on $\hat\DD\subset\DD_{\talf,\rho}$, 
+$\DD_{\talf,\rho}$ is compact by Lemma \ref{lem:levelcompact1},
+and both $\im{X}$ and $\im{\Omega}$ are closed,
+%
+%
+%in \eqref{eq:key1} is coercive, the sequence
+%$\{(X\beta^k-Y,\Gam^k)\}$ is necessarily bounded.
+%Since both $\Ran{X}$ and $\bS_{+}^{q}$ are closed, 
+%we can assume 
+with no loss in generality there is a
+$(\bxi,\overline\Omega)\in\im{r}\times\im{\Omega}
+%[(\Ran(X)-Y)\times\bS_{+}^{q}]
+\cap \DD_{\talf,\rho}$ 
+such that
+$(r(\beta^k),\Omega(\Gam_k))\rightarrow(\bxi,\overline\Omega)$. 
+Since $(\bxi,\overline\Omega)\in \im{r}\times\im{\Omega}$,
+%$\bxi\in\Ran(X)-Y$, 
+there is a $(\bbeta,\overline\Gam)\in\R^p\times\bS^q_+$ such that
+$(\bxi,\overline\Omega)=(r(\bbeta),\Omega(\overline\Gam))$.
+%$X\bbeta-Y=\bxi$.
+In addition, since
+$0<\talf\le \mu_\mmin(\Omega(\Gam))$ for all
+$\Gam\in\bS_{+}^{q}$, we have $\LL_{ML}$ is lsc at $(\bbeta,\overline\Gam)$ 
+telling us that $\LL(\bbeta,\overline\Gam)
+=\inf_{\beta\in\R^p,\Gam\in\bS_{+}^{q}}\LL(\beta,\Gam)$.
+
+
+\paragraph{\bf Proof of Theorem~\ref{thm:basic existence2}}
+
+Define the affine transformations
+$\map{\hOmega}{\R^q}{\bS^n}$ and $\map{\hOmega_i}{\R^q}{\bS^{n_i}}$ by
+\begin{equation}
+\hOmega(\gam):=\Omega(\Diag{\gam})\ \ \text{ and }\ \ 
+\hOmega_i(\gam):=\Omega_i(\Diag{\gam})\quad i=1,\dots,m.
+\end{equation}
+
+
+
+The existence of a solution follows immediately once the level compactness
+of $\LL + \hR$ is establinshed. To this end
+observe that
+$\LL(\beta,\gam)=\LL_{ML}(\beta, \Diag{\gamma})=f( r(\beta), \hOmega(\gamma))$ 
+and so 
+\eqref{eq:eigbd} and  \eqref{eq:eig1} tell us that
+\(
+\LL\bg\ge  \frac{n\!+\!1}{2}\ln\talf.
+\)
+Since $\hR$ is level compact, it is lower bounded.
+Therefore, $\LL +\hR$ is bounded below.
+Let $\rho\in\R$ and $\{\bgk\}
+\subset
+\lset{\bg}{\LL\bg +\hR\bg\le\rho}$. 
+We need to show that
+$\{\bgk\}$ is bounded.
+If $\norm{\bgk}\rightarrow \infty$,
+then $\hR\bgk\rightarrow \infty$. Since $\LL\bgk +\hR\bgk\le\rho$, we must
+have $\LL\bgk\rightarrow -\infty$. But $\LL$ is bounded below, hence 
+$\{\bgk\}$must be bounded, and so $\LL +\hR$ is level compact.
+%\dom(\LL+\hR)\cap(\Rp\times\Rqp)$ and $\rho>0$ be such that,
+%for all $k\in\N$,
+%\[
+%\rho>\LL\bgk+\hR\bgk\downarrow v^*:=
+%\inf_{\bg\in\Rp\times\Rqp}  \LL(\beta, \gamma) + 
+%\hR(\beta, \gamma)\ >-\infty.
+%\]
+%Since $\LL$ and $\hR$ are both lower bounded, the upper bound
+%$\rho$ combined with the level compactness of $\hR$ imply that $\{\bgk\}$ is a bounded sequence. Consequently, this
+%sequence has cluster point $\bbg$, and, since both $\LL$ and $\hR$ are lsc,
+%$\bbg$ must be a solution to \eqref{eq:extended loss}.

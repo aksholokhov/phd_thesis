@@ -1,97 +1,3 @@
-\subsection{Relaxation of the mixed-effects variable selection model}
-\label{sec:relax}
-
-Our strategy for obtaining approximate solutions to the
-mixed-effects variable selection problem \eqref{eq:lme_loss_original_in_x} is
-motivated by the sparse relaxed regularization regression (SR3) strategy
-developed in \cite{Zheng2019SR3}. That is, $0\le\gam$ is relaxed
-using the perspective of the negative log, i.e %log-barrier function
-$\map{\vphi}{\R^q\times\R}{\R\cup\{\infty\}}$ given by
-\[
-\vphi(\gam,\mu):=
-\begin{cases}
--\mu\sum_{i=1}^q\ln (\gam_i/\mu)&,\ \mu>0,\\
-\del_{\R^q_+}(\gam)&,\ \mu=0,\\
-+\infty&,\ \mu<0.
-\end{cases}
-\]
-The mapping $\vphi$ is known to be a closed proper convex function and, 
-for $\mu>0$, it is
-essentially equivalent to the well-known log-barrier function in \eqref{eq:log_barrier_relaxation_for_ip}. 
-%since in this case
-%\[
-%\phi_\mu(\gam)=q\mu\ln(\mu)-\mu\sum_{i=1}^q\ln (\gam_i).
-%\]
-For more information on the perspective mapping, its calculus,
-and perspective duality, we refer the reader to \cite{ABDFM18,ABF13}.
-%\red{Should we mention the perspective of $\psi(\gam)=-\ln (\gam)$, or perhaps the closure of the epi-limit? The connection to the perspective map might be useful since
-%we get the joint convexity in $\mu$ and $\gam$.}
-We call $\eta$ the coupling parameter and $\mu$ the log-barrier parameter
-and write $\phimu(\cdot):=\vphi(\cdot,\mu)$.
-%The parameter $0\le\blam$ is fixed and is related to the weak convexity of $\LL$
-%discussed in Lemma \ref{lem:LL weak cvx}.
-%}
-The relaxed problem employs 
-auxiliary variables $\tbg$ 
-and relaxation parameters $0\le\eta$ and $0\le \mu$
-to obtain the problem 
-\begin{equation}\label{eq:relax} 
-\begin{aligned}%\eq{\label{eq:lme_loss_relaxed}
-%\nu_\emu:=	
-\min_{\bg, \tbg} & \LL(\beta, \gamma) 
-	+\phi_\mu(\gam)+\kappa_\eta(\beta-\tbeta,\gam-\tgam)
-%\frac{\eta}{2}\norm{\beta - \tbeta}^2 + \frac{\blam+\eta}{2}\norm{\gamma - \tgamma}^2  
-+ R(\tbeta, \tgamma) 
-\\
-\text{s.t. } & \tgamma \geq 0\ .
-\end{aligned}
-\end{equation}
-We rewrite \eqref{eq:relax} %\eqref{eq:lme_loss_relaxed} 
-so as to separate the smooth and nonsmooth components to obtain
-\eq{ \label{eq:relax2}
-    \min_{\bg, \tbg} & \LL_{\emu}(\bg,\tbg) + R\tbg +\del_{\R^q_+}(\tgam)\ ,
-%    \\
-%    \text{s.t. } & 0\le\tgam,
-}
-where 
-%$x=(\beta, \gamma)$, 
-%$w=(\tbeta, \tgamma)$, $\CC=\R^p\times\R^q_+$, and
-%$\LL_\eta$ is defined in \eqref{eq:defn L sub eta}.
-\eq{\label{eq:LLlam}
-    \LL_{\emu}(\bg, \tbg) := 
-    \LL\bg + \phimu(\gam)+\keta(\beta - \tbeta, \gamma - \tgamma).
-}
-Observe that, for all $\mu,\eta\in\R_+$, $\LL_{\emu},\ \nabla \LL_{\emu}$ and $\nabla^2 \LL_{\emu}$ are continuous
-on $(\Rp\times\dom(\phimu))\times(\Rp\times\Rq)$ 
-(see Appendix \ref{appendix:derivatives_of_lmm}) 
-so that $\LL_{\emu}$ is smooth on its domain.
-As in \cite{Zheng2019SR3}, we use the 
-decoupling to write \eqref{eq:relax2}
-as an iterated optimization problem over the smooth components of the objective.
-This yields a representation of the form
-\begin{equation}
-    \label{eq:relax3}
-    \min_{\tbg} \uemu\tbg + R\tbg+\del_{\Rqp}(\tgam),
-\end{equation}
-where %$w=(\tbeta,\tgam)$ and
-\begin{equation}
-    \label{eq:value_function_definition}
-    \uemu\tbg := \min_{\bg } 
-    \LL_{\emu}(\bg, \tbg)\ .
-%    \hLL(\bg,\tgam)+ %\del_{\Rqp}(\gam)+
-%    \frac{\eta}{2}\norm{\bg-\tbg}^2
-    %\LL(x) + \lambda\|x - w\|_2^2 
-\end{equation}
-This is the formulation of the mixed-effects variable selection problem we study.
-Our focus is on the optimal value function $\uemu$ which captures global 
-variational information about the function $\LL$ over its domain.
-We show that $\uemu$ has a locally Lipschitz continuous gradient
-and that the evaluation of $\uemu$ and $\nabla \uemu$ is accomplished
-by optimizing a well conditioned strongly convex function. This
-allows us to apply the PGD algorithm to the function $\uemu$ rather than
-the function $\LL$. Our numerical studies show that the global information 
-captured by $\uemu$ significantly improves both the accuracy of the solution
-obtained and the overall numerical efficiency of the algorithm.
 %gives the problem structure used in the design of our
 %numerical solution method. 
 %Specifically, we design a 
@@ -101,7 +7,7 @@ obtained and the overall numerical efficiency of the algorithm.
 %is continuously differentiable with Lipschitz continuous gradient. 
 
 %\section{Prox Gradient Descent}
-\subsection{Proximal Gradient Descent for $\uemu\tbg + R\tbg+\del_{\Rqp}(\tgam)$} 
+\subsection{Proximal Gradient Descent for \texorpdfstring{$\uemu\tbg + R\tbg+\del_{\Rqp}(\tgam)$}{}} 
 \label{sec:pgd}
 
 We follow the analysis of the PGD algorithm given in \cite[Chapter 10]{AB17}
@@ -130,17 +36,6 @@ For this reason we state the algorithm with and without a line search.
 %\noindent
 %{\bf Algorithm 1:} Proximal Gradient Descent with fixed stepsize (PGD)
 
-\begin{algorithm}[H]
-\SetAlgoLined
-$\tw = \tw^0$, $\gammax>\tgam^0$, $\alpha < \frac{2}{L}$ 
-for $L>0$.\\
- \While{not converged and $\tgam\le\gammax$}{
-    $\tw^+ = \prox_{\alpha \tR }(\tw - \alpha \nabla \uemu (\tw))$\\
- }
-\caption{\label{alg:MSR3}Proximal Gradient Descent for 
-$\Phi_\emu$}
-\end{algorithm}
-\medskip
 
 %\noindent
 %{\bf Algorithm 2:} Proximal Gradient Descent with Backtracking (PGD-B)
@@ -224,7 +119,7 @@ consumes the majority of the theoretical development.
 %\cite{AB17} to apply. 
 %We begin by establishing the smoothness of $\uemu$.
 
-%\begin{figure}[H]
+%\begin{figure}[t]
 %    \centering
 %    \includegraphics[width=\textwidth]{Images/intuition_current.pdf}
 %    \caption{Proximal Gradient Descent (PGD) takes an order of magnitude fewer iterations to converge when optimizing a value function instead of the original likelihood, because SR3-relaxation improves the conditioning of the problem, which results in a more spherical level-sets. This effect persists for both quadratic convex (first row) and non-convex components (second row) of the likelihood. The effect is stronger for  minima near the boundary of the constraint region 
@@ -233,7 +128,7 @@ consumes the majority of the theoretical development.
 %\end{figure}
 
 
-\subsection{The Smoothness of $u_\emu$}\label{sec:smoothness}
+\subsection{The Smoothness of \texorpdfstring{$u_\emu$}{}}\label{sec:smoothness}
 We investigate the relationship between the problems \eqref{eq:lme_loss_original_in_x}
 and \eqref{eq:relax2}, the existence of solutions to 
  \eqref{eq:relax2}, and the properties of the function $\uemu$ and its derivative.
@@ -244,7 +139,7 @@ and \eqref{eq:relax2}, the existence of solutions to
 \subsubsection{Underlying convexity}
 
 \begin{lemma}[$\LL+\phimu$ is Weakly Convex]\label{lem:LL weak cvx}
-Let $\LL$ be as given in \eqref{eq:lme_gam}. Then
+Let $\LL$ be as given in \eqref{eq:lme_diagonal_setup}. Then
 \begin{equation}\label{eq:hess LL}
 \nabla^2\LL{(\beta,\gam)}=\sum_{i=1}^m
 S_i^T\begin{bmatrix}X_i^T\\ -Z_i^T\end{bmatrix}
@@ -619,7 +514,7 @@ $\eta\uparrow\infty$ the solutions to
 \min_{\bg\in\CC}\LL\bg+\phimu(\gam)+R\bg.
 \end{equation}
 In particular, for $\mu=0$, they converge to solutions of 
-\eqref{eq:vs_lme}.
+\eqref{eq:lme_loss_original_in_x}.
 
 \begin{theorem}[Consistency as $\eta\rightarrow\infty$]\label{thm:eta consistency}
 Let $\LL$ and $R$ be as in Theorem \ref{thm:relaxed existence}
@@ -648,7 +543,7 @@ By Lemma \ref{lem:lb plus 1c} and Theorem \ref{thm:basic existence2}
 with $\hR=\phimu+R$, 
 %\ref{thm:relaxed existence}, 
 there is an optimal solution $\xmu$ 
-to \eqref{eq:log-barrier problem} %\eqref{eq:vs_lme} 
+to \eqref{eq:log-barrier problem} %\eqref{eq:lme_loss_original_in_x} 
 yielding an optimal value of $\vmu$ for which 
 $a_k(x^k,w^k)\le a_k(\xmu,\xmu)=\vmu$ for all $k\in\N$. Hence, the sequence
 $\{a_k(x^k,w^k)\}$ is upper bounded by $\vmu$.
@@ -715,7 +610,7 @@ and set $(\beta^k,\gam^k):=(\beta_{\mu_k},\gam_{\mu_k})$.
 %\rightarrow (\bbeta,\bgam)$.
 Set $\tLL:=\LL+R+\del_{\Rp\times\Rqp}$ so that 
 the objective in \eqref{eq:log-barrier problem} is $\tLL+\phimu$
-and the objective in \eqref{eq:vs_lme} is $\tLL$
+and the objective in \eqref{eq:lme_loss_original_in_x} is $\tLL$
 with $(\beta_0,\gam_0)$ a solution to \eqref{eq:lme_loss_original_in_x}
 by definition. 
 Observe that
@@ -760,7 +655,7 @@ $\phi_{\mu}(\gam)=\varphi(\mu,\gam)$ is lsc on $\Rp\times\Rqp$, we have
 \tLL\bg \quad \forall\,\bg\in\Rp\times\R^q_{++}.
 \]
 Consequently, the continuity of $\tLL$ on $\Rp\times\Rqp$ implies
-that $(\bbeta,\bgam)$ solves \eqref{eq:vs_lme}.
+that $(\bbeta,\bgam)$ solves \eqref{eq:lme_loss_original_in_x}.
 \end{proof}
 
 
@@ -814,11 +709,11 @@ that $(\bbeta,\bgam)$ solves \eqref{eq:vs_lme}.
 %}
 
 
-\subsubsection{The continuity and differentiability of $\uemu$}
+\subsubsection{The continuity and differentiability of \texorpdfstring{$\uemu$}{}}
 
 %The problems in \eqref{eq:relax3} all 
 %have the same form as the unrelaxed problem  
-%\eqref{eq:vs_lme} 
+%\eqref{eq:lme_loss_original_in_x} 
 %with the optimal value function $\uemu$ replacing the likelihood $\LL$.
 %We propose applying the (PGD) %Proximal Gradient Descent 
 %algorithm 
@@ -1188,7 +1083,7 @@ The result follows since $\nabla _w\LL_{\emu}(\bg,\tbg)
 $.
 \end{proof}
 
-\subsubsection{The Lipschitz Continuity of $\nabla \uemu\tbg$}
+\subsubsection{The Lipschitz Continuity of \texorpdfstring{$\nabla \uemu\tbg$}{}}
 
 Since our goal is to employ the PGD algorithm to solve the relaxed problems
 \eqref{eq:relax}, we 
@@ -1648,7 +1543,7 @@ this set for all $\omega\ge 0$.
 %%The bound  is user spe
 %\end{remark}
 
-\subsection{Convergence of the PGD Algorithm for $\Phi_\emu$}
+\subsection{Convergence of the PGD Algorithm for \texorpdfstring{$\Phi_\emu$}{}}
 \label{sec:convergence pgd}
 
 The convergence of the PGD algorithm for fixed valued of the relaxation parameters
@@ -1806,9 +1701,9 @@ we obtain the result.
  is a solution to \eqref{eq:log-barrier problem}, while Theorem
  \ref{thm:mu consistency} tells us that every
  limit point of solutions \eqref{eq:log-barrier problem} as $\mu\downarrow 0$
- is a solution to the variable selection problem \eqref{eq:vs_lme}. 
+ is a solution to the variable selection problem \eqref{eq:lme_loss_original_in_x}. 
 These results suggest a range of numerical approachs to obtaining approximate 
-solutions to the target problem \eqref{eq:vs_lme}.
+solutions to the target problem \eqref{eq:lme_loss_original_in_x}.
  %%
  The issue of foremost concern is the method for approximating 
  solutions to \eqref{eq:value_function_definition} since the accuracy in this approximation

@@ -11,7 +11,8 @@
 In particular, we consider a single pixel camera setup where for every time instance $t$, $p$ acquisitions $y(t)$ are obtained by a high sampling rate photo-detector using the projection matrix $A_t$. The rows of the matrix $A_t$ correspond to a binary mask pattern that can be encoded using a digital micro-mirror device (DMD) where the incoming light from $x(t)$ is reflected from the DMD array and focused onto the photo-detector. Figure~\ref{fig:SPI} illustrates an example of the single pixel imaging setup where a gas plume is imaged using a DMD array and a medium infra-red (MIR) photo-detector. 
 \begin{figure}
 \centering
-\includegraphics[width = 0.5\textwidth]{figures/SPI_setup.pdf}\label{fig:SPI}
+\includegraphics[width = 0.5\textwidth]{figures/SPI_setup.pdf}
+\caption{SPI setup \label{fig:SPI}}
 \end{figure}
 
 However, it is often possible to have access to a complete state $x(t)$ at the moment of model training. Thus, one can develop a ROM $(\psi_\theta, \phi_\theta, h_\theta)$ using the full state $x(t)$, and then utilize this ROM for real-time compressive sensing applications. 

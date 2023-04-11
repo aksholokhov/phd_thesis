@@ -151,16 +151,31 @@ Linear Mixed-Effects models are widely used technique for modeling clustered dat
 \label{appendix:proxes}
 \input{appendix/proxes}
 
+\section{Existence of Minimizers (Theorems~\ref{thm:basic existence} and~\ref{thm:basic existence2})}
+\label{adx:basic existence}
+\input{appendix/existence_of_solutions_for_lme}
+
 \section{Lipschitz-constant for Likelihood of a Linear Mixed-Effects Model}
 \label{appendix:lipschitz_constant}
 \input{appendix/lipschitz_constant}
 
-\section{Description of Datasets}
-\subsection{GBD Bullying Data}
+\section{Detailed Results from Simulation from Table \ref{table:comparison_of_algorithms}}
+\label{appendix:detailed_comparison}
+\begin{table}[t]
+    \centering
+    \resizebox{\columnwidth}{!}{\input{tables/performance_table_long_current}}
+    \caption{Comparison of performance of algorithms}
+    \label{table:detailed_comparison_of_algorithms}
+\end{table}
+
+\section{Description of Datasets: GBD Bullying Data}
 \input{appendix/bullying_features_description}
 
-\subsection{COVID-19 Contact Rate Forecasting Data}
-\input{tables/covid_groups_description}
-\input{tables/covid_coefficients}
+%\subsection{COVID-19 Contact Rate Forecasting Data}
+%\input{tables/covid_groups_description}
+%\input{tables/covid_coefficients}
+
+\section{Detailed Design of Experiments for PINODE}
+\input{appendix/pinode_appendix}
 
 \end{document}

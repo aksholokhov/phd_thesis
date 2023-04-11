@@ -48,7 +48,7 @@ accommodates a wide variety of variable selection strategies based on a set
 of easily implementable regularizers, and implemented in an open source library that makes 
 it easy to use and to compare different methods. 
 
-\begin{figure}[H]
+\begin{figure}[t]
     \centering
     \includegraphics[width=\textwidth]{figures/summary_picture.pdf}
     \caption{Selection of fixed and random effects for LME likelihoods $\mathcal{L}$ using 
@@ -171,8 +171,9 @@ The negative log likelihood~\eqref{eq:ml_lme_optimization_setup}  is nonlinear a
 However, it is convex with respect to $\beta$, and weakly convex with respect to $\gamma$, with a weak convexity constant $\overline \eta$
 computed in~\cite[Section 5.1]{Theory1} . The expected value of the posterior mode $\beta$ given $\Gamma$ has the closed form representation 
 %\eq{
-%	\label{eq:beta_formula}
+%	
 \[
+\label{eq:beta_formula}
 	\beta(\Gamma) = \argmin_{\beta}\LL(\beta, \Gamma) = \left(\sum_{i = 1}^m X_i^T\Omega_i^{-1}X_i\right)^{-1}\sum_{i = 1}^mX_i^T\Omega_i^{-1}y_i.
 \] %}
 By using the simplification $\Gam=\Diag{\gam}$, we obtain the problem
@@ -266,7 +267,7 @@ where $\|\theta\|_0$ denotes the number of nonzero entries in $\theta$, see pane
 
 % In this form the problem is equivalent to the Knapsack problem, which is NP-complete. Many techniques based on exhaustive search, also known as subset selection process, were developed, and showed to be effective when the total number of predictors is small (see \cite{Muller2013}). The same setup appears to be intractable in a high-dimension setting due to the exponential growth of the number of subsets to check when $n \to \infty$, however, it's possible to get an approximate solution via relaxation techniques.
 
- \begin{figure}[H]
+ \begin{figure}[t]
     \centering
     \begin{tabular}{ccc}
         \includegraphics[width=0.3\textwidth]{figures/l1_regularizer.pdf}
@@ -609,7 +610,7 @@ under weak assumptions, in particular neither the objective nor the regularizer 
 
 \search{Add table with rates of convergence wherever possible}
 
-\begin{figure}[h!]
+\begin{figure}[t]
     \centering
     \includegraphics[width=\textwidth]{figures/intuition_current.pdf}
     \caption{Proximal Gradient Descent (PGD) for~\eqref{eq:value_function_optimization} converges far faster than for~\eqref{eq:lme_loss_original_in_x}, because the SR3-value function $u_\eta$ yields more spherical level-sets than original likelihood for both convex components $\beta$ (first row) and non-convex components $\gamma$ (second row). 
@@ -642,8 +643,9 @@ As $\eta \uparrow \infty$, the extended objective~\eqref{eq:lme_loss_sr3} conver
 However, feature selection accuracy does not require this continuation, and a fixed 
 modest value can be used~\citep{Zheng2019SR3}, e.g. $\eta=1$.
 
-To understand the algorithm and logic behind the objective~\eqref{eq:lme_loss_sr3}, we define a value function $u_\eta(w)$ and the solution set $S_\eta(w)$:
+To understand the algorithm and logic behind the objective~\eqref{eq:lme_loss_sr3}, we, for this section alone, define a simplified version of the value function $u_\eta(w)$ and the solution set $S_\eta(w)$:
 \eq{
+	\label{eq:value_function_definition_only_eta}
 		u_\eta(w) & = \min_x \ \LL(x) + \delta_{\CC}(x) + \kappa_{\eta}(x-w)\\
 		S_\eta(w) & = \argmin_x \LL(x) + \delta_{\CC}(x) + \kappa_{\eta}(x-w).
 }
@@ -759,23 +761,111 @@ This problem is well suited for an interior point approach~\citep{Kojima1991,Nes
 % when $\LL=\LL_{ML}$. The case where $\LL=\LL_{REML}$ follows a 
 % similar pattern.
 %To apply IP methods to our problem class, we first 
-First, the inequality constraint $0\le \gamma$ is relaxed using a log-barrier penalty, obtaining a minimization problem for a relaxed objective $\mathcal{L}_{\mu,\eta}$: 
-\eq{
-	\label{eq:log_barrier_relaxation_for_ip}
-	\min_{\beta, \gamma} &\left\{\mathcal{L}_{\mu,\eta}(\beta, \gamma) :=  \mathcal{L}(\beta, \gamma) + \kappa_{\eta}(\beta - \hat \beta, \gamma - \hat \gamma) - \mu\sum_{i=1}^{q}\ln(\gamma_i) \right\}.
+First, the inequality constraint $0\le\gam$ is relaxed
+using the perspective of the negative log, i.e %log-barrier function
+$\map{\vphi}{\R^q\times\R}{\R\cup\{\infty\}}$ given by
+\[
+\vphi(\gam,\mu):=
+\begin{cases}
+-\mu\sum_{i=1}^q\ln (\gam_i/\mu)&,\ \mu>0,\\
+\del_{\R^q_+}(\gam)&,\ \mu=0,\\
++\infty&,\ \mu<0.
+\end{cases}
+\]
+The mapping $\vphi$ is known to be a closed proper convex function and, 
+for $\mu>0$, it is
+essentially equivalent to the well-known log-barrier function.
+%since in this case
+%\[
+%\phi_\mu(\gam)=q\mu\ln(\mu)-\mu\sum_{i=1}^q\ln (\gam_i).
+%\]
+For more information on the perspective mapping, its calculus,
+and perspective duality, we refer the reader to \cite{ABDFM18,ABF13}.
+%\red{Should we mention the perspective of $\psi(\gam)=-\ln (\gam)$, or perhaps the closure of the epi-limit? The connection to the perspective map might be useful since
+%we get the joint convexity in $\mu$ and $\gam$.}
+We call $\eta$ the coupling parameter and $\mu$ the log-barrier parameter
+and write $\phimu(\cdot):=\vphi(\cdot,\mu)$.
+%The parameter $0\le\blam$ is fixed and is related to the weak convexity of $\LL$
+%discussed in Lemma \ref{lem:LL weak cvx}.
+%}
+The relaxed problem employs 
+auxiliary variables $\tbg$ 
+and relaxation parameters $0\le\eta$ and $0\le \mu$
+to obtain the problem 
+\begin{equation}\label{eq:relax} 
+\begin{aligned}%\eq{\label{eq:lme_loss_relaxed}
+%\nu_\emu:=	
+\min_{\bg, \tbg} & \LL(\beta, \gamma) 
+	+\phi_\mu(\gam)+\kappa_\eta(\beta-\tbeta,\gam-\tgam)
+%\frac{\eta}{2}\norm{\beta - \tbeta}^2 + \frac{\blam+\eta}{2}\norm{\gamma - \tgamma}^2  
++ R(\tbeta, \tgamma) 
+\\
+\text{s.t. } & \tgamma \geq 0\ .
+\end{aligned}
+\end{equation}
+
+We rewrite \eqref{eq:relax} %\eqref{eq:lme_loss_relaxed} 
+so as to separate the smooth and nonsmooth components to obtain
+\eq{ \label{eq:relax2}
+    \min_{\bg, \tbg} & \LL_{\emu}(\bg,\tbg) + R\tbg +\del_{\R^q_+}(\tgam)\ ,
+%    \\
+%    \text{s.t. } & 0\le\tgam,
 }
-Here the log-barrier penalty approximates the indicator function to the positive orthant as $\mu$ decreases; indeed, the function $\gamma\mapsto\mu\ln(\gamma)$ epi-converges to the indicator function $\delta_{\mathbb{R}^n_+}(\gamma)$ as $\mu \downarrow 0$ (\cite{rockafellar2009variational}). The penalty (homotopy) parameter $\mu$ is progressively decreased to $0$ as the algorithm proceeds as described below. 
+where 
+%$x=(\beta, \gamma)$, 
+%$w=(\tbeta, \tgamma)$, $\CC=\R^p\times\R^q_+$, and
+%$\LL_\eta$ is defined in \eqref{eq:defn L sub eta}.
+\eq{\label{eq:LLlam}
+    \LL_{\emu}(\bg, \tbg) := 
+    \LL\bg + \phimu(\gam)+\keta(\beta - \tbeta, \gamma - \tgamma).
+}
+Observe that, for all $\mu,\eta\in\R_+$, $\LL_{\emu},\ \nabla \LL_{\emu}$ and $\nabla^2 \LL_{\emu}$ are continuous
+on $(\Rp\times\dom(\phimu))\times(\Rp\times\Rq)$ 
+(see Appendix \ref{appendix:derivatives_of_lmm}) 
+so that $\LL_{\emu}$ is smooth on its domain.
+As in \cite{Zheng2019SR3}, we use the 
+decoupling to write \eqref{eq:relax2}
+as an iterated optimization problem over the smooth components of the objective.
+This yields a representation of the form
+\begin{equation}
+    \label{eq:relax3}
+    \min_{\tbg} \uemu\tbg + R\tbg+\del_{\Rqp}(\tgam),
+\end{equation}
+where %$w=(\tbeta,\tgam)$ and
+\begin{equation}
+    \label{eq:value_function_definition}
+    \uemu\tbg := \min_{\bg } 
+    \LL_{\emu}(\bg, \tbg)\ .
+%    \hLL(\bg,\tgam)+ %\del_{\Rqp}(\gam)+
+%    \frac{\eta}{2}\norm{\bg-\tbg}^2
+    %\LL(x) + \lambda\|x - w\|_2^2 
+\end{equation}
+This is the formulation of the mixed-effects variable selection problem we study. 
+Notice that this value function differs from a simplified 
+definition in \eqref{eq:value_function_definition_only_eta}: we replaced 
+the linearity constraint with a perspective function and got another parameter $\mu$ due to it. The log-barrier penalty approximates the indicator function to the positive orthant as $\mu$ decreases; indeed, the function $\gamma\mapsto\mu\ln(\gamma)$ epi-converges to the indicator function $\delta_{\mathbb{R}^n_+}(\gamma)$ as $\mu \downarrow 0$ (\cite{rockafellar2009variational}). The penalty (homotopy) parameter $\mu$ is progressively decreased to $0$ as the algorithm proceeds as described below. 
 %in the limit minimizing $\mathcal{L}_{\eta,\mu}$ gives the right $x^+$ update in Algorithm~\ref{alg:pgd_for_value}. 
-The existence of solutions for the problem~(\ref{eq:log_barrier_relaxation_for_ip}) for any positive $\mu$ is shown in \cite[Theorem 5]{Theory1}, and the convergence of solutions to the MSR3 solution as $\mu\downarrow 0$ is shown in~\cite[Theorem 7]{Theory1}.  
+ We refer to \eqref{eq:value_function_definition} when we say ``value function'' from now on.
+
+Our focus is on the optimal value function $\uemu$ which captures global 
+variational information about the function $\LL$ over its domain.
+We show that $\uemu$ has a locally Lipschitz continuous gradient
+and that the evaluation of $\uemu$ and $\nabla \uemu$ is accomplished
+by optimizing a well conditioned strongly convex function. This
+allows us to apply the PGD algorithm to the function $\uemu$ rather than
+the function $\LL$. Our numerical studies show that the global information 
+captured by $\uemu$ significantly improves both the accuracy of the solution
+obtained and the overall numerical efficiency of the algorithm.
+
+To motivate the reader, the theoretical results that support the design of Algorithm \ref{alg:MSR3} go as follows. The existence of solutions for the problem~(\ref{eq:value_function_definition}) for any positive $\mu$ is shown in \cite[Theorem 5]{Theory1}, and the convergence of solutions to the MSR3 solution as $\mu\downarrow 0$ is shown in~\cite[Theorem 7]{Theory1}.  
 Finally, \cite[Theorem 6]{Theory1} shows that the MSR3 relaxation is consistent with respect to the barrier, so that as the MSR3 parameter $\eta \uparrow \infty$,
  limit points of global solutions to the former are global solutions to the latter. 
- However, in the applications considered here,
- the empirical studies in Sections \ref{sec:synthetic} and \ref{sec:real}
- indicate that one does not need to make $\eta$ particularly large in order to accurately identify the correct sparsity pattern. 
+ However, the empirical studies in Sections \ref{sec:synthetic} and \ref{sec:real}
+ indicate that one does not need to make $\eta$ particularly large in order to accurately identify the correct sparsity pattern. These results were first published in the joint works \cite{sholokhov2022relaxation, aravkin2022jimtheory}, constitute the original work of the author of the thesis, and were mostly taken verbatim per the co-authors'  permission.
 
 
-%The Lagrangian for~\eqref{eq:log_barrier_relaxation_for_ip} is obtained by dualizing the inequality $\gamma \geq 0$ constraint: 
-% Define the objective for \eqref{eq:log_barrier_relaxation_for_ip} by
+%The Lagrangian for~\eqref{eq:value_function_definition} is obtained by dualizing the inequality $\gamma \geq 0$ constraint: 
+% Define the objective for \eqref{eq:value_function_definition} by
 % \eq{
 % 	F_\mu(\beta, \gamma) & = \LL(\beta, \gamma) +  \frac{\lambda_b}{2}\|\beta - \tbeta^{(k)}\|^2_2 + \frac{\lambda_g}{2}\|\gamma - \tgamma^{(k)}\|_2^2 - \mu\sum_{i=1}^{q}\log(\gamma_i) %+ v^T\gamma \\
 % }
@@ -814,9 +904,9 @@ we can rewrite this equation as
 }
 where $\one$ is the vector of all ones of the appropriate dimension and
 ``$\odot$'' denotes the Hadamard (or simply element-wise) product.
-%Together with the remaining optimality conditions, we obtain a set of nonlinear equations  that form the the KKT system for~\eqref{eq:log_barrier_relaxation_for_ip}:
+%Together with the remaining optimality conditions, we obtain a set of nonlinear equations  that form the the KKT system for~\eqref{eq:value_function_definition}:
 The complete set of optimality conditions for 
-\eqref{eq:log_barrier_relaxation_for_ip} can now be written as
+\eqref{eq:value_function_definition} can now be written as
 \eq{\label{eq:IP equations}
 	G_{\mu,\eta}(v, \beta, \gamma) & 
 %	= \begin{bmatrix}
@@ -863,7 +953,8 @@ choose a step of size $\alpha_k>0$
 %}
 %with $\alpha_k$ 
 so that the update
-\[
+\eq{
+\label{eq:ip_one_step}
 \begin{pmatrix}
 v^{(k+1)}\\ \beta^{(k+1)}\\ \gamma^{(k+1)}
 \end{pmatrix}
@@ -875,7 +966,7 @@ v^{(k)}\\ \beta^{(k)}\\ \gamma^{(k)}
 \begin{pmatrix}
 \Delta v^{(k)}\\ \Delta\beta^{(k)}\\ \Delta\gamma^{(k)}
 \end{pmatrix}
-\]
+}
 satisfies the conditions
 % chosen to satisfy positivity and sufficient descent conditions:
 \eq{
@@ -903,15 +994,15 @@ In the numerical experiments, we use $\text{\texttt{tol}} = 10^{-5}$, and accura
 
 \begin{algorithm}[H]
 \SetAlgoLined
-$w = w_0$ \\
- \While{not converged}{
-    $x^+ \; \mbox{satisfies }\;  \|G_{\mu,\eta}(v^+, x^+)\| \leq \text{\texttt{tol}}, \; \mu \leq \text{\texttt{tol}} $\\
+$w^0 = (\tbeta^0, \tgamma^0)$, $x^0 = (\beta^0, \gamma^0)$, $\gammax>\tgam^0$, $\alpha < \frac{2}{L}$ 
+for $L>0$.\\
+ \While{not converged and $\tgam\le\gammax$}{
+    \text{Find } $x^+$ \text{ using \eqref{eq:ip_one_step}}$\mbox{ which satisfies }\;  \|G_{\mu,\eta}(v^+, x^+)\| \leq \text{\texttt{tol}}, \; \mu \leq \text{\texttt{tol}} $\\
     $w^+ = \prox_{\alpha^{-1} R}(x^+)$
  }
- \caption{\label{alg:MSR3} MSR3}
+\caption{\label{alg:MSR3} MSR3}
 \end{algorithm}
-
-
+\medskip
 
 \paragraph{Positive Approximation of the Hessian}
 For many datasets the weak convexity constant $\overline \eta$ can be extremely large 
@@ -990,7 +1081,7 @@ $\beta^+, \tbeta^+\leftarrow\beta_0$;
 \caption{\label{table:comparison_of_algorithms} Comparison of performance of algorithms measured as accuracy of selecting the correct covariates and run-time. The L0 strategy stands out 
 over other standard regularizers. MSR3 improves performance significantly for all regularizers, while MSR3-fast improves convergence speed while preserving the 
 accuracy of MSR3.  
-More detailed results are in the Table \ref{table:detailed_comparison_of_algorithms} of Appendix \ref{ch:appendix_detailed_comparison}.}
+More detailed results are in the Table \ref{table:detailed_comparison_of_algorithms} of Appendix \ref{appendix:detailed_comparison}.}
 \end{table}
 
 \begin{figure}

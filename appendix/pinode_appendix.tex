@@ -1,0 +1,71 @@
+\paragraph{Hardware} All experiments were computed using an \texttt{Intel(R) Xeon(R) CPU E5-2630 v4 @ 2.20 GHz} equipped with a \texttt{Tesla K80} GPU. The computer had \texttt{Linux 4.15} installed as an OS.
+
+\subsection{Lifted Duffing Oscillator: Learning Unseen Basins with Collocations (Figure~\ref{fig:duffing_pinode})}
+\label{appendix:duffing_pinode}
+In this experiment we trained two models; both share the same architecture but differ in the input data, as described in Chapter~\ref{sec:duffing}.
+
+\paragraph{Architecture}
+The network consists of two blocks: the autoencoder pair $\phi_\theta(\bd{x}),\ \psi_\theta(\bd{z})$, and the latent dynamics $h_\theta(\bd{z})$, where $\theta$ represents the combined weights of all networks.
+
+Both $\phi$ and $\psi$ were fully-connected networks with three layers, the input-output dimension of 128, the bottleneck-space dimension of 2, and the hidden-layer dimensions of 256. The hidden layers had ReLU activations except for the output layers of $\phi$ and $\psi$ which had linear activation. 
+
+The network $h$ was a fully-connected network with three layers, with the input and output dimension of 2 and the hidden-layer dimensions of 128. All hidden layers had ReLU activation, the output layer had a linear activation.
+
+We used standard network classes of \texttt{pytorch}\footnote{\href{https://pytorch.org}{https://pytorch.org}} by~\cite{pytorch} to implement the networks, and we used a differentiable integrator \texttt{torchdiffeq}\footnote{\href{https://github.com/rtqichen/torchdiffeq}{https://github.com/rtqichen/torchdiffeq}} by~\cite{chen2018neuralode} for evaluating derivatives of the loss function. 
+
+\paragraph{Data} For data \textbf{snapshots} we used 6144 trajectories 10 steps long each, with a step-size $dt = 0.1$. For \textbf{collocations} we generated a set of $10^5$ 2-dimensional points $\bar{\bd{z}}_j \in U\left([-3/2,\, 3/2] \times [-1, 1]\right)$, excluded those belonging to the left (red) lobe, and projected them to the observable space $\mathcal{X}$ using the true decoder~(\ref{eq:duffing_true_decoder}). We then used those high-dimensional points $\bar{\bd{x}}_j$ as collocations. 
+
+\paragraph{Training} We trained the combined model for 400 epochs, with the learning rate of $10^{-4}$. All weights $\omega_i$ were set to 1 for a hybrid model, and $\omega_2$, $\omega_4$ were set to 0 for a data-driven model. 
+
+In each batch we had 64 trajectories and, in case of hybrid models, 640 collocation points. The rationale behind this ratio is that one trajectory contains number-of-steps snapshots of the system. Hence, to balance the amount of information that comes from both sources within a batch, we were taking the number-of-steps more collocations than trajectories for every batch. The same rationale holds for all other instances of training of a hybrid model in this paper.
+
+\subsection{Lifted Duffing Oscillator: Far-Out Forecasting (Figure~\ref{fig:duffing_periods}).}
+\label{appendix:duffing_forecast}
+In this experiment we trained three models, all sharing the same architecture but differ in their loss functions, namely in the coefficients $w_i$.
+
+\paragraph{Architecture} The networks architectures match to the one described in Appendix~\ref{appendix:duffing_pinode}.
+\paragraph{Data} For data \textbf{snapshots} we used 6144 trajectories (2048 for each of the attractors) 10 steps long each, with a step-size $dt = 0.1$. For \textbf{collocations} we generated a set of $10^5$ 2-dimensional points $\bar{\bd{z}}_j \in U\left([-3/2,\, 3/2] \times [-1, 1]\right)$ and projected them to the observable space $\mathcal{X}$ using the true decoder~(\ref{eq:duffing_true_decoder}). We then used those high-dimensional points $\bar{\bd{x}}_j$ as collocations. 
+
+\paragraph{Training} We trained the combined model for 400 epochs, with the learning rate of $10^{-4}$. All weights $\omega_i$ were set to 1 for a hybrid model, $\omega_3$, $\omega_4$ were set to 0 for a data-driven model, and $\omega_1 = \omega_2 = 0$ for Physics-Informed model. 
+
+\subsection{Lifted Duffing Oscillator: Role of Non-Linear Latent Dynamics (Figure~\ref{fig:duffing_comparison}).}
+\label{appendix:duffing_non_linearity}
+In this experiment we trained three models: DMD, PIKN, and PINODE. 
+
+\paragraph{Architecture} The PINODE model's architecture matches to the one described in Appendix~\ref{appendix:duffing_pinode}. The PIKN model's architecture is the same except that the latent dynamics $h(z) = Lz$ is linear: it consists of one fully-connected linear layer of width 16 with no bias and no activation function. DMD model had the latent space of 16; the implementation is faithful to the original works \cite{kutz2016dynamic}.
+\paragraph{Data} The datasets for both trajectories and collocations match to the ones described in Apendix~\ref{appendix:duffing_forecast}
+
+\paragraph{Training} We trained the combined model for 400 epochs, with the learning rate of $10^{-4}$. All weights $\omega_i$ were set to 1 for both PIKN and PINODE. DMD model used no collocations, whereas PIKN and PINODE used both trajectories and collocations. 
+
+\subsection{Burgers' Equation: Compressibility (Figure~\ref{fig:burgers_compressibility})}
+\label{appendix:burgers_compressibility}
+In this section we study how efficiently different ROMs use the same size of the latent space.
+
+\paragraph{Architecture} In \textbf{PINODE} and \textbf{PIKN} models, both $\phi$ and $\psi$ were fully-connected networks with three layers, the input-output dimension of 128 and the hidden-layer dimensions of 512. The hidden layers had ReLU activation except for the output layers of $\phi$ and $\psi$ which had linear activation.
+The size of the latent space was varying from 2 to 512, see the x-axis of Figure~(\ref{fig:burgers_compressibility}). 
+In \textbf{PINODE}, the network $h$ was a fully-connected network with three layers with the hidden-layer dimensions of 512. All hidden layers had ReLU activation, the output layer had a linear activation. For \textbf{PIKN} the network had one layer of the latent space size with no bias and linear activation. In other words, $h(z) = Az$.
+For \textbf{DMD} we used a classic algorithm from~\cite{kutz2016dynamic}, and set the number of DMD modes to be equal to the size of the latent dimension. 
+\paragraph{Data}For \textbf{snapshots}, we generated 16384 trajectories of the system for our train dataset and 300 trajectories for our test dataset. Each trajectory had 40 time-steps with $dt = 0.1$. We used randomly-generated functions from Equation~\ref{eq:burger_initial_condition} as initial conditions for the trajectories. We used only first 20 time-steps of train trajectories for training. We used the first 20 steps of the test trajectories to evaluate \textit{interpolation} performance of the model, and the next 20 time-steps for evaluating \textit{extrapolation} performance. All performance measures on Figure~(\ref{appendix:burgers_compressibility}) are based on the test dataset.
+For \textbf{collocations}, we used Equation~(\ref{eq:burger_collocations}) to generate $10^5$ collocation points. 
+\paragraph{Training} We trained models for 500 epochs, with the learning rate of $10^-4$. All weights $\omega_i$ were set to 1 for a hybrid model, and $\omega_3$, $\omega_4$ were set to 0 for a data-driven model. Every batch contained 64 trajectories and 1280 (that is, 64*20) collocation points, with the same rationale as in Appendix~\ref{appendix:duffing_pinode}.
+
+\subsection{Burgers' Equation: Data-vs-Collocations (Figure \ref{fig:burger_data_vs_collocations})}
+In this section we study the relative impact of data and collocations as training datasets to the performance of the resulting models.
+\label{appendix:burgers_data_vs_collocations}
+\paragraph{Architecture} In \textbf{PINODE} models both $\phi$ and $\psi$ were fully-connected networks with three layers, the input-output dimension of 128, the latent-space dimension of 16 and the hidden-layer dimensions of 512. The hidden layers had ReLU activation except for the output layers of $\phi$ and $\psi$ which had linear activation. The network $h$ was a fully-connected network with three layers with the input-output dimension of 16, and the hidden-layer dimensions of 512. All hidden layers had ReLU activation, the output layer had a linear activation.
+
+\paragraph{Data} For \textbf{snapshots}, we generated 2048 trajectories of the system for our train dataset. Each trajectory had 20 time-steps with $dt = 0.1$. We used randomly-generated functions from Equation~\ref{eq:burger_initial_condition} as initial conditions for the train trajectories. 
+For \textbf{collocations}, we used Equation~(\ref{eq:burger_collocations}) to generate $65536$ collocation points. 
+We generated 300 trajectories for our test datasets, 100 per kind of initial conditions from Figure~(\ref{fig:burgers_examples_of_ics}). We used all 40 steps of the test trajectories to evaluate the performance of the models. All performance measures on Figure~(\ref{appendix:burgers_data_vs_collocations}) are based on this test dataset.
+
+
+\paragraph{Training} We trained models for 500 epochs, with the learning rate of $10^-4$. All weights $\omega_i$ were set to 1 for a hybrid model, and $\omega_3$, $\omega_4$ were set to 0 for a data-driven model. Every batch contained 64 trajectories and 1280 (that is, 64*20) collocation points, with the same rationale as in Appendix~\ref{appendix:duffing_pinode}.
+
+\subsection{Burgers' Equation: Robustness to Noise (Figure~\ref{fig:burger_noise})}
+In this section we examine robustness to noise for four models: PINODE (Data-Driven, Physics-Informed, Hybrid). We also add DMD to the comparison as a reference point.
+\label{appendix:burgers_noise}
+\paragraph{Architecture} All PINODE models share the same architecture as described in Appendix~\ref{appendix:burgers_data_vs_collocations}.
+
+\paragraph{Data} We start with the same data as described in Appendix~\ref{appendix:burgers_data_vs_collocations}. Then we apply 11 different levels of Gaussian noise with the mean 0 and the variances distributed log-uniformly between $[10^{-4}, 10^1]$. We only apply noise to the train snapshots; the test snapshots are noise-free. 
+
+\paragraph{Training} We trained models for 500 epochs, with the learning rate of $10^-4$. All weights $\omega_i$ were set to 1 for a hybrid model, $\omega_1$, $\omega_2$ , and $\omega_3$, $\omega_4$ were set to 0 for a data-driven model. Every batch contained 64 trajectories and 1280 (that is, 64*20) collocation points, with the same rationale as in Appendix~\ref{appendix:duffing_pinode}.
