@@ -1,4 +1,4 @@
-
+\edit{Rewrite the MSR3 abstract into a summary of whole work with citations}
 Linear Mixed-Effects (LME) models are a fundamental tool for modeling correlated data, 
 including cohort studies, longitudinal data analysis, and meta-analysis.  Design and analysis of variable selection methods for LMEs is more difficult than for linear regression because LME models are nonlinear. In this work we 
 propose a relaxation strategy and optimization methods that enable a wide range of variable selection methods for LMEs using both convex and nonconvex regularizers, including  $\ell_1$, Adaptive-$\ell_1$, SCAD, and $\ell_0$. 
@@ -1160,17 +1160,21 @@ to the performance of the \texttt{R} packages \texttt{glmmLasso}\footnote{\href{
 } online. As of this writing, \texttt{glmmlasso} does not allow the user to specify $\Gamma$ as a diagonal matrix.  Since the diagonal specification simplifies the problem, this puts \texttt{glmmlasso} package at a disadvantage in our numerical comparison. We evaluate all algorithms' performance on the same set of problems as described above. We tuned the hyperparameters of \texttt{glmmLasso} and \texttt{lmmLasso} by minimizing the BIC scores provided by the libraries over $\lambda \in [0, 10^5]$. The results are presented in Table \ref{table:glmmlasso}. Overall, MSR3 executes, on average, 5 times faster in wall-clock time than \texttt{glmmLasso} and 60 times faster than \texttt{lmmLasso} and shows much higher accuracy of selecting correct fixed and random effects simultaneously. 
 {The accuracy of \texttt{glmmLasso} is lower relative to the other libraries' scores likely due to its BIC selection criterion choosing dense models.} The package \texttt{lmmLasso} supports the diagonal specification of $\Gamma$, thus allowing a direct comparison with the scores from \texttt{pysr3}.  \texttt{lmmLasso} yields a competitive accuracy of selecting random effects but \texttt{lmmLasso} provides dense solutions for fixed effects $\beta$ for chosen values of $\lambda$. 
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering
-\input{tables/table_glmm_current.tex}
+\resizebox{\columnwidth}{!}{\input{tables/table_glmm_current.tex}}
+
 \caption{\label{table:glmmlasso} Comparison of performance of MSR3-Fast for $\ell_1$ regularizer vs \texttt{glmmLasso}. MSR3-Fast executes 5 times faster in wall time and has higher accuracy of selecting correct covariates. 
 %Importantly, the accuracy of \texttt{glmmLasso} is likely skewed downwards due to BIC selection criterion choosing dense ultimate models and due to the missing option to constrain the matrix $\Gamma$ to be diagonal. \texttt{lmmLasso} supports the diagonal specification of $\Gamma$ which translates into a competitive quality of selecting random effects. However, while finding sparse fixed effects, \texttt{lmmLasso} provides dense solutions for fixed effects $\beta$.
 }
 \end{table}
 
+\subsection{Sensitivity Analysis}
+\label{ch:msr3_sensitivity_analysis}
+\edit{Add sensitivity analysis from MSR3 practice paper}
 
 
-\subsection{Experiments on Real Data}
+\subsection{Application to Real Data: Anxiety and Depression as a Result of Bullying Victimization}
 \label{sec:real}
 
 \begin{figure}
@@ -1198,11 +1202,14 @@ the algorithm also selects  \texttt{cv\_child\_baseline} and \texttt{cv\_or}, wh
 The  \texttt{cv\_or} variable describes whether the estimate is a relative risk or odds ratio. The selection of these variables suggests a closer look at the data reporting mechanisms across studies. 
 For example, there is an active literature on converting estimates between relative risks and odds ratios~\cite{grant2014converting,wang2013converting}.
 
+\subsection{Application to Real Data: COVID-19 Transmission Factor}
+\edit{Add Covid example from my general}
 
 \section{Theoretical Analysis}
 \input{msr3-theory}
 
 \section{Software Implementation}
+\edit{Move pysr3 software paper here}
 To ensure reproducibility of this research, all new algorithms have been implemented as a part of the \texttt{pysr3}\footnote{Available at \href{https://github.com/aksholokhov/pysr3}{https://github.com/aksholokhov/pysr3}} library. This library implements functionality for fitting linear mixed models and selecting covariates. The user interface was designed to be fully compliant with the standards\footnote{\href{https://scikit-learn.org/stable/developers/develop.html}{https://scikit-learn.org/stable/developers/develop.html}} of \texttt{sklearn} library to minimize learning time. 
 
     

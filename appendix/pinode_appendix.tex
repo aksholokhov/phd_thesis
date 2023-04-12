@@ -49,6 +49,36 @@ For \textbf{DMD} we used a classic algorithm from~\cite{kutz2016dynamic}, and se
 For \textbf{collocations}, we used Equation~(\ref{eq:burger_collocations}) to generate $10^5$ collocation points. 
 \paragraph{Training} We trained models for 500 epochs, with the learning rate of $10^-4$. All weights $\omega_i$ were set to 1 for a hybrid model, and $\omega_3$, $\omega_4$ were set to 0 for a data-driven model. Every batch contained 64 trajectories and 1280 (that is, 64*20) collocation points, with the same rationale as in Appendix~\ref{appendix:duffing_pinode}.
 
+\subsection{Burger's Equation: Compressibility of Linear Latent Space for PIKN}
+\label{appendix:pikn_burgers}
+\paragraph{Architecture} 
+In the PIKN architecture for Burger's equation, the encoder is implemented as a a feed-forward network with the size of input layer set to be equal 128 (the number of spatial grid-points). It has two hidden layers with 512 neurons. The size of the output layer of the encoder -- the size of the latent dimension -- varies from 16 to 256 to study the latent space compressibility (see Figure~\ref{fig:pikn_burgers_compression}). The decoder's architecture mirrors the architecture of the encoder with the sizes of the inputs and outputs switched. An Adam optimizer has been applied for $500$ epochs for training. We use an adaptive learning rate: initially set to $10^{-4}$, it keeps decreasing by a factor of $0.5$ if no improvement has been made over the recent $20$ epochs, until it hits the minimal value of $10^{-7}$. \\
+Each network was trained in two different ways. Namely, we set different values for the weights $\omega_1, \omega_2, \omega_3, \omega_4$ in the loss function, leading to two different training regimes:
+\begin{itemize}
+    \item $\omega_1=0, \omega_2=0, \omega_3=1, \omega_4=1$. These settings lead to a purely data-driven learning; it corresponds to green lines on Figure~\ref{fig:pikn_burgers_compression}.
+    \item $\omega_1=1, \omega_2=1, \omega_3=1, \omega_4=1$. These settings represent a model that uses both data trajectories and collocations (a hybrid model); it corresponds to blue lines on Figure~\ref{fig:pikn_burgers_compression}.
+\end{itemize}
+
+\paragraph{Training} 
+We sample $80000$ functions $\{u^{(1)}, u^{(2)}, \dots, u^{(80000)}\}$ to use them as collocations. Each function $u^{(j)}$ is a superposition of the Fourier modes that satisfy the periodic boundary conditions. We call them "harmonic" initial conditions, five examples of which are displayed on the middle-right pane of Figure~\ref{fig:pikn_burgers_compression}. We used $\sin{(kx)}$ and $\cos{(kx)}$ for $k=0, 1, 2, \dots$ evaluated on $x \in [-\pi; \pi]$-interval as basis functions. The value of $k$ is restricted to be no greater than $10$. To evaluate $u_t$ at each collocation point we evaluated the spatial derivatives $\{(u_{x}^{(i)}, u_{xx}^{(i)})\}_{i=1}^{80000}$ using a numerical spectral method. 
+% \paragraph{Train Data} 
+
+For training trajectories, we use simulation data obtained from a solver base on spectral method. We run the simulation with $1024$ different initial states. Each initial state of $u$ is a Gaussian (bell-) curve with mean 0 and a randomly generated variance $\sigma \sim U(0.1,1)$, evaluated on $[-\pi; \pi]$-interval. Then we sample snapshots of the state $u$ with a temporal gap $\Delta t=0.1$ for $20$ steps (i.e. $p=20$). An example trajectory is displayed on the top-right pane of Figure~\ref{fig:pikn_burgers_compression}.
+
+% \paragraph{Test Data} 
+To evaluate and compare the performance of both models we use 200 trajectories: 100 trajectories with harmonic ICs and 100 trajectories with Gaussian ICs generated exactly in the same way as described above. Then we sample snapshots of the state $u$ with a temporal gap $\Delta t=0.1$ for $20$ steps (i.e. $p=20$).
+
+\paragraph{Results} 
+The results are aggregated in Table~\ref{table:pikn_burgers_performance} and visualized on Figure~\ref{table:pikn_burgers_performance}.
+
+\begin{table}[t!]
+    \centering
+    \resizebox{\columnwidth}{!}{\input{tables/pikn_performance_table}}
+    \caption{Performance measures for Burger's experiment depending on the dimensions of the latent space (Figure~\ref{fig:pikn_burgers_compression})}
+    \label{table:pikn_burgers_performance}
+\end{table}
+
+
 \subsection{Burgers' Equation: Data-vs-Collocations (Figure \ref{fig:burger_data_vs_collocations})}
 In this section we study the relative impact of data and collocations as training datasets to the performance of the resulting models.
 \label{appendix:burgers_data_vs_collocations}
@@ -69,3 +99,4 @@ In this section we examine robustness to noise for four models: PINODE (Data-Dri
 \paragraph{Data} We start with the same data as described in Appendix~\ref{appendix:burgers_data_vs_collocations}. Then we apply 11 different levels of Gaussian noise with the mean 0 and the variances distributed log-uniformly between $[10^{-4}, 10^1]$. We only apply noise to the train snapshots; the test snapshots are noise-free. 
 
 \paragraph{Training} We trained models for 500 epochs, with the learning rate of $10^-4$. All weights $\omega_i$ were set to 1 for a hybrid model, $\omega_1$, $\omega_2$ , and $\omega_3$, $\omega_4$ were set to 0 for a data-driven model. Every batch contained 64 trajectories and 1280 (that is, 64*20) collocation points, with the same rationale as in Appendix~\ref{appendix:duffing_pinode}.
+
