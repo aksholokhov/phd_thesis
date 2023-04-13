@@ -33,7 +33,7 @@
         \edit{Add compressive sensing application to the intro}
 
        
-            \begin{figure}[t]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=\textwidth]{figures/graphical-abstract.png}
     \caption{We propose utilizing a collocation points technique from numerical analysis to transfer knowledge of physics into continuous-time reduced-order models (ROMs). Such physics-informed models yield orders of magnitude more accurate predictions in tasks of far-out forecasting, predictions for out-of-distribution initial conditions, and learning from high-noise data. Good performance on those tasks is crucial for using ROMs in problems of compressive sensing and control.}
@@ -134,7 +134,7 @@ The experiments section is organized as follows. First, to illustrate the ideas 
 
 Next, we study the framework's performance on Burgers' equation. We show that (i) the non-linear latent dynamics yields more compact latent spaces than its linear counterpart for the same accuracy; (ii) these compact latent spaces allow for more stable long-term predictions; (iii) in the presence of significant noise in data, the use of collocations improves stability by providing an extra source of information that is noise-free, and (iv) in certain scenarios, training \textit{only} on collocations yields \textit{better} models than training on data, even when a vast amount of data is available. The latter shows that the contribution of physics-informed loss~(\ref{eq:loss_physics_informed}) may surpass the one of the data-based loss~(\ref{eq:loss_data_driven}), especially when the data is severely limited or noisy. 
 
-\begin{figure}[t]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=\textwidth]{figures/duff_first_exp_abstract.png}
     \caption{We use a toy example -- a Lifted Duffing Oscillator -- to show that it is possible to ``fill the gaps'' in data with collocations. Namely, Hybrid model from Figure~\ref{fig:architecture} is able to learn the dynamics of two additional basins of attraction that were not represented in the dataset. As shown in the top-rightmost frame, without the collocations the model does not infer the dynamics in the unseen regions correctly.}
@@ -182,7 +182,7 @@ For the experiment, we generate 6144 trajectories $\bd{x}_i$, $t=[0, 1]$, $\Delt
 
 We train two PINODE models: Data-Driven model that only uses the trajectories and Hybrid model that uses both trajectories and collocations. The models share the same architecture (Figure~\ref{fig:architecture}) and training parameters that are detailed in Appendix~\ref{appendix:duffing_pinode}. After training, we invert the mapping~(\ref{eq:duffing_true_decoder}) to project the models' high-dimensional predictions for unseen initial conditions onto the true low-dimensional manifold; those are visualized in  Figure~\ref{fig:duffing_pinode}.  
 
-\begin{figure}[t]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=0.75\textwidth]{figures/duffing_periods.pdf}
     \caption{ The time is measured in numbers of training time periods, i.e. $x=3T$ refers the time-range between two and three training time-periods away. The errors of a purely data-driven model grow exponentially when forecasting multiple times father in time than they were trained to do. In contrast, purely Physics-Informed model starts with worst interpolation accuracy but maintains nearly the same error when forecasting far out. Hybrid model combines the short-term accuracy of Data-Driven model and long-term stability of Physics-Informed model.}%\vspace{-0.4in}
@@ -237,7 +237,7 @@ We choose this family of collocations to meet the conditions~(\ref{sec:collocati
 \end{figure}
 
 \label{sec:compressibility}
-\begin{figure}[t]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=0.9\textwidth]{figures/compressibility.pdf}
     \caption{PINODE Hybrid model utilized the latent space dimension 5 times more efficiently by MSE than PIKN Hybrid model when modeling low-viscosity (highly-nonlinear) Burger's equation (left frame). The difference in performance grows to x100, when forecasting two times farther than the train period (central frame). The reason behind PIKN's long-term instability is the presence of eigenvalues with positive real part in the latent dynamics matrix (right frame).}
@@ -250,7 +250,7 @@ For this experiment we generate 16384 trajectories as described in~(\ref{eq:burg
 
 We compare the performance of three models: DMD, PIKN Hybrid, and PINODE Hybrid. First, we notice that DMD, despite achieving small loss values on training data ($\sim 10^{-3}$), does not perform well on test data. This observation is consistent with earlier works~(\cite{kalur2021robust,kutz2016dynamic}); it illustrates well that a combination of a linear encoder and a linear latent dynamics may not be sufficient for modeling highly-nonlinear phenomena. Second, we notice that PINODE achieves better performance within a given latent space budget. For instance, for $m = 16$ (Figure~(\ref{fig:burgers_compressibility}), left pane), PINODE achieves $\sim 5$ times lower mean squared error than PIKN, which achieves the same performance only when $m = 512$. More importantly, PINODE maintains low error when predicting for a longer-term horizon (extrapolation in time), which is not the case for PIKN (Figure~(\ref{fig:burgers_compressibility}, right pane). This is a consequence of the latent-dynamics matrix ($h(z) = Lz$) of PIKN having eigenvalues with positive real parts, which implies long-term instability (Figure~(\ref{fig:burgers_compressibility}), right pane). Although there has been progress in the literature~\cite{kojimalearning}, further research is needed to understand (i) how to enforce stability constraints for PIKN, and (ii) why one does not need the same enforcement for PINODE to exhibit stable behavior. 
 
-    \begin{figure}[t!]
+    \begin{figure}[ht!]
         \centering
         \includegraphics[width=\textwidth]{figures/burgers_compression.png}
         \caption{The right plots give examples of data snapshots used: trajectories with bell-curve ICs (top) and harmonic ICs (bottom). The middle-right pane shows harmonic collocations used by hybrid models in addition to the snapshots. The left plot compares the prediction errors (MSE) of two models, data-driven and hybrid with 128-dimensional latent spaces, on harmonic initial conditions that were not present in the trained data. The shaded regions represent 95\% confidence intervals based on 100 test trajectories. The middle plot shows the prediction error (MSE) on each type of test data for a variety of models with different latent-space sizes. We see that the use of harmonic collocations significantly improves the model performance on unseen harmonic ICs without increasing the errors on bell-curve ICs.}
@@ -289,7 +289,7 @@ We also notice that the Hybrid models yield more stable and accurate predictions
 
 \subsection{Robustness to Noise in Low-Data Regime}
 \label{sec:burger_noise}
-\begin{figure}[t]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=\textwidth]{figures/burgers_noise.pdf}
     \caption{Physics-informed loss works as a safeguard that prevents unbounded performance drop when quality of the data degrades due to noise. Namely, the solution of the hybrid loss~(\ref{eq:loss_combined}) converges to the solution of the physics-informed loss~(\ref{eq:loss_physics_informed}), when the data-driven loss~(\ref{eq:loss_physics_informed}) becomes uninformative. The performance of purely data-driven methods (Data-Driven, DMD) grows unbounded since these models don't have an alternative noise-independent source of information.}

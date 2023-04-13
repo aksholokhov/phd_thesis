@@ -27,7 +27,7 @@
 \newcommand{\Lesha}[1][]{\textbf{\userId\ifthenelse{\equal{#1}{}}{ }{ (#1):}}}
 \newcommand{\Brad}[1][]{\textbf{Brad\ifthenelse{\equal{#1}{}}{ }{ (#1):}}}
 \newcommand{\Jim}[1][]{\textbf{Jim\ifthenelse{\equal{#1}{}}{ }{ (#1):}}}
-\newcommand{\ouralgo}{R\&S-Mixed }
+\newcommand{\ouralgo}{MSR3 }
 
 % Commands which are specific for this document 
 \DeclareMathOperator{\bBeta}{\bar{\beta}}
@@ -168,12 +168,14 @@ Linear Mixed-Effects models are widely used technique for modeling clustered dat
     \label{table:detailed_comparison_of_algorithms}
 \end{table}
 
-\section{Description of Datasets: GBD Bullying Data}
+\section{Description of Real-World Datasets}
+\subsection{GBD Bullying Data}
 \input{appendix/bullying_features_description}
 
-%\subsection{COVID-19 Contact Rate Forecasting Data}
-%\input{tables/covid_groups_description}
-%\input{tables/covid_coefficients}
+\subsection{COVID-19 Contact Rate Forecasting Data}
+\input{tables/covid_groups_description}
+\input{tables/covid_coefficients}
+
 
 \section{Detailed Design of Experiments for PINODE}
 \input{appendix/pinode_appendix}

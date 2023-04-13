@@ -1,0 +1,12 @@
+\begin{tabular}{l||lllllll|l|l}
+\toprule
+Algorithm & \multicolumn{7}{l}{MSR3-Fast} &       PGD & PGD-LineSearch \\
+$\eta$ &     0.01  &    0.05  &    0.10  &    0.50  &    1.00  &     5.00  &     10.00 &    &         \\
+\hline \hline 
+\# Features &           &          &          &          &          &           &           &           &                \\
+100                &     0m 7s &    0m 7s &    0m 7s &    0m 6s &    0m 7s &     0m 8s &    0m 10s &    2m 44s &         4m 44s \\
+200                &    0m 36s &   0m 39s &   0m 36s &   0m 39s &   0m 39s &    0m 49s &     1m 8s &    7m 43s &        11m 28s \\
+400                &     5m 2s &   4m 51s &   4m 34s &   4m 26s &   5m 16s &    7m 33s &   10m 38s &   47m 46s &        12m 36s \\
+1000               &   59m 10s &  57m 12s &  60m 30s &  69m 57s &  68m 55s &  111m 31s &  139m 47s &  469m 16s &         55m 8s \\
+\bottomrule
+\end{tabular}

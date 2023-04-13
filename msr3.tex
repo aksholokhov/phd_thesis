@@ -48,7 +48,7 @@ accommodates a wide variety of variable selection strategies based on a set
 of easily implementable regularizers, and implemented in an open source library that makes 
 it easy to use and to compare different methods. 
 
-\begin{figure}[t]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=\textwidth]{figures/summary_picture.pdf}
     \caption{Selection of fixed and random effects for LME likelihoods $\mathcal{L}$ using 
@@ -267,7 +267,7 @@ where $\|\theta\|_0$ denotes the number of nonzero entries in $\theta$, see pane
 
 % In this form the problem is equivalent to the Knapsack problem, which is NP-complete. Many techniques based on exhaustive search, also known as subset selection process, were developed, and showed to be effective when the total number of predictors is small (see \cite{Muller2013}). The same setup appears to be intractable in a high-dimension setting due to the exponential growth of the number of subsets to check when $n \to \infty$, however, it's possible to get an approximate solution via relaxation techniques.
 
- \begin{figure}[t]
+ \begin{figure}[ht]
     \centering
     \begin{tabular}{ccc}
         \includegraphics[width=0.3\textwidth]{figures/l1_regularizer.pdf}
@@ -610,7 +610,7 @@ under weak assumptions, in particular neither the objective nor the regularizer 
 
 \search{Add table with rates of convergence wherever possible}
 
-\begin{figure}[t]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=\textwidth]{figures/intuition_current.pdf}
     \caption{Proximal Gradient Descent (PGD) for~\eqref{eq:value_function_optimization} converges far faster than for~\eqref{eq:lme_loss_original_in_x}, because the SR3-value function $u_\eta$ yields more spherical level-sets than original likelihood for both convex components $\beta$ (first row) and non-convex components $\gamma$ (second row). 
@@ -1169,9 +1169,53 @@ to the performance of the \texttt{R} packages \texttt{glmmLasso}\footnote{\href{
 }
 \end{table}
 
-\subsection{Sensitivity Analysis}
+\subsection{Scalability and Sensitivity Analysis}
 \label{ch:msr3_sensitivity_analysis}
-\edit{Add sensitivity analysis from MSR3 practice paper}
+\subsubsection{Scalability}
+We tested the scalability of the new approach (MSR3-fast) compared to proximal gradient descent and proximal gradient descent with line search. To do this, chose an initially small problem and we scaled the number of features in the data from 100 to 1000, while scaling the number of observations proportionally, and tested the time to completion 
+of these three methods, averaged over 100 replicates. Namely, each problem had 8 groups of $10A$ observations each, $\beta$ and $\gamma$ had $20A$ features equally split between 0 and 1. To get the problems of different sizes we assigned $A$ to be 1, 2, 5, 10, 20, 50, and 100, and for each choice of A we generated 100 random problems. Since MSR3-fast has a relaxation parameter $\eta$, we evaluated MSR3-fast across different $\eta$ values to also test the effect of $\eta$ on timing. For each experiment, we also computed 
+the accuracy of the feature selection, to make sure that there was no degradation in performance. The results are presented in Tables~\ref{table:scalability_time} and~\ref{table:scalability_accuracy}.  
+In terms of timing, we indeed see a superlinear increase in computational complexity with respect to the number of features. Nonetheless, MSR3-fast is competitive with the alternatives across the experiments, and the results are far more accurate. 
+Larger problems could likely significantly benefit from iterated solvers within the interior point framework. 
+
+\begin{table}[ht]
+	\centering
+    \resizebox{\columnwidth}{!}{\input{tables/scaling_time.tex}}
+    \caption{Execution time for feature selection problems of varying sizes. Each cell shows total time, including grid-search with respect to the sparsity parameter $\lambda$. Each cell shows averaged value over 100 randomly-generated problems.}
+    \label{table:scalability_time}
+
+\end{table}
+
+\begin{table}[ht]
+	\centering
+    %\resizebox{\columnwidth}{!}{}
+    \input{tables/scaling_acc.tex}
+    \caption{Accuracy of feature selection problems of varying sizes. Each cell shows averaged value over 100 randomly-generated problems.}
+    \label{table:scalability_accuracy}
+\end{table}
+
+
+\subsubsection{Closeness to the Central Path for IP}
+The $\tau$ parameter of MSR3-fast controls how close the interior point method gets to the central path before taking a prox-gradient step. This is a heuristic parameter in the algorithm, and to understand its impact we tested 
+the sensitivity of the execution time and accuracy for a problem with 200 features for four selections of relaxation parameter $\eta$. The problems were identical to those from the second row of Table~\ref{table:scalability_time}. The results are reported in Tables~\ref{table:central_path_time} and~\ref{table:central_path_accuracy}. 
+Neither time nor accuracy were affected by $\tau$ across the levels of $\eta$. 
+
+\begin{table}[ht]
+	\centering
+    \input{tables/central_path_time.tex}
+    \caption{Execution time of MSR3-fast for different values of $\tau$ - a parameter that controls how close the IP needs to be to the central path before doing a projection step. Each cell shows total time, including grid-search with respect to the sparsity parameter $\lambda$. Each cell shows averaged value over 100 randomly-generated problems.}
+    \label{table:central_path_time}
+\end{table}
+
+\begin{table}[ht]
+	\centering
+    %\resizebox{\columnwidth}{!}{}
+    \input{tables/central_path_acc.tex}
+    \caption{Accuracy of MSR3-fast for different values of $\tau$ - a parameter that controls how close the IP needs to be to the central path before doing a projection step. Each cell shows averaged value over 100 randomly-generated problems.}
+    \label{table:central_path_accuracy}
+\end{table}
+
+
 
 
 \subsection{Application to Real Data: Anxiety and Depression as a Result of Bullying Victimization}
@@ -1203,7 +1247,36 @@ The  \texttt{cv\_or} variable describes whether the estimate is a relative risk 
 For example, there is an active literature on converting estimates between relative risks and odds ratios~\cite{grant2014converting,wang2013converting}.
 
 \subsection{Application to Real Data: COVID-19 Transmission Factor}
-\edit{Add Covid example from my general}
+\label{ch:covid}
+\begin{figure}
+	\begin{subfigure}[b]{\textwidth}
+		\includegraphics[width=\textwidth]{figures/fit_Alaska}
+	\end{subfigure}
+	\begin{subfigure}[b]{\textwidth}
+		\includegraphics[width=\textwidth]{figures/fit_Slovenia}	
+	\end{subfigure}
+	\caption{\label{fig:covid_feature_selection_1} Comparison of fits of two different models (fully dense linear mixed model(MM) and MSR3-$\ell_0$ (R\&S) to the original IHME Projections for Alaska and Slovenia. The quality (RMSE) achieved by a sparse fit is within 10\% from a quality of both dense models which is evidences that the model picked up informative features.}
+\end{figure}
+
+\begin{figure}
+	\begin{subfigure}[b]{\textwidth}
+		\includegraphics[width=\textwidth]{figures/fit_Turkey}
+	\end{subfigure}
+	\begin{subfigure}[b]{\textwidth}
+		\includegraphics[width=\textwidth]{figures/fit_Switzerland}	
+	\end{subfigure}
+	\caption{\label{fig:covid_feature_selection_2} Comparison of fits of two different models (fully dense linear mixed model (MM) and MSR3-$\ell_0$) (R\&S) to the original IHME Projections for Turkey and Switzerland. The quality (RMSE) achieved by a sparse fit is within 10\% from a quality of both dense models which is evidences that the model picked up informative features.}
+\end{figure}
+
+In this section we apply our method to a COVID-19 Contact Rate Forecasting problem. The global pandemic created an unprecedented need for robust and accurate disease transmission forecasting. Since the beginning of the pandemic Institute for Health Metrics and Evaluation has been providing guidance to local authorities across the world with their pioneering \href{https://covid19.healthdata.org/global?view=total-deaths&tab=trend}{COVID-19 Projections tool} \cite{IHME2020Projections}. The key methodology which was essential for success in their forecasting of the disease's dynamics was transforming the death data into the contact rate time series data, and then relating this contact rate to available covariates such as temperature, social mobility, population, and others \cite{IHME2020covidnature}. All these covariates were collected in real time using limited human resources, and identifying the most important covariates was crucial for distributing these resources effectively. In the example below we show how \ouralgo can be used for making covariate selection on IHME data. 
+
+
+The dataset consists of $m=60$ groups (countries or states), the detailed description of groups sizes ($n_i$) and time spans is provided in the Appendix~\ref{ch:covid}. The target variable $Y_i$ was the contact rate -- the coefficient $\beta(t)$ from an SEIR model (not to be confused with $\beta$ -- vector of fixed effects). The covariates -- columns of $X_i$ and $Z_i$ -- were: \texttt{intercept} --a column of ones,  \texttt{temperature} -- average air temperature in degrees Fahrenheit, \texttt{mobility\_lift} -- social mobility, \texttt{proportion\_over\_1k} -- population size threshold, and \texttt{testing\_reference} -- testing. The observation error's variance $\sigma_i$ was set to be 0.1.
+
+Feature selection results for four particular locations (Alaska, Slovenia, Turkey, and Switherland) are presented on Figures \ref{fig:covid_feature_selection_1} and \ref{fig:covid_feature_selection_2}, with coefficients for the rest of the locations attached in supplementary materials. \ouralgo was charged with a task to produce a fit using only three covariates, one of which had to be mean-only (no random effects). On the left we see the original data (\texttt{Data}, in {\color{blue} blue}), and predictions of three models: IHME Projections (\texttt{IHME}, in {\color{orange} orange}), a linear mixed model fit with no selection (\texttt{Dense MM}, in {\color{red} red}), and a sparse fit of \ouralgo (\ouralgo in {\color{green} green}). The \ouralgo model has chosen to use \texttt{intercept}, \texttt{mobility\_lift}, and \texttt{temperature} covariates, with the later only as a fixed covariate; \texttt{testing\_reference} and \texttt{proportion\_over\_1k} were left out. On the plots to the left we see that the exclusion of two covariates did not significantly affect the quality of predictions. The residual errors (RMSE) to the right support this statement: the difference in RSME is within 10\% of RSME of a "dense" model which uses all the covariates, as well as from IHME's original model which fit all the locations via sequence of independent regressions. This choice also seems reasonable given the timespan: the proliferation of testing during the spring was not yet significant, so it did not inform predictions in a major way. The exclusion of \texttt{proportion\_over\_1k} could have been due to the scale of grouping: locations were grouped on the level of states and countries, not on the level of individual counties where the influence of population-based covariates could have been more significant. 
+
+
+
 
 \section{Theoretical Analysis}
 \input{msr3-theory}
