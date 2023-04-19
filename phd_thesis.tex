@@ -14,12 +14,12 @@
 
 %%%%% USER CONFIGURATION %%%%%
 \newcommand{\userName}{Aleksei Sholokhov}
-\newcommand{\userId}{Lesha}
+\newcommand{\userId}{aksh}
 \newcommand{\department}{Department of Applied Mathematics}
 \newcommand{\institution}{University of Washington}
-\newcommand{\projectNameShort}{Feature Selection for Mixed Models}
+\newcommand{\projectNameShort}{}
 \newcommand{\doctitle}{Doctoral Thesis}
-\newcommand{\projectNameLong}{}
+\newcommand{\projectNameLong}{Optimization Methods for Parameter Identifications \\ in Settings with Only Partial Knowledge}
 
 % Cast
 \newcommand{\Peng}[1][]{\textbf{Peng\ifthenelse{\equal{#1}{}}{ }{ (#1):}}}
@@ -88,50 +88,76 @@
 ~\\
 {\center
 {\large 
-{\huge
-Covariate Selection Techniques for Linear Mixed-Effects Models with Applications to Population Health Problems }
+{\large
+\projectNameLong
+}
 \\[10mm]
 \userName
-\\[40mm]
+\\[20mm]
+{A dissertation \\
+ submitted in partial fulfillment of the\\ requirements for the degree of}
+\\[5mm]
+{Doctor of Philosophy}
+\\[20mm]
 {\center
-\textbf{Committee}\\
+\textbf{Reading Committee}\\
 Aleksandr Aravkin (co-chair),\\
-Nathan Kutz (co-chair), \\
+J. Nathan Kutz (co-chair), \\
 James Burke, \\
 Jonathan Wakefield (GSR)
 }
-\\[40mm]
-{A thesis proposal submitted in fulfillment\\ of the requirements for the degree of}
+\\[20mm]
+Program Authorized to Offer Degree:
 \\[5mm]
-{Doctor of Philosophy}
-\\[15mm]
 \department
 \\[5mm]
 \institution
 }
 \\[10mm]
-\textit{Last modified: \today}
+©Copyright 2023\\
+\userName
 
 }  
 
 \newpage
-{\center \textbf{Abstract}\\[5mm]}
+{
+\center 
+\institution
+\\[10mm]
+\textbf{Abstract}
+\\[10mm]
+\projectNameLong
+\\[10mm]
+\userName
+\\[10mm]
+Chairs of the Supervisory Committee:\\
+Aleksandr Aravkin and J. Nathan Kutz\\
+\department
+\\[10mm]
+}
 
-Linear Mixed-Effects models are widely used technique for modeling clustered data, such as cohort studies, longitudinal data analysis, and meta-research. In this work we address an important practical problem of simultaneous selection of fixed and random effects in this type of models. Our approach is based on the Relax-and-Split methodology, which uses a relaxation technique together with partial minimization to efficiently solve non-convex problems. We use it to relax the constraints on the maximal number of included covariates and then apply an interior point method to obtain a solution. The performance of the resulting estimator is studied on synthetic data, as well as on two real-data applications: covariates selection for modeling the contact rate for COVID-19, and the estimation of burden of anxiety and depression disorders as results of bullying. These experiments show that the proposed method is advantageous in terms of execution time and selection quality. In addition, several theoretical questions are discussed as a part of future work that would contribute to understanding of convergence conditions of Relax-and-Split based methods in general.
+My abstract goes here. I will probably write it at the very end.
 
 
-\newpage
 \tableofcontents
 
 \listoftodos
 
-\chapter{MSR3}
+\chapter{Introduction}
+\include{introduction}
+
+\chapter{MSR3: Sparse Relaxed Regularized Regression for Mixed-Effect Models}
+\label{ch:msr3}
 \include{msr3}
 
-\chapter{PINODE}
+\chapter{PINODE: Physics-Informed Neural Ordinary Differential Equations}
+\label{ch:pinode}
 \include{pinode}
 
 \input{cs}
+
+\chapter{Conclusion}
+
 
 \bibliographystyle{apalike}
 \bibliography{bibliography}
@@ -175,7 +201,6 @@ Linear Mixed-Effects models are widely used technique for modeling clustered dat
 \subsection{COVID-19 Contact Rate Forecasting Data}
 \input{tables/covid_groups_description}
 \input{tables/covid_coefficients}
-
 
 \section{Detailed Design of Experiments for PINODE}
 \input{appendix/pinode_appendix}
