@@ -41,14 +41,17 @@ Implementations vary as well, typically using regularizer-specific local quadrat
 solution methods for smooth problems (Newton-Raphson, EM, sequential least squares) to fit the original nonsmooth model. 
 All of these decisions make it  difficult to compare and evaluate performance of available 
 variable selection strategies and to determine which method is best suited for a given task. 
-This challenge  is exacerbated by the absence of standardized datasets %for different experimental designs
+This challenge  is exacerbated by the absence of standardized datasets 
+%for different experimental designs
 and open source libraries for each method. 
 Our main practical goal to fill this gap by developing a unified methodological framework that
 accommodates a wide variety of variable selection strategies based on a set
-of easily implementable regularizers, and implemented in an open source library that makes 
-it easy to use and to compare different methods. 
+of easily implementable regularizers, and 
+made available in an open source library, \texttt{pysr3}\footnote{https://github.com/aksholokhov/pysr3} that is 
+easy to use and to compare different methods. All experiments in the paper can be reproduced 
+using \texttt{pysr3} and code in the reproducibility guide\footnote{https://github.com/aksholokhov/msr3-paper}.
 
-\begin{figure}[ht]
+\begin{figure}[h!]
     \centering
     \includegraphics[width=\textwidth]{figures/summary_picture.pdf}
     \caption{Selection of fixed and random effects for LME likelihoods $\mathcal{L}$ using 
@@ -59,36 +62,123 @@ it easy to use and to compare different methods.
     \label{fig:summary}
 \end{figure}
 
-In this work we develop a regularization-agnostic covariate selection strategy that (1) is fast and simple to implement, (2) provides robust models, and (3) is flexible enough to support most regularizers currently used in variable selection across different domains.  The baseline approach uses the proximal gradient descent (PGD) method, which has been studied by the optimization community for over 40 years, but has not been widely used in LME covariate selection. We provide proximal operators for commonly used regularizers and show how to apply the PGD method to the nonconvex LME setting. In particular we apply the PGD method to four regularizers, 
-including the $\ell_0$ regularizer, which does not admit local quadratic approximations and has not been used before for LME variable selection strategies. 
+In this work we introduce a regularization-agnostic covariate selection strategy that (1) is fast and simple to implement, (2) provides robust models, and (3) is flexible enough to support most regularizers currently used in variable selection across different domains.  The baseline approach uses the proximal gradient descent (PGD) method, which has been studied by the optimization community for over 40 years, but has not been widely used in LME covariate selection. 
+%We provide proximal operators for commonly used regularizers and show how to apply the PGD method to the nonconvex LME setting. In particular we apply the PGD method to four regularizers, 
+%including the $\ell_0$ regularizer, which does not admit local quadratic approximations and has not been used before for LME variable selection strategies. 
+In our initial numerical experiments, using a naive PGD approach
+indicated that, at best, the method yields only a marginal improvement over the
+equally unsatisfactory alternative methods   
+in accurately determining the correct variables in our variable selection test problems.
+We conjecture that the weakness of the naive PGD is a result of the 
+first-order likelihood approximation used in PGD.
+To overcome this problem, we propose an alternative likelihood approximation 
+with the goal of 
+incorporating global variational properties of the likelihood. For this purpose,  
+we extend the sparse relaxed regularized regression (SR3) framework~{(\cite{Zheng2019SR3})} to the LME setting. 
+This idea is supported
+by the success of SR3 in the context of linear regression where it
+accelerates and improves the performance of regularization strategies.
+This extension and its mathematical foundations in \cite{Theory1} constitute
+the major innovations of this work.
+Here we introduce the modeling framework and its relaxation, discuss the 
+resulting algorithms and their implementation details, and  validate the method on both
+simulated and real data sets, while the 
+%highly technical 
+mathematical 
+foundations are presented in \cite{Theory1}.
+The SR3 framework introduces auxiliary variables $x$ and $w$ to 
+decouple the likelihood $\LL$ and sparsity regularizer $R$ which are tied
+together by adding a multiple of the norm squared difference 
+$\frac{\eta}{2}\norm{x-w}^2$ to the
+objective. 
+%We then smooth the positive semi-definite constraint in the 
+%likelihood with a log barrier term yielding the smoothed likelihood $\mathcal{L}_\mu$
+%where $\mu$ is the smoothing parameter.
+Then, fixing the variables $w$ dedicated to the nonsmooth regularizer $R$, 
+the smooth function $\LL(x)+\frac{\eta}{2}\norm{x-w}^2$ is
+globally optimized over the variables $x$ to obtain an optimal value function
+$u_\eta(w)$. We then show that $u_\eta(w)$ is smooth. This opens
+the door to the application of the PGD algorithm to minimizing $u_\eta+R$ 
+where now $u_\eta$ contains global variational information
+on the likelihood function $\LL$. The main obstacle in the
+application of this approach is the evaluation of $u_\eta$ and its gradient.
+%%%
+In Section \ref{sec:MSR3} we present a method for overcoming this difficulty 
+using variable metric techniques and interior point technology.
+%%%%%%
+%To overcome this difficulty we turn to interior point technology. This choice requires 
+%smoothing the positive semi-definite constraint on the covariance matrices by
+%adding log-barrier term to the likelihood to obtain the smooth function
+%$\LL_{\mu,\eta}$ where $\mu$ is the log-barrier relaxation parameter, and
+%an associated optimal value function $u_\emu$ whose value and gradients 
+%can be quickly and accurately computed.
+%%by applying variable metric techniques along with
+%%well established properties of the interior point (IP) algorithm to obtain 
+%%sufficiently accurate values for
+%%both $u_\eta$ and its gradient. 
+%Using this underlying framework, we develop two related algorithms,
+%MSR3 and MR3-fast where MSR3-fast employs a kind of continuation approach 
+%that interlaces approximate IP optimality conditions for the evaluation of 
+%$u_\emu$ and its gradient with the prox computation in the PGD algorithm.
+%%using a {\it central path} proximity condition from the IP literature.  
+%The resulting algorithms are then applied to four regularizers, 
+%including the $\ell_0$ regularizer 
+%which does not admit local quadratic approximations and 
+%has not been used before for LME variable selection strategies.
+%The numerical results show that both MSR3 and MR3-fast
+%yield superior results over the naive PGD method in terms of specificity and sensitivity of feature selection
+%with a slight edge to MR3-fast. However, MR3-fast delivers a spectacular improvement
+%in speed over both the naive PGD and the MSR3 algorithms
+%(see Table \ref{table:comparison_of_algorithms}).
 
-We also develop a new meta-approach that can improve the performance of LME selection methods for any regularizer. Specifically, we extend sparse relaxed regularized regression (SR3) framework~{(\cite{Zheng2019SR3})} to the LME setting. In linear regression, SR3 accelerates and improves the performance of  regularization strategies by introducing auxiliary variables that decouple the accuracy and sparsity requirements for the model coefficients.
-We develop a conceptual and algorithmic approach necessary to extend the SR3 concept to LME.  This development is necessary because the LME problem is nonlinear, nonconvex, and includes constraints on variance parameters.  We show that the new approach yields superior results in terms of specificity and sensitivity of feature selection, and is also computationally efficient.  
-
-\edit{Add a paragraph summarizing results from the theory paper}
+%We also develop a new meta-approach that can improve the performance of LME selection methods for any regularizer. Specifically, we extend the sparse relaxed regularized regression (SR3) framework~{(\cite{Zheng2019SR3})} to the LME setting. In linear regression, SR3 accelerates and improves the performance of  regularization strategies by introducing auxiliary variables that decouple the accuracy and sparsity requirements for the model coefficients.
+%We develop a conceptual and algorithmic approach necessary to extend the SR3 concept to LME.  This development is necessary because the LME problem is nonlinear, nonconvex, and includes constraints on variance parameters.  We show that the new approach yields superior results in terms of specificity and sensitivity of feature selection, and is also computationally efficient.  
 
 All new methods are implemented in an open-source library called \texttt{pysr3}, which fills a gap for python mixed-models selection tools in \texttt{Python} (\cite{Buscemi2019Survey}, Table 3). Our algorithms are  1-2 orders of magnitude faster than available LASSO-based libraries for  mixed effects selection in \texttt{R},  see Table \ref{table:glmmlasso}. \texttt{pysr3} enables a standardized comparison of different methods in the LME setting, and makes both the PGD framework and its SR3 extension available to practitioners working with LME models. 
-
-\edit{Extend on the package summary using JOSS paper}
-
 %\subsection{Notation}
 %\begin{enumerate}
 %\item sets like $\N$, $\B$, $\bS$, $\SS$.
 %\item nonsmooth stuff, subdifferential and normal cones
 %\end{enumerate}
 
-\section{Linear Mixed-Effects Models: Notation and Fundamentals}
+%Roadmap
+We begin in Section \ref{sec:LMEM} by giving a precise description of the LME
+model and set the notation for the remainder of the paper. 
+This is followed by a brief discussion of prior work on LMEs.
+In Section \ref{sec:pgd_methods} we present our algorithms for the LME model 
+starting with the naive PGD algorithm. This is followed by a description of the 
+variable splitting technique used in \cite{Zheng2019SR3} to incorporate global 
+variation information on the likelihood function into the direction finding subproblem
+for the PGD algorithm. 
+%This lays the foundation for the MSR3 algorithm. 
+Next we tackle the problem of how to approximate the 
+resulting optimal value function $u_\eta$ and its gradient where $\eta>0$ is the 
+decoupling parameter. As noted, this is done using variable metric techniques and 
+and interior point technology. We conclude Section \ref{sec:pgd_methods} 
+with a discussion of the
+MSR3 and MSR3-fast algorithms. In Section \ref{sec:applications} we discuss how
+the underlying algorithmic parameters are set and test the algorithm on both 
+simulated problems and a problem with real data. The paper is concluded in
+Section \ref{sec:discussion} with a brief discussion of the contributions.
+
+\edit{Add a paragraph summarizing the theory paper}
+\edit{Add a paragraph summarizing software paper}
+
+
+\section{Linear Mixed-Effects Models: Notation and Fundamentals}\label{sec:LMEM}
 Mixed-effect models describe the relationship between an outcome variable and its predictors when the observations are grouped, for example in studies or clusters.  To set the notation, consider $m$ groups of observations indexed by $i$, with sizes $n_i$, and the total number of observations equal to $n = n_1 + n_2 + \dots + n_m$. For each group, we have design matrices for fixed features $X_i \in \R^{n_i \times p}$,  and matrices of random features $Z_i \in \R^{n_i \times q}$, along with vectors of outcomes $Y_i \in \R^{n_i}$. 
 %Typically, columns of $Z_i$ are a subset of columns $X_i$ but it does not have to be the case in general. 
 Let 
 {$X = [X_1^T, X_2^T, \dots, X_m^T]^T$ and $Z = [Z_1^T, Z_2^T, \dots, Z_m^T]^T$.} 
 Following~\cite{Patterson1971, Pinheiro2000}, we define a Linear Mixed-Effects (LME) model as
-\eq{
-	\label{eq:lme_setup}
+\begin{equation}
+\begin{aligned}
 	Y_i & = X_i\beta + Z_iu_i + \varepsilon_i, \quad i = 1 \dots m \\
 	u_i & \sim \NN(0, \Gamma),\quad \Gamma \in \bS_{+}^{q} \\
 	\varepsilon_i & \sim \NN(0, \Lambda_i), \quad \Lambda_i \in \bS_{++}^{n_i}
-}
+	\end{aligned}
+	\label{eq:lme_setup}
+\end{equation}
  where $\beta \in \R^p$ is a vector of fixed (mean) covariates, 
  $u_i \in \R^{q}$ are unobservable random effects assumed to be distributed normally with zero mean and the unknown covariance matrix $\Gamma$, and $\bS_{+}^{\nu}$ 
  and $\bS_{++}^{\nu}$ are the sets of
@@ -96,19 +186,24 @@ Following~\cite{Patterson1971, Pinheiro2000}, we define a Linear Mixed-Effects (
  and positive definite matrices, respectively. 
 Matrices $Z_i$ encode a wide variety of models, including
 random intercepts ($Z_i$ are columns of 1's that add $u_i$ to all datapoints from the $i$th study)
-and random slopes ($Z_i$ also scale $u_i$ according to the magnitude of a covarite), see e.g.~\cite{pinheiro2006mixed}. 
+and random slopes ($Z_i$ also scale $u_i$ according to the magnitude of a covariate), see e.g.~\cite{pinheiro2006mixed}. 
 %In these typical examples, the columns of $Z_i$ are subsets of the columns
 %of $X_i$.  
 In our study, we assume that the observation error covariance matrices 
 $\Lambda_i$ are given and that the random effects covariance matrix 
 is an unknown diagonal matrix, i.e., $\Gamma = \Diag{\gamma}, \ \gamma \in \R^s_+$.
+This assumption corresponds to the meta-analysis and meta-regression branch of mixed effects problems, 
+which is the primary focus of our applied collaborations~ (see e.g. \cite{zheng2022burden,lescinsky2022health,razo2022effects,stanaway2022health,dai2022health}.)
+The theoretical developments in this work allow extensions to other types of repeated measure models, 
+but practical implementation requires significant additional effort, and we leave these extensions to future work.  
+
 % either
 % assumed to have a simple parametric form, such as $\Lambda_i=\sig_i I$
 % with $\sig_i$ to be determiined, or given given  
  %; we focus on the latter case below. 
  
 Defining group-specific error terms $\omega_i = Z_i u_i + \varepsilon_i$, we get a compact formulation that 
-recasts~\eqref{eq:lme_setup} as a correlated noise model:
+recasts~(\ref{eq:lme_setup}) as a correlated noise model:
  \eq{
  \label{eq:lmm_correlated_noise_setup}
 	Y_i = X_i\beta + \omega_i,\quad \omega_i \sim \NN(0, \Omega_i(\Gamma)), \quad \Omega_i(\Gamma) = Z_i\Gamma Z_i^T + \Lambda_i.
@@ -153,7 +248,6 @@ A function $f:\mathbb{R}^n\rightarrow \mathbb{R} \cup \{\infty\}$ is lower semic
 and level-bounded when all level sets $\text{lev}_\alpha f$ are bounded.  
 \end{definition}
 
-
 \begin{definition}[Convexity]
 A function $f:\mathbb{R}^n\rightarrow \mathbb{R} \cup \{\infty\}$ is convex when $\epi f$ is a convex set. Equivalently, 
 \[
@@ -170,12 +264,12 @@ $f(\cdot)+\frac{\eta}{2}\|\cdot\|^2$ is convex.
 The negative log likelihood~\eqref{eq:ml_lme_optimization_setup}  is nonlinear and nonconvex, and requires an iterative numerical solver.
 However, it is convex with respect to $\beta$, and weakly convex with respect to $\gamma$, with a weak convexity constant $\overline \eta$
 computed in~\cite[Section 5.1]{Theory1} . The expected value of the posterior mode $\beta$ given $\Gamma$ has the closed form representation 
-%\eq{
-%	
-\[
-\label{eq:beta_formula}
+	
+\begin{equation}
+	\label{eq:beta_formula}
 	\beta(\Gamma) = \argmin_{\beta}\LL(\beta, \Gamma) = \left(\sum_{i = 1}^m X_i^T\Omega_i^{-1}X_i\right)^{-1}\sum_{i = 1}^mX_i^T\Omega_i^{-1}y_i.
-\] %}
+\end{equation}
+
 By using the simplification $\Gam=\Diag{\gam}$, we obtain the problem
 %{In the meta-analysis setting under study, 
 %In our study, we assume that $\Gam$ is a diagonal matrix of the form
@@ -186,7 +280,7 @@ By using the simplification $\Gam=\Diag{\gam}$, we obtain the problem
 \eq{
 	\label{eq:lme_diagonal_setup}
 	\min_{\beta\in\R^p, \gam\in\R^q_+} & \ \LL(\beta,\gam)
-	:=\LL_{ML}(\beta, \Diag{\gamma}) 
+	:=\LL_{ML}(\beta, \Diag{\gamma}) \, .
 %	\\
 %	s.t. & \ \gamma \geq 0\ .
 	}
@@ -233,13 +327,16 @@ and extended to the presence of regularizers in~\cite[Theorem 2]{Theory1}. %, re
 This paper focuses the case where $\Gamma$ is diagonal, 
   (often referred to as \textit{the diagonal setup}) 
  and all $\Lambda_i$ are known (see \eqref{eq:lme_diagonal_setup}), 
-following the meta-analysis use-case~\citep{zheng2021trimmed} that is widely used in epidemiological studies~\cite{murray2020global}. 
+following the meta-analysis use-case~\citep{zheng2021trimmed} that is widely 
+employed in epidemiological studies~\cite{murray2020global}. 
 While the proposed approach can be extended to the non-diagonal case, we leave it for future work, save for a brief discussion in Section~\ref{sec:applications}.
 
 \subsection{Prior Work on Feature Selection for Mixed-Effects Models}
 \label{sec:prior_work}
 
 Variable (feature) selection models seeks to select or rank the most important predictors in a dataset in order to get a parsimonious model at a minimal cost to prediction quality. 
+Feature selection may be performed both on $\beta$, to find the sparse set of covariates that best explains the mean, and on $\gamma$, to find the sparse set of covariates that best accounts for 
+variation between groups. Both types of selection have been studied in the literature, and both are accessible using the methods developed here.
 %The selection process often occurs simultaneously with fitting the model, and a predictor is `selected' if its respective coefficient in the model is non-zero. 
 If the desired number of coefficients $k$ is given, then the feature selection problem can be formulated as the minimization of a loss function $f(\theta)$ (e.g. the negative log-likelihood) subject to a zero-norm constraint:
 \eq{
@@ -267,7 +364,7 @@ where $\|\theta\|_0$ denotes the number of nonzero entries in $\theta$, see pane
 
 % In this form the problem is equivalent to the Knapsack problem, which is NP-complete. Many techniques based on exhaustive search, also known as subset selection process, were developed, and showed to be effective when the total number of predictors is small (see \cite{Muller2013}). The same setup appears to be intractable in a high-dimension setting due to the exponential growth of the number of subsets to check when $n \to \infty$, however, it's possible to get an approximate solution via relaxation techniques.
 
- \begin{figure}[ht]
+ \begin{figure}[h!]
     \centering
     \begin{tabular}{ccc}
         \includegraphics[width=0.3\textwidth]{figures/l1_regularizer.pdf}
@@ -311,10 +408,10 @@ The removal of a random effect from the model requires the elimination of an ent
 To make the problem more tractable, \cite{Chen2003} reparamtrized $\Gamma$ through a modified Cholesky decomposition $\Gamma(D,L): = DLL^TD$, where $D$ is a diagonal matrix and $L$ is a lower-triangular matrix with ones on the main diagonal, and focused on selecting elements of $D$. 
 % In this case, one can select variance parameters by selecting the elements of the diagonal matrix $D$ while treating the non-diagonal entries of $L$ as free parameters. 
 Based on this idea, \cite{Krishna2008} extended the Adaptive LASSO regularizer (\cite{Lan2006, Xu2015}) to mixed-effects setting using the objective
-   \[
+   \(
         \LL(\beta, \Gamma(D,L)) + \lambda\left(\sum_{i = 1}^p 
         \left|\frac{\beta_i}{\hat\beta_i}\right| + \sum_{j = 1}^q \frac{D_{ii}}{\hat{D_{ii}}} \right),
-   \]
+   \)
  where $\hat\beta$ and $\hat{D}$ are the solution of a non-penalized maximum likelihood problem and $\lambda$ is a tuning parameter for the weighted regularizer
  and is called the regularization parameter. 
  %This strategy has a well known issue: non-penalized estimates $\hat\beta$ and $\hat{D}$ may be inaccessible because the numerical algorithm may fail to converge, especially when the underlying solution is sparse. 
@@ -332,27 +429,19 @@ Based on this idea, \cite{Krishna2008} extended the Adaptive LASSO regularizer (
 The adaptation of the SCAD penalty to select both fixed and random features in 
 linear mixed models was developed by \cite{Fan2012}. SCAD was also used by \cite{chen2015inference} for selecting fixed effects and establishing the existence of random effects in ANOVA-type models. Finally, \cite{Ghosh2018} studied SCAD regularization for selecting mean effects in high-dimensional genomics problems.
 
-\edit{Add more methods for feature selection \cite{Buscemi2019Survey, Muller2013}}
-
-To better compare methods, we need to consider the regularization parameter 
-\plum{$\lambda$} and how it is tuned. 
+To better compare methods, we need to consider the tuning of the regularization parameter 
+$\lambda$. 
 The output of a shrinkage model critically depends on the tuning parameter 
-$\lambda$. The entire range of possible $\lambda$ values is captured 
-by the notion of a ``$\lambda$-path in the model space'', with  the best parameter and the final model chosen using information criteria. According to \cite{Muller2013}, the most widely used information criterion is the marginal AIC criterion (\cite{Vaida2005}):
-  \eq{
-  \label{eq:vaida_aic}
-  AIC := 2\LL(\hat{\theta}) + 2\alpha_n(p+q)
-  }
+$\lambda$. The entire range of $\lambda$ values is captured 
+by the notion of a ``$\lambda$-path in the model space'', with  the best parameter and the final model chosen using information criteria. According to \cite{Muller2013}, the most widely used information criterion is the marginal AIC criterion (\cite{Vaida2005}),
+ \(  AIC := 2\LL(\hat{\theta}) + 2\alpha_n(p+q)\), 
   where $\hat\theta$ includes all the estimated parameters $(\beta, \Gamma)$, and $\alpha_n := n(n-p-q-1)$ for the finite sample case (\cite{Sugiura1978}). 
   %As discussed by \cite{Fang2011}, AIC is asymptotically equivalent to leave-one-out cross-validation, so it can be used for choosing between a finite number of models. AIC, however, is also known to be positively-biased (\cite{Ibrahim2011}). 
-  Alternatively, LASSO-type methods (\cite{Krishna2008, Ibrahim2011}) use a BIC-type information criterion:
-  \eq{
-    BIC := 2\LL(\hat{\theta}) + \log(n)(p+q).
-  }
+  Alternatively, LASSO-type methods (\cite{Krishna2008, Ibrahim2011}) use a BIC-type information criterion,  \(BIC := 2\LL(\hat{\theta}) + \log(n)(p+q)\).
 BIC performs well in practice, but does not have theoretical guarantees~(\cite{schelldorfer2011estimation}).
   %One can refer to \cite{Muller2013, Buscemi2019Survey} for a detailed overview of different feature selection approaches.
   
-\edit{Add more ICs (e.g. Muller)}
+  \edit{Add more ICs, e.g. Muller}
   
 \section{Algorithms for Feature Selection}
 \label{sec:pgd_methods}
@@ -370,9 +459,10 @@ We approach feature selection by adding a regularizer to model \eqref{eq:lme_dia
 %	\label{eq:lme_loss_original}
 %	\min_{\beta\in\R^p, \gamma\in\R^q_+} & \LL(\beta, \gamma) + R(\beta, \gamma), 
 %	}
+%\vskip -.5in
 \eq{%\label{eq:main opt in x over C}
-    \label{eq:lme_loss_original_in_x}
-    \min_{x } & \LL(x) + R(x)+ \delta_{\CC}(x),
+     \min_{x } & \LL(x) + R(x)+ \delta_{\CC}(x),
+      \label{eq:lme_loss_original_in_x}
 %    \\
 %    \text{s.t. } & x \in \CC\ .
 }
@@ -381,10 +471,11 @@ $\CC:=\R^p\times \R^q_+$,
 $\map{R}{\R^P\times\R^q_+}{\eR_+:=\R_+\cup\{+\infty\}}$
 is a 
 lower semi-continuous (lsc) regularization term, and
-$\delta_{\CC}$ is the convex indicator function
-\[
-    \delta_{\CC}(x) := \begin{cases} 0, &  x \in \CC \\ +\infty, & x \not\in \CC .\end{cases}
-\]  
+$\delta_{\CC}$ is the convex indicator function, where
+$\delta_{\CC}(x) :=0$ for $x \in \CC$ and $+\infty$ otherwise.
+%\[
+%    \delta_{\CC}(x) := \begin{cases} 0, &  x \in \CC \\ +\infty, & x \not\in \CC .\end{cases}
+%\]  
 By \cite[Theorem 2]{Theory1}, solutions to \eqref{eq:lme_loss_original_in_x}
 always exist when $R$ has compact lower level sets.
 % or 
@@ -430,6 +521,8 @@ R(x) = \sum_{i = 1}^p r_i(x_i),
 with typical choices for the component functions $r_i$ given in Table \ref{table:proxes}.
 
 
+
+
 \subsection{Variable Selection via Proximal Gradient Descent}
 
 Since $\LL$ is differentiable on its domain and 
@@ -449,18 +542,24 @@ strategy for estimating first-order stationary points for
 %the Proximal Gradient Descent (PGD) Algorithm. 
 The proximal operator for 
 $\alpha R + \delta_{\CC}$ is defined as the mapping
-\[ %\eq{
+\( %\eq{
     \prox_{\alpha R + \delta_{\CC}}(z) := \argmin_{y\in \CC}\ R(y) + \frac{1}{2\alpha}\|y - z\|_2^2 ,
-\] %}
+\) %}
 and the PGD iteration is given by
-\[
+\(
     x^+ = \prox_{\alpha R + \delta_{\CC}}(x - \alpha \nabla \LL(x)),
-\]
+\)
 where $\alpha$ is a stepsize.
 When $R(x)$ has the form given in \eqref{eq:R sep}, we have
-\[
+\(
  \prox_{R}(z) = (\prox_r(z_1), \dots, \prox_r(z_q)) .
-\]
+\)
+Table \ref{table:proxes} provides closed form expressions for the proximal operators 
+of commonly used regularizers. 
+For all of these cases,  the following theorem gives closed form expressions for
+$\prox_{\alpha R + \delta_{\CC}}(z)$.
+
+
 \begin{table}[H]
 \small
     \centering
@@ -468,12 +567,13 @@ When $R(x)$ has the form given in \eqref{eq:R sep}, we have
         \hline
          \!\!Regularizer & $r(x)$, $x \in \R$ & $\prox_{\alpha r}(z)  $ \\
          \hline \hline
-         LASSO ($\ell_1$) \newline (\cite{tibshirani1996regression}) & $|x|$ & $\sign(z)(|z| - \alpha)_+$ \\
+         LASSO ($\ell_1$) \newline & $|x|$ & $\sign(z)(|z| - \alpha)_+$ \\
          \hline
-         A-LASSO \newline (\cite{Fan2001}) & $\bar{w}|x|$, $\bar{w} \geq 0$ &  $\sign(z)(|z| - \alpha\bar{w})_+$\\
+         A-LASSO \newline  & $\bar{w}|x|$, $\bar{w} \geq 0$ &  $\sign(z)(|z| - \alpha\bar{w})_+$\\
          \hline
-         SCAD \newline (\cite{fan1997comments}) & $\begin{cases} \sigma |x|, & |x| \leq \sigma \\ \frac{-x^2 + 2\rho\sigma x - \sigma^2}{2(\rho - 1)}, & \sigma < |x| < \rho\sigma \\ \frac{\sigma^2(\rho + 1)}{2}, & |x| > \rho\sigma \end{cases}$ & $\begin{cases} \sign(z)(|z| - \sigma\alpha)_+, & |z| \leq \sigma(1+\alpha) \\ \frac{(\rho - 1)z - \sign(z)\rho \sigma\alpha}{\rho - 1 - \alpha}, & \sigma(1+\alpha) < |z| \\
-         &\quad\leq \max(\rho, 1+\alpha)\sigma \\ z, & |z| > \max(\rho,1+\alpha)\sigma \end{cases}$ \\
+         SCAD \newline & $\begin{cases} \sigma |x|, & |x| \leq \sigma \\ \frac{-x^2 + 2\rho\sigma x - \sigma^2}{2(\rho - 1)}, & \sigma < |x| < \rho\sigma \\ \frac{\sigma^2(\rho + 1)}{2}, & |x| > \rho\sigma \end{cases}$ & $\begin{cases} \sign(z)(|z| - \sigma\alpha)_+, & |z| \leq \sigma(1+\alpha) \\ \frac{(\rho - 1)z - \sign(z)\rho \sigma\alpha}{\rho - 1 - \alpha}, & \sigma(1+\alpha) < |z| \leq \rho\sigma
+         %\max(\rho, 1+\alpha)\sigma 
+         \\ z, & |z| > \max(\rho,1+\alpha)\sigma \end{cases}$ \\
 %         \hline
 %         $\ell_p$, $0 < p < 1$ & $|x|^p$ & Coordinate Newton (\cite{Zheng2019SR3}) \\
          \hline
@@ -483,8 +583,6 @@ When $R(x)$ has the form given in \eqref{eq:R sep}, we have
     \caption{Proximal operators for commonly used sparsity-promoting regularizers. }
     \label{table:proxes}
 \end{table}
-
-\edit{Make section "Evaluating proximal operators" using Appendix}
 
 Under the assumption that $R$ is level-compact \cite{aravkin2022jimtheory} extended Theorem \ref{thm:basic existence} to the regularized case as follows:
 
@@ -511,19 +609,18 @@ sufficiently large since an excessively large variance usually indicates
 that the model is poorly posed and needs review. 
 Such a constraint is also numerically expedient since it prevents $\gam$ from diverging. Table \ref{table:proxes} provides closed form expressions for the proximal operators 
 of commonly used regularizers. 
+
 %All regularizers in this list are separable except $R(x) = \delta_{\|x\|_0 \leq k}$, for which the solution also has an analytically closed form.
 %Again when $R$ is separable with the $r_i$ coming from Table \ref{table:proxes}, 
 %the evaluation of 
-For all of these cases,  the following theorem gives closed form expressions for
-$\prox_{\alpha R + \delta_{\CC}}(z)$.
 
 \begin{theorem}[Proximal operator for bounded $\gamma$]     \label{thm:prox_of_positive_quadrant}
 We consider modified regularizers $r(\gamma)$ from the Table \ref{table:proxes} 
 % and let $v = (\beta, \gamma)$. % \in \CC \subset R^{p + q}$.
 that include an additional constraint on $\gamma$ of the form 
-\[
+\(
 0 \leq \gamma \leq \bar\gamma,
-\]
+\)
 for $\bar\gamma\in[0,+\infty]$.
 %which which the positive orthant as a special case (i.e. $\bar\gamma = \infty$). 
 We have the following results. 
@@ -539,34 +636,34 @@ We have the following results.
  %   \end{enumerate}
 %    Next, suppose $\LL = \LL_{REML}$. 
     \begin{enumerate}
-    \item  For SCAD, we have for all $i$ that  
+    \item  For SCAD, we have for all $i$ that \;
    % \eq{
 %    \prox_{\alpha R + \delta_{\CC}}(v) = (\prox_{\alpha r}(v_1), \dots, \prox_{\alpha r}(v_p), \prox_{\alpha r + \delta_{\R_+} + \delta_{\R_{\leq \bar\gamma}}}(v_{p+1}), \dots, \prox_{\alpha r + \delta_{\R_+} + \delta_{\R_{\leq \bar\gamma}}}(v_{p+q}))
  %   }
   %  where 
 %    \eq{
-\[
+\(
     \prox_{(\alpha r + \del_{[0,\bgam]})} %\delta_{\R_+} + \delta_{\R_{\leq \bar\gamma}}}
     (\gamma_{i}) = \begin{cases} 
         \prox_{\alpha r}(\gamma_i), & 0 \leq \gamma_i < \bar\gamma  \\
         \bar\gamma, & \gamma_i \geq \bar\gamma \\
-        0, & \text{ otherwise} \end{cases}
-\]
+        0, & \text{ otherwise} \end{cases}.
+\)
 %    }
-    \item  For LASSO, A-LASSO we have for all $i$ that 
+    \item  For LASSO, A-LASSO we have for all $i$ that \;
  %   \eq{
   %  \prox_{\alpha R + \delta_{\CC}}(v) = (\prox_{\alpha r}(v_1), \dots, \prox_{\alpha r}(v_p), \prox_{\alpha r + \delta_{\R_+} + \delta_{\R_{\leq \bar\gamma}}}(v_{p+1}), \dots, \prox_{\alpha r + \delta_{\R_+} + \delta_{\R_{\leq \bar\gamma}}}(v_{p+q}))
   %  }
   %  where 
 %    \eq{
-\[
+\(
 \prox_{(\alpha r + \del_{[0,\bgam]})}(\gamma_i) 
 %    \prox_{\alpha r + \delta_{\R_+} + \delta_{\R_{\leq \bar\gamma}}}(v_{i}) 
     = \begin{cases} 
         \prox_{\alpha r}(\gamma_i), & 0 \leq \gamma_i < \bar\gamma + \alpha \\
         \bar\gamma, & \gamma_i \geq \bar\gamma + \alpha \\
-        0, & \text{ otherwise} \end{cases}
-\]
+        0, & \text{ otherwise} \end{cases}.
+\)
 %    }
     \item For $R(\cdot) = \delta_{\lev{\norm{\cdot}_0}{k}}$  %\delta_{\|x\|_0 \leq k}$, 
     the $\prox_{\alpha R + \delta_{\CC}}(\gamma)$ can be evaluated by taking $k$ largest coordinates of $\gamma$ such that $0 \leq \gamma_i \leq \bar\gamma$, and setting the 
@@ -593,9 +690,9 @@ $x = x_0$, $\alpha < \frac{1}{L}$,\text{ where } $\LL$ \text{ is $L$-Lipschitz}\
 \noindent
 
 The main advantages of Algorithm \ref{alg:pgd_for_lme} are its simplicity and flexibility.
-The main loop needs only the gradient and prox operator, and the structure of the algorithm is independent of the choice of regularizer $R$.
+The main loop needs only the gradient and prox operator, and the structure of the algorithm is independent of the choice of $R$.
 Algorithm \ref{alg:pgd_for_lme} locates first-order stationary points
-under weak assumptions, in particular neither the objective nor the regularizer need to be convex~\citep{AB17,attouch2013convergence}. 
+under weak assumptions, in particular neither the objective nor the regularizer need be convex~\citep{AB17,attouch2013convergence}. 
 
 %we use it only as 
 %a point of reference for the algorithm that is the focus of our study which is presented in
@@ -604,52 +701,54 @@ under weak assumptions, in particular neither the objective nor the regularizer 
 %various possible convergence properties
 %of Algorithm \ref{alg:pgd_for_lme}}.
 
-\edit{Add other optimization methods for FS in LMEs (e.g. Newton)}
-
-\search{Add table of cross-references between optimization methods and regularizers}
-
-\search{Add table with rates of convergence wherever possible}
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=\textwidth]{figures/intuition_current.pdf}
-    \caption{Proximal Gradient Descent (PGD) for~\eqref{eq:value_function_optimization} converges far faster than for~\eqref{eq:lme_loss_original_in_x}, because the SR3-value function $u_\eta$ yields more spherical level-sets than original likelihood for both convex components $\beta$ (first row) and non-convex components $\gamma$ (second row). 
+%\begin{figure}[h!]
+  %  \centering
+ %   \includegraphics[width=1\textwidth]{Images/intuition_current.pdf}
+ %   \caption{Proximal Gradient Descent (PGD) for~\eqref{eq:value_function_optimization} converges far faster than for~\eqref{eq:lme_loss_original_in_x}, because the SR3-value function $u_\eta$ yields more spherical level-sets than original likelihood for both convex components $\beta$ (first row) and non-convex components $\gamma$ (second row). 
     %The effect is particularly strong for $\gamma$-minimizers near the boundary of the constraint region (bottom-left panel).
-    }
-    \label{fig:geometric_intuition_sr3}
-\end{figure}
+%    }
+ %   \label{fig:geometric_intuition_sr3}
+%\end{figure}
 
-\subsection{Variable Selection via MSR3}
+\subsection{Variable Selection via MSR3}\label{sec:MSR3}
 
 To develop an approach that is both more efficient and accurate, we extend the SR3 regularization of~\cite{Zheng2019SR3} to LMEs. 
 We call the extension MSR3, since we are focusing on mixed effects models. 
-Starting with the regularized likelihood~\eqref{eq:lme_loss_original_in_x} we introduce auxiliary parameters designed to discover the 
-fixed and random features: 
+Starting with the regularized likelihood~\eqref{eq:lme_loss_original_in_x} we introduce auxiliary parameters designed to discover the fixed and random features: 
 \eq{%\label{eq:main opt in x over C}
     \label{eq:lme_loss_sr3}
     \min_{x, w} & \LL(x) + R(w)+ \delta_{\CC}(x) + \kappa_{\eta}(x-w),
 %    \\
 %    \text{s.t. } & x \in \CC\ .
 }
-where $\kappa_\eta$ penalizes deviations between $x$ and $w$, and also guarantees that the objective is convex with respect to the $\gamma$
-components of $x$ for sufficiently large $\eta$:
+where $\kappa_\eta$ penalizes deviations between $x = (\beta, \gamma)$ and $w = (\hat \beta, \hat \gamma)$, and also guarantees that the objective is convex with respect to the $\gamma$
+components of $x$ for sufficiently large $\eta$: \\
 \begin{equation}
 \label{eq:kappa}
-\kappa_{\eta} (\beta, \gamma) = \frac{\eta}{2}\|(\beta,\gamma)\|^2 ,
+\kappa_\eta (x-w) = \frac{\eta}{2}\|x-w\|^2 = 
+%\frac{\eta}{2}\left\| \begin{pmatrix} \beta - \hat \beta \\ \gamma - \hat \gamma\end{pmatrix}\right\|^2
+\frac{\eta}{2}\| \beta - \hat \beta \|^2 + 
+\frac{\eta}{2}\| \gamma - \hat \gamma\|^2
+%\kappa_{\eta} (\beta, \gamma) = \frac{\eta}{2}\|(\beta,\gamma)\|^2 ,
 \end{equation}
+
 with $\eta\ge\bar\eta$ where $\bar \eta$ is the weak convexity constant
 computed in~\cite[Section 5.1]{Theory1}.
 As $\eta \uparrow \infty$, the extended objective~\eqref{eq:lme_loss_sr3} converges in an epigraphical sense to the original objective~\eqref{eq:lme_loss_original_in_x}. 
-However, feature selection accuracy does not require this continuation, and a fixed 
-modest value can be used~\citep{Zheng2019SR3}, e.g. $\eta=1$.
+However, feature selection accuracy does not require this continuation, 
+indeed, we show that a fixed 
+modest value such as $\eta=1$ can be used~\citep{Zheng2019SR3}.
 
-To understand the algorithm and logic behind the objective~\eqref{eq:lme_loss_sr3}, we, for this section alone, define a simplified version of the value function $u_\eta(w)$ and the solution set $S_\eta(w)$:
+To understand the algorithm and logic behind the objective~\eqref{eq:lme_loss_sr3}, we define an optimal value function $u_\eta(w)$ and the solution set $S_\eta(w)$:
 \eq{
-	\label{eq:value_function_definition_only_eta}
+\label{eq:value_function_definition_only_eta}
 		u_\eta(w) & = \min_x \ \LL(x) + \delta_{\CC}(x) + \kappa_{\eta}(x-w)\\
 		S_\eta(w) & = \argmin_x \LL(x) + \delta_{\CC}(x) + \kappa_{\eta}(x-w).
 }
-Substituting the above into (\ref{eq:lme_loss_sr3}) the problem transforms into the problem of optimizing a regularized value function:
+Substituting (\ref{eq:value_function_definition_only_eta}) into (\ref{eq:lme_loss_sr3}) 
+%the problem 
+transforms (\ref{eq:lme_loss_sr3}) into 
+%the problem of optimizing a regularized value function:
 \eq{
 	\label{eq:value_function_optimization}
 	\min_{w} u_\eta(w) + R(w)
@@ -668,19 +767,26 @@ In the case of linear regression,
 the function $u_\eta$ has a closed form solution~\cite{Zheng2019SR3}. However, in both  the linear regression context of~\cite{Zheng2019SR3} 
 and in the LME context studied here, we need only compute $S_\eta(w)$ 
 in order to optimize~\eqref{eq:value_function_optimization}. 
-Indeed, in \cite[Section 5]{Theory1} it is shown that $u_\gamma$ is well-defined, 
+Indeed, in \cite[Section 5]{Theory1} it is shown that 
+there exists a computable $\bar\eta>0$, which we have called the weak convexity constant, such that
+$\LL+\delta_\CC+\kappa_\eta(\cdot -w)$ is strongly convex for all 
+$\eta>\bar\eta$ regardless of the choice of $w$. This allows us to show
+that 
+$u_\eta$ is well-defined, 
 differentiable, and Lipschitz continuous, with
 %and we have a closed form solution for the derivative: 
 \begin{equation}\label{eq:grad_value_function_explicit}
 \nabla u_\eta(w) = \nabla_w k_\eta(x-w)|_{x = S_\eta(w)}=\eta(w-S_\eta(w)) .  
 \end{equation}
+%We call $\bar\eta$ the weak convexity constant for 
+%$\LL+\delta_\CC+\kappa_\eta(\cdot -w)$.
 %where $\nabla_w k_\eta(x-w)$ is computed directly from~\eqref{eq:kappa}. 
 
 Our empirical studies indicate that 
 (\ref{eq:value_function_optimization}) has advantages over (\ref{eq:lme_loss_original_in_x})
-from an optimization perspective since $u_\eta(w)$ typically has nearly spherical level-sets while keeping the position of minima close to those of $\LL(x)$. This effect is extensively studied and validated for a quadratic loss function in the original work  of \cite{Zheng2019SR3}. 
+from an optimization perspective since $u_\eta$ typically has nearly spherical level-sets while keeping the position of minima close to those of $\LL(x)$. This effect is extensively studied and validated for a quadratic loss function in the original work  of \cite{Zheng2019SR3}. 
 %we provide empirical evidence that suggests that it also extends to more general non-linear functions, specifically to the marginal likelihood. 
-In Figure \ref{fig:geometric_intuition_sr3}, we plot the level-sets of $\LL(x) + \|x\|_1$ (left column) and $u(w) + \|w\|_1$ (right column) for the same mixed-effect problem. 
+In the center panel of Figure~\ref{fig:summary}, we plot the level-sets of $\LL(x) + \|x\|_1$ (left column) and $u_\eta + \|\cdot\|_1$ (right column) for the same mixed-effect problem. 
 %A more symmetrical 
 The more spherical geometry of the latter allows the Algorithm \ref{alg:pgd_for_value} 
 (described below) to converge in 21 iterations, whereas Algorithm \ref{alg:pgd_for_lme} takes 1284 iterations. The difference is most pronounced when the minimum sits on the boundary of the feasible set, which is always the case for the variable selection problems with sparse support.
@@ -700,12 +806,12 @@ The more spherical geometry of the latter allows the Algorithm \ref{alg:pgd_for_
 %\end{enumerate}
 %\end{theorem}
 
-We apply PGD to optimize the value function $u_\eta(w)$ which yields the iteration of the form
+We apply PGD to optimize the regularized value function $u_\eta$ which yields the iteration 
 \eq{
 	\label{eq:pgd_for_value_function}
 	w^+ = \prox_{\alpha^{-1}R}(w - \alpha\nabla u_\eta(w))
 }
-Because of the results stated above, all components of the iteration~(\ref{eq:pgd_for_value_function}) are well-defined. 
+The results in \cite{Theory1} show that all components of the iteration~(\ref{eq:pgd_for_value_function}) are well-defined. 
 The equivalence of Algorithm \ref{alg:pgd_for_value} and 
 \eqref{eq:pgd_for_value_function} is established in the following lemma, 
 which extends the relationship studied by~\cite{Zheng2019SR3} to the case of $x = (\beta, \gamma)$. 
@@ -737,12 +843,32 @@ $w = w_0$ \\
  }
  \caption{\label{alg:pgd_for_value}Proximal Gradient Descent for Value Function}
 \end{algorithm}
+\smallskip
 
-While in linear regression setting of of~\cite{Zheng2019SR3}, Algorithm~\ref{alg:pgd_for_value} can be implemented exactly, in the nonlinear case 
-evaluating $x^+$ requires an iterative algorithm. In particular, we use an interior point method to account for non-negativity of $\gamma$.  
-This means that the value function $u_\eta$ is approximately evaluated, using a Newton iteration with a barrier term.  
-The degree of the approximation is controlled by the convergence criteria of the interior point algorithm.  
+In \cite[Theorem 6]{Theory1}, it is shown that
+for any sequence $\eta_k\uparrow\infty$ the associated optimal solutions $(x^k,w^k)$ 
+to (11) satisfy
+\(
+\mathcal{L}(x^k)+R(w^k)\uparrow 
+\inf_{x\in\Rp\times\Rq_+}\mathcal{L}(x)+R(x) \;
+\text{with}\; \Vert{x^k-w^k}\Vert\rightarrow 0.
+\)
+In particular, every cluster point of the sequences $\{x^k\}$ and $\{w^k\}$ are solutions
+to \eqref{eq:lme_diagonal_setup}, where such cluster points exist whenever
+the function $R$ is coercive, i.e. $\lim_{\norm{x}\uparrow\infty}R(x)=+\infty$.
+Just how close $w^k$ is to a solution to \eqref{eq:lme_diagonal_setup} remains
+an open question, however, our numerical studies in Section \ref{sec:applications}
+show that $\eta$ can be chosen surprisingly small. Indeed, we typically take $\eta=1$.
 
+
+In the linear regression setting of~\cite{Zheng2019SR3}, 
+Algorithm~\ref{alg:pgd_for_value} can be implemented exactly. 
+In the nonlinear case, evaluating $x^+$ requires an iterative algorithm. 
+For this we use an interior point method which replaces the indicator function
+$\delta_\CC$ by a smooth log-barrier term. This allows us to approximate both
+$u_\eta$ and its gradient where  
+the degree of the approximation is controlled by the convergence 
+criteria of the interior point algorithm.  
 
 %The alternating strategy is best suited for the simpler context , where the $x^+$ update has a closed form solution. In the case of~\eqref{eq:lme_loss_sr3}, the regularized loss is convex in $x$ because of the structure of $\kappa_\eta$, but is still nonlinear, and requires an iterative algorithm.  
 
@@ -754,7 +880,7 @@ for a fixed $w = (\hat \beta, \hat \gamma)$, we need to solve
 \label{eq:ineqLoss}
 \min_{\beta, \gamma} \mathcal{L}(\beta, \gamma) + \kappa_{\eta}(\beta - \hat \beta, \gamma - \hat \gamma) \quad \mbox{s.t.} \quad 0 \leq \gamma. 
 \end{equation}
-This problem is well suited for an interior point approach~\citep{Kojima1991,Nesterov1994,Wright1997}. 
+This problem is well suited for an interior point approach~\citep{Kojima1991,Nesterov1994,Wright1997,vanderbei99}. 
 %We now describe how to apply IP methods \teal{to solve the inner problem~\eqref{eq:lme_loss_relaxed} with respect to $x = (\beta, \gamma)$, 
 %evaluating the value function $u(w)$ in~\eqref{eq:value_function_definition}}. 
 %\eqref{eq:lme_loss_original}. 
@@ -857,15 +983,18 @@ the function $\LL$. Our numerical studies show that the global information
 captured by $\uemu$ significantly improves both the accuracy of the solution
 obtained and the overall numerical efficiency of the algorithm.
 
+\edit{Connect this paragraph to the theory block} 
+
 To motivate the reader, the theoretical results that support the design of Algorithm \ref{alg:MSR3} go as follows. The existence of solutions for the problem~(\ref{eq:value_function_definition}) for any positive $\mu$ is shown in \cite[Theorem 5]{Theory1}, and the convergence of solutions to the MSR3 solution as $\mu\downarrow 0$ is shown in~\cite[Theorem 7]{Theory1}.  
 Finally, \cite[Theorem 6]{Theory1} shows that the MSR3 relaxation is consistent with respect to the barrier, so that as the MSR3 parameter $\eta \uparrow \infty$,
  limit points of global solutions to the former are global solutions to the latter. 
- However, the empirical studies in Sections \ref{sec:synthetic} and \ref{sec:real}
- indicate that one does not need to make $\eta$ particularly large in order to accurately identify the correct sparsity pattern. These results were first published in the joint works \cite{sholokhov2022relaxation, aravkin2022jimtheory}, constitute the original work of the author of the thesis, and were mostly taken verbatim per the co-authors'  permission.
+ However, in the applications considered here,
+ the empirical studies in Sections \ref{sec:synthetic} and \ref{sec:real}
+ indicate that one does not need to make $\eta$ particularly large in order to accurately identify the correct sparsity pattern. 
 
 
-%The Lagrangian for~\eqref{eq:value_function_definition} is obtained by dualizing the inequality $\gamma \geq 0$ constraint: 
-% Define the objective for \eqref{eq:value_function_definition} by
+%The Lagrangian for~\eqref{eq:log_barrier_relaxation_for_ip} is obtained by dualizing the inequality $\gamma \geq 0$ constraint: 
+% Define the objective for \eqref{eq:log_barrier_relaxation_for_ip} by
 % \eq{
 % 	F_\mu(\beta, \gamma) & = \LL(\beta, \gamma) +  \frac{\lambda_b}{2}\|\beta - \tbeta^{(k)}\|^2_2 + \frac{\lambda_g}{2}\|\gamma - \tgamma^{(k)}\|_2^2 - \mu\sum_{i=1}^{q}\log(\gamma_i) %+ v^T\gamma \\
 % }
@@ -893,9 +1022,9 @@ for $\mathcal{L}_{\mu,\eta}$ in $\gamma$ give us the relation
 where $\one$ is the vector of all ones of the 
 appropriate dimension.
 By setting 
-\[
+\(
 v=\nabla_\gam \mathcal{L}_{\mu,\eta}(\beta,\gam)+\eta(\gamma - \hat \gamma),
-\] 
+\) 
 we can rewrite this equation as
 %This equation can be written in a matrix form as 
 \eq{
@@ -904,7 +1033,7 @@ we can rewrite this equation as
 }
 where $\one$ is the vector of all ones of the appropriate dimension and
 ``$\odot$'' denotes the Hadamard (or simply element-wise) product.
-%Together with the remaining optimality conditions, we obtain a set of nonlinear equations  that form the the KKT system for~\eqref{eq:value_function_definition}:
+%Together with the remaining optimality conditions, we obtain a set of nonlinear equations  that form the the KKT system for~\eqref{eq:log_barrier_relaxation_for_ip}:
 The complete set of optimality conditions for 
 \eqref{eq:value_function_definition} can now be written as
 \eq{\label{eq:IP equations}
@@ -922,22 +1051,18 @@ v\odot \gamma - \mu\one \\
 }
 We then apply Newton's method to~\eqref{eq:IP equations}, 
 that is, in each iteration the search direction $[\Delta v, \Delta \beta, \Delta \gamma]$ solves the linear system
-\eq{
-	\label{eq:ip_iteration_rs_form}
+\[
 	\nabla G_{\mu,\eta}(v, \beta, \gamma)\begin{bmatrix}
 		\Delta v \\
 		\Delta \beta \\
 		\Delta \gamma
-	\end{bmatrix} = -G_{\mu,\eta}(v, \beta, \gamma).
-}
-where 
-\eq{
+	\end{bmatrix} = -G_{\mu,\eta}(v, \beta, \gamma), \quad
 	\nabla G_{\mu, \eta}(v, \beta, \gamma) = \begin{bmatrix}
  		\Diag{\gamma} & 0 & \Diag{v} \\
  		0 & \nabla^2_{\beta\beta}\LL + \eta I & \nabla^2_{\beta\gamma} \LL\\
  		-I & \nabla^2_{\gamma\beta}\LL & \nabla^2_{\gamma\gamma}\LL + (\eta + \overline{\lambda})	 I
  	\end{bmatrix}
-}
+\]
 and we have used the fact that  $v\odot \gamma=\Diag{v}\gam=\Diag{\gam}v$. 
 The exact formulae for the derivatives of $\LL$ are provided in the Appendix~\ref{appendix:derivatives_of_lmm}.
 
@@ -953,65 +1078,66 @@ choose a step of size $\alpha_k>0$
 %}
 %with $\alpha_k$ 
 so that the update
-\eq{
-\label{eq:ip_one_step}
+\[
 \begin{pmatrix}
-v^{(k+1)}\\ \beta^{(k+1)}\\ \gamma^{(k+1)}
+v^{(k+1)}& \beta^{(k+1)}& \gamma^{(k+1)}
 \end{pmatrix}
 =
 \begin{pmatrix}
-v^{(k)}\\ \beta^{(k)}\\ \gamma^{(k)}
+v^{(k)}& \beta^{(k)} &\gamma^{(k)}
 \end{pmatrix}
 +\alf_k
 \begin{pmatrix}
-\Delta v^{(k)}\\ \Delta\beta^{(k)}\\ \Delta\gamma^{(k)}
+\Delta v^{(k)} & \Delta\beta^{(k)}& \Delta\gamma^{(k)}
 \end{pmatrix}
-}
+\]
 satisfies the conditions
 % chosen to satisfy positivity and sufficient descent conditions:
-\eq{
-    \label{eq:ip_steplen_conditions}
+\[
+\begin{aligned}
 	\text{\textit{Positivity:}} \qquad & \gamma^{(k+1)} > 0,\ v^{(k+1)} > 0 \\
-	\text{\textit{Sufficient Descent:}}\qquad & \| G_\mu(v^{(k+1)}, \beta^{(k+1)}, \gamma^{(k+1)})\| \leq 0.99\|G_\mu(v^{(k)}, \beta^{(k)}, \gamma^{(k)})\| .
-}
+	\text{\textit{Sufficient Descent:}}\qquad & \| G_\emu(v^{(k+1)}, \beta^{(k+1)}, \gamma^{(k+1)})\| \leq 0.99\|G_\emu(v^{(k)}, \beta^{(k)}, \gamma^{(k)})\|,
+\end{aligned}
+\]
+where the parameter $0.99$ is used to bias toward the acceptance of a full Newton step.
 At each iteration the relaxation parameter $\mu$ is updated by the formula 
-\eq{
-    \label{eq:ip_mu_update}
+\( %\eq{
+%    \label{eq:ip_mu_update}
     \mu^{(k+1)} = {v^{(k)}}^T\gamma^{(k)}/q,
-}
+\) %}
 where ${v^{(k)}}^T\gamma^{(k)}$ is the duality gap at
 iteration $k$. The algorithm terminates when the criteria 
-\eq{
-\label{eq:ip_convergence_criterion}
+\[
 \begin{aligned}
 \|G_{\mu,\eta}(v^{(k+1)}, \beta^{(k+1)}, \gamma^{(k+1)})\| &\leq \text{\texttt{tol}}\\
 \mu &\leq  \text{\texttt{tol}} 
 \end{aligned}
-}
+\]
 are both satisfied, so the interior point problem is nearly stationary, and closely approximates the original problem~\eqref{eq:ineqLoss}.
 MSR3 is summarized in Algorithm~\ref{alg:MSR3}, which approximates Algorithm~\ref{alg:pgd_for_value} as the tolerance goes to $0$. 
 In the numerical experiments, we use $\text{\texttt{tol}} = 10^{-5}$, and accuracy does not change as the tolerance parameter decreases.  
 
 \begin{algorithm}[H]
 \SetAlgoLined
-$w^0 = (\tbeta^0, \tgamma^0)$, $x^0 = (\beta^0, \gamma^0)$, $\gammax>\tgam^0$, $\alpha < \frac{2}{L}$ 
-for $L>0$.\\
- \While{not converged and $\tgam\le\gammax$}{
-    \text{Find } $x^+$ \text{ using \eqref{eq:ip_one_step}}$\mbox{ which satisfies }\;  \|G_{\mu,\eta}(v^+, x^+)\| \leq \text{\texttt{tol}}, \; \mu \leq \text{\texttt{tol}} $\\
+$w = w_0$ \\
+ \While{not converged}{
+    $x^+ \; \mbox{satisfies }\;  \|G_{\mu,\eta}(v^+, x^+)\| \leq \text{\texttt{tol}}, \; \mu \leq \text{\texttt{tol}} $\\
     $w^+ = \prox_{\alpha^{-1} R}(x^+)$
  }
-\caption{\label{alg:MSR3} MSR3}
+ \caption{\label{alg:MSR3} MSR3}
 \end{algorithm}
-\medskip
+
+
 
 \paragraph{Positive Approximation of the Hessian}
 For many datasets the weak convexity constant $\overline \eta$ can be extremely large 
-and difficult to compute. However, if $\overline \eta$ is too small $\nabla^2_{\gamma\gamma}\LL(\beta, \gamma)$ is 
+and difficult to compute. However, if $ \eta$ is too small 
+$\nabla^2_{\gamma\gamma}\LL_{\mu,\eta}(\beta, \gamma)$ is 
 negative-(semi)definite. Negative definite Hessians can hamper the convergence of 
 second-order methods (e.g., see \cite{nocedal2006numerical}). 
 Therefore, one must take care in selecting $\eta$. For this, we recall from
 \cite[Lemma 3]{Theory1} that
-\begin{equation} %\label{eq:hess LL}
+\[
 \nabla^2\LL{(\beta,\gam)}=\sum_{i=1}^m
 S_i^T\begin{bmatrix}X_i^T\\ -Z_i^T\end{bmatrix}
 \Omega_i(\gam)^{-1}
@@ -1019,7 +1145,7 @@ S_i^T\begin{bmatrix}X_i^T\\ -Z_i^T\end{bmatrix}
 -\begin{bmatrix}
 0&0\\ 0& \half(Z_i^T\Omega_i(\gam)^{-1}Z_i)^{\circ2}
 \end{bmatrix}.
-\end{equation}
+\]
 This implies that negative eigenvalues for the Hessian must arise from the
 Hessian with respect to $\gamma$,
 $\nabla^2_{\gamma\gamma}\LL(\beta, \gamma)$, and more specifically, the
@@ -1036,8 +1162,12 @@ alternates Newton iterations as described in the interior point algorithm with $
 to the `central path' in the interior point method, a condition that can be checked rigorously using optimality conditions. 
 This scheme is detailed in Algorithm~\ref{alg:pgd_for_value_function_fast}.
 
+In designing Algorithm~\ref{alg:pgd_for_value_function_fast}, we chose a particular central path parameter, $\tau = 0.5$ in line 8, 
+that controls how far the interior point method needs to proceed before we take a proximal gradient step. We explored the effect of this parameter
+on performance and timing in Section~\ref{ch:msr3_sensitivity_analysis} and found that it did not have any effect on either for values between $0.1$ and $0.9$. MSR3-fast 
+was competitive with respect to time compared to PGD and PGD with line search (also as reported in Chapter~\ref{ch:msr3_sensitivity_analysis}) for problems up to 1000 features. 
 
-\begin{algorithm}[H]
+\begin{algorithm}[h!]
 \SetAlgoLined
 $\texttt{progress}\leftarrow \textbf{True}$; \quad \texttt{iter = 0}; \\
 $\beta^+, \tbeta^+\leftarrow\beta_0$; 
@@ -1075,6 +1205,7 @@ $\beta^+, \tbeta^+\leftarrow\beta_0$;
 \subsection{MSR3 for Covariate Selection}
 \label{ch:sr3_l1}
 
+\verify{Ensure that short and long performance tables are consistent with each other}
 \begin{table}
 \centering
 \input{tables/performance_table_short_current}
@@ -1086,7 +1217,7 @@ More detailed results are in the Table \ref{table:detailed_comparison_of_algorit
 
 \begin{figure}
     \centering
-	\includegraphics[width=1.0\textwidth]{figures/performance_picture_current}
+	\includegraphics[width=0.8\textwidth]{figures/benchmark}
 	\caption{\label{fig:box_with_whiskers_for_synthetic_data}	Feature selection accuracy and execution time in seconds for PGD 
 	(Algorithm \ref{alg:pgd_for_lme}), 
 	MSR3 (Algorithm \ref{alg:pgd_for_value}), and MSR3-fast
@@ -1095,16 +1226,16 @@ More detailed results are in the Table \ref{table:detailed_comparison_of_algorit
 	MSR3 and significantly decreases computation time.}
 \end{figure}
 
-In this section we 
-{compare the numerical performance 
-the feature selection accuracy and numerical efficiency of Algorithms 
+In this section we compare
+%compare the numerical performance 
+the feature selection accuracy and the numerical efficiency of Algorithms 
 \ref{alg:pgd_for_lme} and 
 \ref{alg:pgd_for_value_function_fast} when using the 
 LASSO, A-LASSO, SCAD, and L0 sparsity regularizers.
 We begin by describing how the data is generated for our numerical simulations 
 followed by a description of how the  
 regularization parameter $\lambda$ and the coupling parameter $\eta$  were chosen.
-Our experiments on real data are presented in Section \ref{sec:real}.}
+Our experiments on real data are presented in Section \ref{sec:real}.
 
 %show the performance of the `regularization-agnostic' feature selection method, and also show that MSR3 improves performance across different regularization strategies. Specifically, we compare the feature selection accuracy and numerical efficiency of Algorithms  \ref{alg:pgd_for_lme} and 
 %\ref{alg:pgd_for_value_function_fast} 
@@ -1127,10 +1258,11 @@ the uncertainty bounds. The smallest non-zero components in the generated signal
 %\red{We need to say something about "the smallest non-zero components are such that they are just above the noise from observation error"}
 
 \vskip -.8in
-\begin{wrapfigure}{r}{7.5cm}
-		\includegraphics[width=7.5cm]{figures/eta_L1.pdf}
+\begin{figure}
+\center
+		\includegraphics[width=9.5cm]{figures/eta_L1.pdf}
 		\caption{Dependence of model performance on the relaxation $\eta$ for a sample problem.}\label{fig:eta}
-	\end{wrapfigure} 
+\end{figure}
 	
 
 	
@@ -1139,12 +1271,11 @@ multiplying $R$ and the
 coupling parameter $\eta$ restricting the difference between 
 $(\beta,\gamma)$ and $(\tbeta,\tgam)$ are chosen to maximize a classic 
 BIC criterion from \cite{Jones2011}. 
-We begin by setting a log-uniform grid of 20 candidate values for the parameter $\eta \in [10^{-4}, 10^2]$, and then for each value of $\eta$
-on this grid 
-the BIC is optimized using a golden search in $\lambda \in [0, 10^5]$. The final values of $\eta$ and $\lambda$ are then chosen
-to be those that maximize the BIC criterion.
+We set a log-uniform grid of 20 candidate values for the parameter $\eta \in [10^{-3}, 10^2]$. For each value of $\eta$,
+the BIC is optimized using a golden search in $\lambda \in [0, 10^5]$. The final values of $\eta$ and $\lambda$ are  chosen
+to maximize the BIC criterion.
 	
-	Figure \ref{fig:eta} shows the dependence of accuracy on the values of $\eta$ for the first data set generated in our test set. There are three distinct regions, corresponding to loose, moderate, and tight levels of coupling. When $\eta$ is small the coupling term does not have sufficient strength and the training does not progress far from the initial point (a fully dense vector \textbf{1} in this case). When the coupling is tight, the level-sets of the problem converge to those of the original problem, and thus the minimizer. For the values in between, the coupling significantly improves the model's accuracy. 
+	Figure \ref{fig:eta} shows the dependence of accuracy on the values of $\eta$ for the first data set generated in our test set. There are three distinct regions, corresponding to loose, moderate, and tight levels of coupling. When $\eta$ is small the coupling term does not have sufficient strength and the training does not progress far from the initial point (a fully dense vector \textbf{1} in this case). When the coupling is tight, the level-sets and minimizers are closer to those of the the original problem. For the values in between, the coupling significantly improves the model's accuracy. 
 These results are consistent with experiments in the sparse linear regression setting~\cite{Zheng2019SR3}. 
 
 \paragraph{Results.}
@@ -1157,13 +1288,12 @@ for feature selection libraries. Of the 17 entries mentioned, the four libraries
 it did not support  datasets where the total number of random effects $mq$ exceeded the total number of observations $n$. We compare performance of MSR3 
 (available through the open source \texttt{pysr3} library) 
 to the performance of the \texttt{R} packages \texttt{glmmLasso}\footnote{\href{https://rdrr.io/cran/glmmLasso/man/glmmLasso.html}{https://rdrr.io/cran/glmmLasso/man/glmmLasso.html}} (\cite{groll2014variable}) and \texttt{lmmLasso}\footnote{\href{https://rdrr.io/cran/lmmlasso/}{https://rdrr.io/cran/lmmlasso/}} (\cite{schelldorfer2011estimation}) which are the functionally closest libraries available
-} online. As of this writing, \texttt{glmmlasso} does not allow the user to specify $\Gamma$ as a diagonal matrix.  Since the diagonal specification simplifies the problem, this puts \texttt{glmmlasso} package at a disadvantage in our numerical comparison. We evaluate all algorithms' performance on the same set of problems as described above. We tuned the hyperparameters of \texttt{glmmLasso} and \texttt{lmmLasso} by minimizing the BIC scores provided by the libraries over $\lambda \in [0, 10^5]$. The results are presented in Table \ref{table:glmmlasso}. Overall, MSR3 executes, on average, 5 times faster in wall-clock time than \texttt{glmmLasso} and 60 times faster than \texttt{lmmLasso} and shows much higher accuracy of selecting correct fixed and random effects simultaneously. 
+} online. As of this writing, \texttt{glmmlasso} does not allow the user to specify $\Gamma$ as a diagonal matrix.  Since the diagonal specification simplifies the problem, this puts \texttt{glmmlasso} package at a disadvantage in our numerical comparison. We evaluate all algorithms' performance on the same set of problems as described above. We tuned the hyperparameters of \texttt{glmmLasso} and \texttt{lmmLasso} by minimizing the BIC scores provided by the libraries over $\lambda \in [0, 10^5]$. The results are presented in Table \ref{table:glmmlasso}. Overall, MSR3 executes, on average, 5 times faster in wall-clock time than \texttt{glmmLasso} and 60 times faster than \texttt{lmmLasso} and shows much higher accuracy in selecting correct fixed and random effects simultaneously. 
 {The accuracy of \texttt{glmmLasso} is lower relative to the other libraries' scores likely due to its BIC selection criterion choosing dense models.} The package \texttt{lmmLasso} supports the diagonal specification of $\Gamma$, thus allowing a direct comparison with the scores from \texttt{pysr3}.  \texttt{lmmLasso} yields a competitive accuracy of selecting random effects but \texttt{lmmLasso} provides dense solutions for fixed effects $\beta$ for chosen values of $\lambda$. 
 
-\begin{table}[ht]
+\begin{table}[h]
 \centering
 \resizebox{\columnwidth}{!}{\input{tables/table_glmm_current.tex}}
-
 \caption{\label{table:glmmlasso} Comparison of performance of MSR3-Fast for $\ell_1$ regularizer vs \texttt{glmmLasso}. MSR3-Fast executes 5 times faster in wall time and has higher accuracy of selecting correct covariates. 
 %Importantly, the accuracy of \texttt{glmmLasso} is likely skewed downwards due to BIC selection criterion choosing dense ultimate models and due to the missing option to constrain the matrix $\Gamma$ to be diagonal. \texttt{lmmLasso} supports the diagonal specification of $\Gamma$ which translates into a competitive quality of selecting random effects. However, while finding sparse fixed effects, \texttt{lmmLasso} provides dense solutions for fixed effects $\beta$.
 }
