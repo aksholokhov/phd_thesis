@@ -51,7 +51,7 @@ made available in an open source library, \texttt{pysr3}\footnote{https://github
 easy to use and to compare different methods. All experiments in the paper can be reproduced 
 using \texttt{pysr3} and code in the reproducibility guide\footnote{https://github.com/aksholokhov/msr3-paper}.
 
-\begin{figure}[h!]
+\begin{figure}[ht!]
     \centering
     \includegraphics[width=\textwidth]{figures/summary_picture.pdf}
     \caption{Selection of fixed and random effects for LME likelihoods $\mathcal{L}$ using 
@@ -364,7 +364,7 @@ where $\|\theta\|_0$ denotes the number of nonzero entries in $\theta$, see pane
 
 % In this form the problem is equivalent to the Knapsack problem, which is NP-complete. Many techniques based on exhaustive search, also known as subset selection process, were developed, and showed to be effective when the total number of predictors is small (see \cite{Muller2013}). The same setup appears to be intractable in a high-dimension setting due to the exponential growth of the number of subsets to check when $n \to \infty$, however, it's possible to get an approximate solution via relaxation techniques.
 
- \begin{figure}[h!]
+ \begin{figure}[ht!]
     \centering
     \begin{tabular}{ccc}
         \includegraphics[width=0.3\textwidth]{figures/l1_regularizer.pdf}
@@ -1167,7 +1167,7 @@ that controls how far the interior point method needs to proceed before we take 
 on performance and timing in Section~\ref{ch:msr3_sensitivity_analysis} and found that it did not have any effect on either for values between $0.1$ and $0.9$. MSR3-fast 
 was competitive with respect to time compared to PGD and PGD with line search (also as reported in Chapter~\ref{ch:msr3_sensitivity_analysis}) for problems up to 1000 features. 
 
-\begin{algorithm}[h!]
+\begin{algorithm}[!ht]
 \SetAlgoLined
 $\texttt{progress}\leftarrow \textbf{True}$; \quad \texttt{iter = 0}; \\
 $\beta^+, \tbeta^+\leftarrow\beta_0$; 
@@ -1405,21 +1405,14 @@ The dataset consists of $m=60$ groups (countries or states), the detailed descri
 
 Feature selection results for four particular locations (Alaska, Slovenia, Turkey, and Switherland) are presented on Figures \ref{fig:covid_feature_selection_1} and \ref{fig:covid_feature_selection_2}, with coefficients for the rest of the locations attached in supplementary materials. \ouralgo was charged with a task to produce a fit using only three covariates, one of which had to be mean-only (no random effects). On the left we see the original data (\texttt{Data}, in {\color{blue} blue}), and predictions of three models: IHME Projections (\texttt{IHME}, in {\color{orange} orange}), a linear mixed model fit with no selection (\texttt{Dense MM}, in {\color{red} red}), and a sparse fit of \ouralgo (\ouralgo in {\color{green} green}). The \ouralgo model has chosen to use \texttt{intercept}, \texttt{mobility\_lift}, and \texttt{temperature} covariates, with the later only as a fixed covariate; \texttt{testing\_reference} and \texttt{proportion\_over\_1k} were left out. On the plots to the left we see that the exclusion of two covariates did not significantly affect the quality of predictions. The residual errors (RMSE) to the right support this statement: the difference in RSME is within 10\% of RSME of a "dense" model which uses all the covariates, as well as from IHME's original model which fit all the locations via sequence of independent regressions. This choice also seems reasonable given the timespan: the proliferation of testing during the spring was not yet significant, so it did not inform predictions in a major way. The exclusion of \texttt{proportion\_over\_1k} could have been due to the scale of grouping: locations were grouped on the level of states and countries, not on the level of individual counties where the influence of population-based covariates could have been more significant. 
 
-
-
-
 \section{Theoretical Analysis}
 \input{msr3-theory}
 
 \section{Software Implementation}
 \edit{Move pysr3 software paper here}
-To ensure reproducibility of this research, all new algorithms have been implemented as a part of the \texttt{pysr3}\footnote{Available at \href{https://github.com/aksholokhov/pysr3}{https://github.com/aksholokhov/pysr3}} library. This library implements functionality for fitting linear mixed models and selecting covariates. The user interface was designed to be fully compliant with the standards\footnote{\href{https://scikit-learn.org/stable/developers/develop.html}{https://scikit-learn.org/stable/developers/develop.html}} of \texttt{sklearn} library to minimize learning time. 
+To ensure reproducibility of this research, all new algorithms have been implemented as a part of the \texttt{pysr3}\footnote{Available at \href{https://github.com/aksholokhov/pysr3}{https://github.com/aksholokhov/pysr3}} library~\cite{sholokhov2023pysr3}. This library implements functionality for fitting linear mixed models and selecting covariates. The user interface was designed to be fully compliant with the standards\footnote{\href{https://scikit-learn.org/stable/developers/develop.html}{https://scikit-learn.org/stable/developers/develop.html}} of \texttt{sklearn} library to minimize learning time. 
 
-    
-
-
-
-
+The baseline optimization method of PySR3 is proximal gradient descent (PGD). Each regularizer included in PySR3 can also be used in its relaxed SR3 form. More information about the structure of the library can be found in documentation\footnote{https://aksholokhov.github.io/pysr3/}, 
 
 \section{Discussion}
 \label{sec:discussion}
