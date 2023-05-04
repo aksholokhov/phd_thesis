@@ -1,5 +1,5 @@
-\edit{Rewrite the MSR3 abstract into a summary of whole work with citations}
-Linear Mixed-Effects (LME) models are a fundamental tool for modeling correlated data, 
+% \edit{Rewrite the MSR3 abstract into a summary of whole work with citations}
+\paragraph{Abstract for Chapter~\ref{ch:msr3}} Linear Mixed-Effects (LME) models are a fundamental tool for modeling correlated data, 
 including cohort studies, longitudinal data analysis, and meta-analysis.  Design and analysis of variable selection methods for LMEs is more difficult than for linear regression because LME models are nonlinear. In this work we 
 propose a relaxation strategy and optimization methods that enable a wide range of variable selection methods for LMEs using both convex and nonconvex regularizers, including  $\ell_1$, Adaptive-$\ell_1$, SCAD, and $\ell_0$. 
 The computational framework only requires the proximal operator for each regularizer to be available, and the implementation is available in an open source \texttt{python} package \texttt{pysr3}, consistent 
@@ -158,12 +158,7 @@ and interior point technology. We conclude Section \ref{sec:pgd_methods}
 with a discussion of the
 MSR3 and MSR3-fast algorithms. In Section \ref{sec:applications} we discuss how
 the underlying algorithmic parameters are set and test the algorithm on both 
-simulated problems and a problem with real data. The paper is concluded in
-Section \ref{sec:discussion} with a brief discussion of the contributions.
-
-\edit{Add a paragraph summarizing the theory paper}
-\edit{Add a paragraph summarizing software paper}
-
+simulated problems and a problem with real data. In Section~\ref{sec:theory-paper} we develop theoretical underpinnings of the proposed extension, including consistency results, variational properties, implementability of optimization methods, and convergence results for both MSR3 and MSR3-fast. Section~\ref{sec:software-paper} outlines the software implementation of MSR3 and MSR3-fast in \texttt{pysr3} package. The chapter is concluded in Section \ref{sec:discussion} with a brief discussion of the contributions.
 
 \section{Linear Mixed-Effects Models: Notation and Fundamentals}\label{sec:LMEM}
 Mixed-effect models describe the relationship between an outcome variable and its predictors when the observations are grouped, for example in studies or clusters.  To set the notation, consider $m$ groups of observations indexed by $i$, with sizes $n_i$, and the total number of observations equal to $n = n_1 + n_2 + \dots + n_m$. For each group, we have design matrices for fixed features $X_i \in \R^{n_i \times p}$,  and matrices of random features $Z_i \in \R^{n_i \times q}$, along with vectors of outcomes $Y_i \in \R^{n_i}$. 
@@ -269,6 +264,20 @@ computed in~\cite[Section 5.1]{Theory1} . The expected value of the posterior mo
 	\label{eq:beta_formula}
 	\beta(\Gamma) = \argmin_{\beta}\LL(\beta, \Gamma) = \left(\sum_{i = 1}^m X_i^T\Omega_i^{-1}X_i\right)^{-1}\sum_{i = 1}^mX_i^T\Omega_i^{-1}y_i.
 \end{equation}
+
+The individual random effects $u_i$ can be found through the minimization of conditional likelihood of random effects given $\beta$ and $\Gamma$:
+
+\eq{
+\min_{u_i}\LL(u_i|\beta, \Gamma) = \min_{u_i}\left(\half u_i^T\Gamma^{-1}u_i + \half (Z_iu_i - Y_i + F_i(\beta))^T\Lambda_i^{-1}(Z_iu_i - Y_i + F_i(\beta))\right),
+}
+
+This problem has a closed form solution commonly known as Best Linear Unbiased Predictor, or BLUP. It was first derived by \cite{Harville1976} as an extension to Gauss-Markov theorem.
+
+ \eq{
+	\label{eq:random_effects_formula}
+	u_i = (\Gamma^{-1} + Z_i^T\Lambda_i^{-1}Z_i)^{-1}Z_i^T\Lambda_i^{-1}(Y_i - X_i\beta).	
+}
+
 
 By using the simplification $\Gam=\Diag{\gam}$, we obtain the problem
 %{In the meta-analysis setting under study, 
@@ -427,7 +436,7 @@ Based on this idea, \cite{Krishna2008} extended the Adaptive LASSO regularizer (
   % 		p'_{\lambda}(|\theta|) = \lambda\left\{\ind{\theta \leq \lambda} +  \frac{(a\lambda - \theta)_+}{(a-1)\lambda}\ind{\theta - \lambda} \right\}
   % }
 The adaptation of the SCAD penalty to select both fixed and random features in 
-linear mixed models was developed by \cite{Fan2012}. SCAD was also used by \cite{chen2015inference} for selecting fixed effects and establishing the existence of random effects in ANOVA-type models. Finally, \cite{Ghosh2018} studied SCAD regularization for selecting mean effects in high-dimensional genomics problems.
+linear mixed models was developed by \cite{Fan2012}. SCAD was also used by \cite{chen2015inference} for selecting fixed effects and establishing the existence of random effects in ANOVA-type models. Finally, \cite{Ghosh2018} studied SCAD regularization for selecting mean effects in high-dimensional genomics problems. One can refer to \cite{Muller2013, Buscemi2019Survey} for a detailed overview of different feature selection approaches.
 
 To better compare methods, we need to consider the tuning of the regularization parameter 
 $\lambda$. 
@@ -438,10 +447,7 @@ by the notion of a ``$\lambda$-path in the model space'', with  the best paramet
   where $\hat\theta$ includes all the estimated parameters $(\beta, \Gamma)$, and $\alpha_n := n(n-p-q-1)$ for the finite sample case (\cite{Sugiura1978}). 
   %As discussed by \cite{Fang2011}, AIC is asymptotically equivalent to leave-one-out cross-validation, so it can be used for choosing between a finite number of models. AIC, however, is also known to be positively-biased (\cite{Ibrahim2011}). 
   Alternatively, LASSO-type methods (\cite{Krishna2008, Ibrahim2011}) use a BIC-type information criterion,  \(BIC := 2\LL(\hat{\theta}) + \log(n)(p+q)\).
-BIC performs well in practice, but does not have theoretical guarantees~(\cite{schelldorfer2011estimation}).
-  %One can refer to \cite{Muller2013, Buscemi2019Survey} for a detailed overview of different feature selection approaches.
-  
-  \edit{Add more ICs, e.g. Muller}
+BIC performs well in practice, but does not have theoretical guarantees~(\cite{schelldorfer2011estimation}). Finally, \cite{Hui2017} suggests penalizing the number of non-zero random effects in the resulting model instead of penalizing the number of random features with non-zero variance, especially when random effects are optimized directly instead of using BLUP~\eqref{eq:random_effects_formula}.
   
 \section{Algorithms for Feature Selection}
 \label{sec:pgd_methods}
@@ -975,23 +981,13 @@ the linearity constraint with a perspective function and got another parameter $
 
 Our focus is on the optimal value function $\uemu$ which captures global 
 variational information about the function $\LL$ over its domain.
-We show that $\uemu$ has a locally Lipschitz continuous gradient
+In Section~\ref{sec:theory-paper} we show that $\uemu$ has a locally Lipschitz continuous gradient
 and that the evaluation of $\uemu$ and $\nabla \uemu$ is accomplished
 by optimizing a well conditioned strongly convex function. This
 allows us to apply the PGD algorithm to the function $\uemu$ rather than
-the function $\LL$. Our numerical studies show that the global information 
+the function $\LL$. Our numerical studies in Section~\ref{sec:applications} show that the global information 
 captured by $\uemu$ significantly improves both the accuracy of the solution
-obtained and the overall numerical efficiency of the algorithm.
-
-\edit{Connect this paragraph to the theory block} 
-
-To motivate the reader, the theoretical results that support the design of Algorithm \ref{alg:MSR3} go as follows. The existence of solutions for the problem~(\ref{eq:value_function_definition}) for any positive $\mu$ is shown in \cite[Theorem 5]{Theory1}, and the convergence of solutions to the MSR3 solution as $\mu\downarrow 0$ is shown in~\cite[Theorem 7]{Theory1}.  
-Finally, \cite[Theorem 6]{Theory1} shows that the MSR3 relaxation is consistent with respect to the barrier, so that as the MSR3 parameter $\eta \uparrow \infty$,
- limit points of global solutions to the former are global solutions to the latter. 
- However, in the applications considered here,
- the empirical studies in Sections \ref{sec:synthetic} and \ref{sec:real}
- indicate that one does not need to make $\eta$ particularly large in order to accurately identify the correct sparsity pattern. 
-
+obtained and the overall numerical efficiency of the algorithm. 
 
 %The Lagrangian for~\eqref{eq:log_barrier_relaxation_for_ip} is obtained by dualizing the inequality $\gamma \geq 0$ constraint: 
 % Define the objective for \eqref{eq:log_barrier_relaxation_for_ip} by
@@ -1205,7 +1201,6 @@ $\beta^+, \tbeta^+\leftarrow\beta_0$;
 \subsection{MSR3 for Covariate Selection}
 \label{ch:sr3_l1}
 
-\verify{Ensure that short and long performance tables are consistent with each other}
 \begin{table}
 \centering
 \input{tables/performance_table_short_current}
@@ -1257,7 +1252,6 @@ The data generation is repeated 100 times in order to estimate
 the uncertainty bounds. The smallest non-zero components in the generated signals are just above the level of observation noise. 
 %\red{We need to say something about "the smallest non-zero components are such that they are just above the noise from observation error"}
 
-\vskip -.8in
 \begin{figure}
 \center
 		\includegraphics[width=9.5cm]{figures/eta_L1.pdf}
@@ -1406,13 +1400,14 @@ The dataset consists of $m=60$ groups (countries or states), the detailed descri
 Feature selection results for four particular locations (Alaska, Slovenia, Turkey, and Switherland) are presented on Figures \ref{fig:covid_feature_selection_1} and \ref{fig:covid_feature_selection_2}, with coefficients for the rest of the locations attached in supplementary materials. \ouralgo was charged with a task to produce a fit using only three covariates, one of which had to be mean-only (no random effects). On the left we see the original data (\texttt{Data}, in {\color{blue} blue}), and predictions of three models: IHME Projections (\texttt{IHME}, in {\color{orange} orange}), a linear mixed model fit with no selection (\texttt{Dense MM}, in {\color{red} red}), and a sparse fit of \ouralgo (\ouralgo in {\color{green} green}). The \ouralgo model has chosen to use \texttt{intercept}, \texttt{mobility\_lift}, and \texttt{temperature} covariates, with the later only as a fixed covariate; \texttt{testing\_reference} and \texttt{proportion\_over\_1k} were left out. On the plots to the left we see that the exclusion of two covariates did not significantly affect the quality of predictions. The residual errors (RMSE) to the right support this statement: the difference in RSME is within 10\% of RSME of a "dense" model which uses all the covariates, as well as from IHME's original model which fit all the locations via sequence of independent regressions. This choice also seems reasonable given the timespan: the proliferation of testing during the spring was not yet significant, so it did not inform predictions in a major way. The exclusion of \texttt{proportion\_over\_1k} could have been due to the scale of grouping: locations were grouped on the level of states and countries, not on the level of individual counties where the influence of population-based covariates could have been more significant. 
 
 \section{Theoretical Analysis}
+\label{sec:theory-paper}
 \input{msr3-theory}
 
 \section{Software Implementation}
-\edit{Move pysr3 software paper here}
-To ensure reproducibility of this research, all new algorithms have been implemented as a part of the \texttt{pysr3}\footnote{Available at \href{https://github.com/aksholokhov/pysr3}{https://github.com/aksholokhov/pysr3}} library~\cite{sholokhov2023pysr3}. This library implements functionality for fitting linear mixed models and selecting covariates. The user interface was designed to be fully compliant with the standards\footnote{\href{https://scikit-learn.org/stable/developers/develop.html}{https://scikit-learn.org/stable/developers/develop.html}} of \texttt{sklearn} library to minimize learning time. 
+\label{sec:software-paper}
+To ensure reproducibility of this research, all new algorithms have been implemented as a part of the \texttt{pysr3}\footnote{Available at \href{https://github.com/aksholokhov/pysr3}{https://github.com/aksholokhov/pysr3}} library~(\cite{sholokhov2023pysr3}). This library implements functionality for fitting linear mixed models and selecting covariates. The user interface was designed to be fully compliant with the standards\footnote{\href{https://scikit-learn.org/stable/developers/develop.html}{https://scikit-learn.org/stable/developers/develop.html}} of \texttt{sklearn} library to minimize learning time. 
 
-The baseline optimization method of PySR3 is proximal gradient descent (PGD). Each regularizer included in PySR3 can also be used in its relaxed SR3 form. More information about the structure of the library can be found in documentation\footnote{https://aksholokhov.github.io/pysr3/}, 
+The baseline optimization method of PySR3 is proximal gradient descent (PGD). Each regularizer included in PySR3 can also be used in its relaxed SR3 form. More information about the structure of the library can be found in the documentation\footnote{https://aksholokhov.github.io/pysr3/} as well as in the package's companion paper~(\cite{sholokhov2023pysr3}).
 
 \section{Discussion}
 \label{sec:discussion}

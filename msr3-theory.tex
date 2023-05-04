@@ -1,13 +1,41 @@
-%gives the problem structure used in the design of our
-%numerical solution method. 
-%Specifically, we design a 
-%(PGD) %prox gradient 
-%method 
-%for solving this problem (see Section \ref{sec:pgd}). For this we must show that the function $u_\emu$
-%is continuously differentiable with Lipschitz continuous gradient. 
+In this section we provide a 
+theoretical justification for the algorithmic approach to the solution
+of the marginalized maximum likelihood estimation problems presented
+in~\cite{aravkin2022jimtheory} as well as in Section~\ref{sec:MSR3}. The approach is motivated by the sparse relaxed regularization regression (SR3) strategy
+developed in \cite{Zheng2019SR3}. While the analysis of~\cite{Zheng2019SR3} relies on the least squares data-fitting term,
+here we develop the algorithmic design and analysis required for the nonlinear and nonconvex LME extension.  
 
-%\section{Prox Gradient Descent}
-\subsection{Proximal Gradient Descent for \texorpdfstring{$\uemu\tbg + R\tbg+\del_{\Rqp}(\tgam)$}{}} 
+This section proceeds as follows. 
+% Section 3
+We study the relaxation strategy defined in~\eqref{eq:relax} where the the relaxation depends on a decoupling
+parameter $\eta$ and log-barrier smoothing parameter $\mu$. In particular, we introduce
+the optimal value function $\uemu$~\eqref{eq:value_function_definition} 
+used to exploit the decoupling of the likelihood
+function from the sparsity regularizer. Here $\uemu$ is obtained by partially minimizing
+the decoupled variables in the likelihood while keeping those in the regularizer fixed. 
+% Section 4
+Section~\ref{sec:pgd} introduces the MSR3 algorithm
+as the PGD algorithm 
+applied to the sum of $\uemu$ and the sparsity regularizer. 
+A brief discussion the basic assumptions typically required
+for establishing the viability of the PGD algorithm for this formulation is given.
+% Section 5
+Section~\ref{sec:smoothness} is the theoretical core of the work. In this section
+we show that the optimal value function function $\uemu$ satisfies the properties
+necessary for the application of the PGD algorithm. 
+In particular, we establish the Lipschitz continuity of $\nabla \uemu$ 
+(Lemma \ref{lem:grad u lip}). 
+% Section 6
+The convergence results for MSR3 are presented in Section~\ref{sec:convergence pgd}
+for fixed values of $\eta$ and $\mu$.
+% Section 7
+In Section~\ref{sec:hybrid alg} we address the key issues surrounding the initialization
+of the coupling and smoothing parameters $\eta$ and $\mu$ when only approximate
+values for $\uemu$ and $\nabla \uemu$ are known. Here we appeal to both
+variable metric ideas as well as properties of the interior point algorithm.
+
+
+\subsection{Proximal Gradient Descent for the Regularized Value Function} 
 \label{sec:pgd}
 
 We follow the analysis of the PGD algorithm given in \cite[Chapter 10]{AB17}
@@ -128,7 +156,9 @@ consumes the majority of the theoretical development.
 %\end{figure}
 
 
-\subsection{The Smoothness of \texorpdfstring{$u_\emu$}{}}\label{sec:smoothness}
+%\subsection{The Smoothness of \texorpdfstring{$u_\emu$}{}}
+\subsection{The Smoothness of the Value Function}
+\label{sec:smoothness}
 We investigate the relationship between the problems \eqref{eq:lme_loss_original_in_x}
 and \eqref{eq:relax2}, the existence of solutions to 
  \eqref{eq:relax2}, and the properties of the function $\uemu$ and its derivative.
@@ -1083,7 +1113,8 @@ The result follows since $\nabla _w\LL_{\emu}(\bg,\tbg)
 $.
 \end{proof}
 
-\subsubsection{The Lipschitz Continuity of \texorpdfstring{$\nabla \uemu\tbg$}{}}
+%\subsubsection{The Lipschitz Continuity of \texorpdfstring{$\nabla \uemu\tbg$}{}}
+\subsubsection{The Lipschitz Continuity of the Gradient of the Value Function}
 
 Since our goal is to employ the PGD algorithm to solve the relaxed problems
 \eqref{eq:relax}, we 
@@ -1543,7 +1574,7 @@ this set for all $\omega\ge 0$.
 %%The bound  is user spe
 %\end{remark}
 
-\subsection{Convergence of the PGD Algorithm for \texorpdfstring{$\Phi_\emu$}{}}
+\subsection{Convergence of the PGD Algorithm for Regularized MSR3 Likelihood}
 \label{sec:convergence pgd}
 
 The convergence of the PGD algorithm for fixed valued of the relaxation parameters
