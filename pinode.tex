@@ -1,9 +1,6 @@
 
 \section{Introduction}
-\edit{Write a big-picture intro to machine learning for physics}
 \subsection{Related Work}
-\edit{Split original intro into prior works paragraphs: DL for Ph, ROMs, PIML}
-\edit{Add physics-informed ML overview (PINN, DeepONet, NFO)}
         Forecasting the behavior of a large-scale real-world system directly from first principles often requires solving highly-nonlinear governing equations such as high-dimensional ordinary differential equations (ODEs) or partial differential equations (PDEs). 
         High-fidelity simulations of such dynamical systems can become intractable, especially if an online control algorithm requires multiple forecasts per second using a low-powered embedded device \cite{rowley2017model,lucia2004reduced,benner2015survey}. A situation like this arises, for example, when a smart heating, ventilation, and air conditioning (HVAC) system attempts to optimize the temperature distribution of the air in a room using only partial measurements \cite{farahmand2016learning,nabi2022robust}. At the time of writing this document, such systems are incapable of real-time complex simulations, but they can already run low-dimensional pre-trained models, which invites the development of high-quality reduced order models (ROMs) \cite{otterness2017evaluation}. Therefore, ROMs are essential for enabling the design optimization, uncertainty propagation, predictive modeling, and control for such dynamical systems \cite{brunton2022data,kutz2016dynamic,rowley2017model,jones2020characterising}
         
@@ -23,11 +20,6 @@
         Finally, recent works on NeuralODE (NODE) \cite{chen2018neuralode,rackauckas2020udes} show a way to fit an arbitrary non-linear model (e.g. a network) as a latent space dynamics model, significantly extending the set of models for the latent dynamics that one can train efficiently. 
         
         In this work, we employ autoencoders to perform nonlinear model reduction along with NODE in the latent space to model complex and nonlinear dynamics. We choose Neural ODEs in the latent space dynamics representation because of their ability to model highly non-linear dynamics, which is especially important when applications limit the size of the latent space dimension. Our goal is to reduce the demand for training data and improve the overall forecasting stability under challenging training conditions. To that end, we build on ideas from classical collocation methods of numerical analysis to embed knowledge from a known governing equation into the latent-space dynamics of a ROM, as described in Section 2. In Section 3, we show that the addition of our physics-informed loss allows for exceptional data supply strategies that improves the performance of ROMs in data-scarce settings, where training high-quality data-driven models is impossible. We demonstrate that such an approach not only reduces the need for large training data-sets and produces highly-accurate and long-term stable models, but also leads to the discovery of more compact latent spaces, which is especially important for applications in compressed sensing and control.
-
-        \edit{Add Koopman example to the intro}
-        
-        \edit{Add compressive sensing application to the intro}
-
        
 %\begin{figure}[ht]
 %    \centering
