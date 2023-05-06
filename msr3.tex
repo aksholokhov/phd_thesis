@@ -48,7 +48,7 @@ Our main practical goal to fill this gap by developing a unified methodological 
 accommodates a wide variety of variable selection strategies based on a set
 of easily implementable regularizers, and 
 made available in an open source library, \texttt{pysr3}\footnote{https://github.com/aksholokhov/pysr3} that is 
-easy to use and to compare different methods. All experiments in the paper can be reproduced 
+easy to use and to compare different methods. All experiments in this work can be reproduced 
 using \texttt{pysr3} and code in the reproducibility guide\footnote{https://github.com/aksholokhov/msr3-paper}.
 
 \begin{figure}[ht!]
@@ -143,7 +143,7 @@ All new methods are implemented in an open-source library called \texttt{pysr3},
 
 %Roadmap
 We begin in Section \ref{sec:LMEM} by giving a precise description of the LME
-model and set the notation for the remainder of the paper. 
+model and set the notation for the remainder of the section. 
 This is followed by a brief discussion of prior work on LMEs.
 In Section \ref{sec:pgd_methods} we present our algorithms for the LME model 
 starting with the naive PGD algorithm. This is followed by a description of the 
@@ -333,7 +333,7 @@ and extended to the presence of regularizers in~\cite[Theorem 2]{Theory1}. %, re
 
 %\red{I don't get the point of the following paragraph. Indeed, it seems wrong.}
 
-This paper focuses the case where $\Gamma$ is diagonal, 
+Our work focuses the case where $\Gamma$ is diagonal, 
   (often referred to as \textit{the diagonal setup}) 
  and all $\Lambda_i$ are known (see \eqref{eq:lme_diagonal_setup}), 
 following the meta-analysis use-case~\citep{zheng2021trimmed} that is widely 
@@ -1412,7 +1412,7 @@ The baseline optimization method of PySR3 is proximal gradient descent (PGD). Ea
 \section{Discussion}
 \label{sec:discussion}
 
-    In this paper, we developed and implemented a first-order variable selection framework for LMEs that handles convex and nonconvex regularizers. We also showed that 
+    In this work, we developed and implemented a first-order variable selection framework for LMEs that handles convex and nonconvex regularizers. We also showed that 
     the MSR3 relaxation \eqref{eq:value_function_optimization} 
 %a regularizer-agnostic transformation of the likelihood, 
 improves the covariates selection accuracy of a wide group of popular sparsity-promoting regularizers. The fact that the relaxation improves accuracy, rather than just serving as a means to {numertical efficiency, %solve the original problem,
