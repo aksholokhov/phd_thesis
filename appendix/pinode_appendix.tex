@@ -17,7 +17,7 @@ We used standard network classes of \texttt{pytorch}\footnote{\href{https://pyto
 
 \paragraph{Training} We trained the combined model for 400 epochs, with the learning rate of $10^{-4}$. All weights $\omega_i$ were set to 1 for a hybrid model, and $\omega_2$, $\omega_4$ were set to 0 for a data-driven model. 
 
-In each batch we had 64 trajectories and, in case of hybrid models, 640 collocation points. The rationale behind this ratio is that one trajectory contains number-of-steps snapshots of the system. Hence, to balance the amount of information that comes from both sources within a batch, we were taking the number-of-steps more collocations than trajectories for every batch. The same rationale holds for all other instances of training of a hybrid model in this paper.
+In each batch we had 64 trajectories and, in case of hybrid models, 640 collocation points. The rationale behind this ratio is that one trajectory contains number-of-steps snapshots of the system. Hence, to balance the amount of information that comes from both sources within a batch, we were taking the number-of-steps more collocations than trajectories for every batch. The same rationale holds for all other instances of training of a hybrid model in this section.
 
 \subsection{Lifted Duffing Oscillator: Far-Out Forecasting (Figure~\ref{fig:duffing_periods}).}
 \label{appendix:duffing_forecast}
