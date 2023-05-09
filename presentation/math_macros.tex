@@ -1,5 +1,9 @@
+% bold (vector)
+\newcommand{\bd}[1]{\boldsymbol{#1}}
+
 % derivatives
 \newcommand{\dderiv}[2]{\frac{\mathrm{d}}{\mathrm{d}#2} (#1)}
+\newcommand{\ddt}{\frac{\mathrm{d}}{\mathrm{d}t}}
 
 % partial derivatives
 \newcommand{\pderiv}[2]{\frac{\partial #1}{\partial #2}}
@@ -26,13 +30,18 @@
 \newcommand*{\ind}[1]{\ensuremath{\mathds{I}_{\left[#1\right]}}}
 
 % Optimization macros
-\DeclareMathOperator{\dom}{Dom}
-\DeclareMathOperator{\diag}{Diag}
-\DeclareMathOperator{\prox}{prox}
-\DeclareMathOperator*{\proj}{Proj}
-\DeclareMathOperator*{\sign}{sign}
-\DeclareMathOperator*{\argmax}{argmax}
-\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator{\dom}{\mathrm{dom}}
+\newcommand{\Diag}[1]{\mathrm{Diag}\left(#1\right)}
+\newcommand{\diag}[1]{\mathrm{diag}\left(#1\right)}
+\newcommand{\conv}{\mathrm{conv}}
+\newcommand{\clco}{\overline{\conv}}
+\newcommand{\gammax}{{\gam_{\mbox{\tiny max}}}}
+\def\prox{{\mathrm{prox}}}
+\DeclareMathOperator*{\proj}{\mathrm{Proj}}
+\DeclareMathOperator*{\sign}{\mathrm{sign}}
+\DeclareMathOperator*{\argmax}{\mathrm{argmax}}
+\DeclareMathOperator*{\argmin}{\mathrm{argmin}}
+\newcommand{\intr}[1]{\mathrm{int}\left( #1\right)}
 
 \newcommand*{\pdef}{\ensuremath{\mathbb{S}_{++}}}
 \newcommand*{\psdef}{\ensuremath{\mathbb{S}_{+}}}
@@ -47,31 +56,55 @@
 \DeclareMathOperator{\N}{\mathbb{N}}
 \DeclareMathOperator{\Q}{\mathbb{Q}}
 \DeclareMathOperator{\V}{\mathbb{V}}
+\DeclareMathOperator{\bS}{\mathbb{S}}
 
 %% \mathcal symbols
 \DeclareMathOperator{\RR}{\mathcal{R}}
+\DeclareMathOperator{\ZZ}{\mathcal{Z}}
 \DeclareMathOperator{\PP}{\mathcal{P}}
 \DeclareMathOperator{\NN}{\mathcal{N}}
-\DeclareMathOperator{\CC}{\mathcal{C}}
+\def\CC{\mathcal{C}}
 \DeclareMathOperator{\FF}{\mathcal{F}}
 \DeclareMathOperator{\YY}{\mathcal{Y}}
 \DeclareMathOperator{\XX}{\mathcal{X}}
 \DeclareMathOperator{\LL}{\mathcal{L}}
+\DeclareMathOperator{\wLL}{\widehat\LL}
+\DeclareMathOperator{\OO}{\mathcal{O}}
+\DeclareMathOperator{\II}{\mathcal{I}}
+\def\TT{\mathcal{T}}
+\def\hTT{{\widehat\TT}}
+\def\SS{\mathcal{S}}
+\def\hSS{{\widehat\SS}}
+\DeclareMathOperator{\DD}{\mathcal{D}}
+\DeclareMathOperator{\BB}{\mathcal{B}}
+\def\MM{\mathcal{M}}
+\def\uball{\mathbb{B}}
+%\def\S{\mathcal{S}}
 
 %% \tilde symbols
-\newcommand{\tbeta}{\hat\beta}
-\newcommand{\tgamma}{\hat\gamma}
+\newcommand{\tbeta}{\tilde\beta}
+\newcommand{\tgamma}{\tilde\gamma}
+\newcommand{\tu}{\tilde{u}}
+\newcommand{\tr}{\tilde{r}}
 
 %% \hat symbols
 \newcommand{\hbeta}{\hat{\beta}}
 \newcommand{\hgamma}{\hat{\gamma}}
 \newcommand{\hxi}{\hat{\xi}}
+\def\hy{\hat y}
+\def\hX{\widehat X}
+
+%% \bar symbols
+\newcommand{\bmu}{\bar{\mu}}
+\newcommand{\bgam}{\bar{\gamma}}
+
 
 % limit arrow "goes to"
 \newcommand{\goto}{\rightarrow}
+%\newcommand{\gotowith}[2]{\xrightarrow[#2]{#1}}
 
 % text above math symbol
-\newcommand{\textabove}[2]{\mathrel{\overset{\makebox[0pt]{\mbox{\normalfont\tiny #1}}}{#2}}}
+%\newcommand{\textabove}[2]{\mathrel{\overset{\makebox[0pt]{\mbox{\normalfont\tiny #1}}}{#2}}}
 
 % Big O
 \newcommand{\bigo}{{\mathcal O}}
@@ -89,6 +122,9 @@
 
 % Matrix functions
 \DeclareMathOperator{\trace}{Tr}
+
+% Epigraphs
+\DeclareMathOperator{\epi}{epi}
 
 % matrix environment for vectors or matrices where elements are centered
 \newenvironment{mat}{\left[\begin{array}{ccccccccccccccc}}{\end{array}\right]}
@@ -119,15 +155,114 @@
 
 % paired parenthesis
 \DeclarePairedDelimiter\pa{(}{)}%
-\DeclarePairedDelimiter\bra{[}{]}%
-\DeclarePairedDelimiter\curly{\{}{\}}%
-\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
-\DeclarePairedDelimiter\norm{\lVert}{\rVert}%
-\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}%
-\DeclarePairedDelimiter\ceil{\lceil}{\rceil}%
+%\DeclarePairedDelimiter\bra{[}{]}%
+%\DeclarePairedDelimiter\curly{\{}{\}}%
+%\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+%\DeclarePairedDelimiter\norm{\lVert}{\rVert}%
+%\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}%
+%\DeclarePairedDelimiter\ceil{\lceil}{\rceil}%
 
 % colorful box (for putting around equality signs etc)
-\newtcbox{\mywboxtext}[1]{on line,colback=white,colframe=#1,size=fbox,arc=3pt,boxrule=0.8pt}
-\newcommand{\boxaround}[2]{\mywboxtext{#2}{$#1$}}
+%\newtcbox{\mywboxtext}[1]{on line,colback=white,colframe=#1,size=fbox,arc=3pt,boxrule=0.8pt}
+%\newcommand{\boxaround}[2]{\mywboxtext{#2}{$#1$}}
 
+% A few things for Jim
+\def\bW{{\mathbb{W}}}
+\def\Rn{{\R^n}}
+\def\eR{{\overline\R}}
+\def\Rp{{\R^p}}
+\def\Rq{{\R^q}}
+\def\Rm{{\R^m}}
+\def\hf{{\hat f}}
+\def\hy{{\hat y}}
+\def\hr{{\hat r}}
+\def\hR{{\widehat R}}
+\def\tR{{\widetilde R}}
+\def\hs{{\hat s}}
+\def\bv{{\bar v}}
+\def\tx{{\tilde x}}
+\def\ty{{\tilde y}}
+\def\tw{{\tilde w}}
+\def\br{{\bar r}}
+\def\bu{{\bar u}}
+\def\hZ{{\widehat Z}}
+\def\tK{{\widetilde K}}
+\def\wG{{\widehat G}}
+\def\one{\mathbf{1}}
+\def\zero{\mathbf{0}}
+\def\lam{\lambda}
+\def\blam{{\bar\eta}}
+\def\lamb{\lambda_b}
+\def\lamg{\lambda_g}
+\def\Lam{\Lambda}
+\def\alf{\alpha}
+\def\talf{{\tilde\alpha}}
+\def\tkappa{{\tilde\kappa}}
+\def\balf{{\bar\alpha}}
+\def\bgam{{\bar\gamma}}
+\def\bbeta{{\bar\beta}}
+\def\bbeta{{\bar\beta}}
+\def\bxi{{\bar\xi}}
+\def\bw{{\bar w}}
+\def\hw{{\hat w}}
+\def\bx{{\bar x}}
+\def\by{{\bar y}}
+\def\bz{{\bar z}}
+\def\bv{{\bar v}}
+\def\hv{{\hat v}}
+\def\hx{{\hat x}}
+\def\he{{\hat{\mathrm{e}}}}
+\def\hp{{\hat{\mathrm{p}}}}
+\def\tv{{\tilde v}}
+\def\gam{\gamma}
+\def\hgam{{\hat\gam}}
+\def\tgam{{\tilde\gam}}
+\def\bgam{{\bar\gam}}
+\def\Gam{\Gamma}
+\def\bOmega{{\overline\Omega}}
+\def\bomega{{\bar\omega}}
+\def\del{\delta}
+\def\Del{\Delta}
+\def\eps{\epsilon}
+\def\beps{{\bar\epsilon}}
+\newcommand{\lDel}{\mbox{\small$\Del$}}
+\def\Sig{\Sigma}
+\def\sig{\sigma}
+\def\BB{{\mathcal{B}}}
+\def\GG{{\mathcal{G}}}
+\def\hGG{{\widehat\GG}}
+\def\VV{{\mathcal{V}}}
+\def\RR{{\mathcal{R}}}
+\def\hRR{{\widehat\RR}}
+\def\tLL{{\widetilde\LL}}
+\def\hLL{{\widehat\LL_\mu}}
+\def\hDD{{\widehat\DD}}
+\def\Dfr{\mathfrak{D}}
+\def\LLlam{{\LL_\lam}}
+\def\hOmega{{\widehat\Omega}}
+\def\mmax{\text{max}}
+\def\mmin{\text{min}}
+\newcommand\map[3]{#1:#2\rightarrow #3}
+\def\Ran{\mathrm{Ran}\,}
+\newcommand{\rset}[2]{\left\{#1\,\left|\,#2\right\}\right.}
+\newcommand{\lset}[2]{\left\{#1\,\left|\,#2\right.\right\}}
+\newcommand{\norm}[1]{\left\Vert #1\right\Vert}
+\newcommand{\im}[1]{{\mathrm{Im}\left(#1\right)}}
+\newcommand{\lev}[2]{{\mathrm{lev}_{#1}(#2)}}
+\newcommand{\ip}[2]{\left\langle #1,\, #2\right\rangle}
 
+\def\bgk{(\beta^k,\gam^k)}
+\def\tbgk{(\tbeta^k,\tgam^k)}
+\def\bg{(\beta,\gam)}
+\def\tbg{(\tbeta,\tgam)}
+\def\bbg{(\bar\beta,\bar\gam)}
+\def\hbg{(\hat\beta,\hat\gam)}
+\def\emu{{\eta,\mu}}
+\def\phimu{\phi_\mu}
+\def\umu{u_\mu}
+\def\uemu{{u_{\eta,\mu}}}
+\def\keta{\kappa_\eta}
+\def\Rqp{\R^q_+}
+\def\vphi{\varphi}
+\def\vmu{v_\mu}
+\def\xmu{x_\mu}

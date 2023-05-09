@@ -51,7 +51,6 @@
 % =============== Other ===============
 \usepackage{datetime} % Date-Time formatting
 \usepackage{ulem} % For strikethrough text \st{}
-\usepackage[colorinlistoftodos]{todonotes} % useful for leaving todonotes
 \usepackage{textcomp} %Text Com­pan­ion fonts
 
 \usepackage{pdfpages} % Insert pdfs
@@ -62,37 +61,6 @@
 %\usepackage{xargs} % Expanded arguments features
 %\usepackage{fix-cm} % Computer-Modern at arbitrarysizes
 %\usepackage{eurosym} % Eurosymbol
-
-%%%%%%%%%%%%%%%%%
-% TODO COMMANDS %
-%%%%%%%%%%%%%%%%%
-\usepackage[colorinlistoftodos]{todonotes} % useful for leaving todonotes
-\newcommand{\hightodo}[1]{\todo[inline,backgroundcolor=red!90!yellow!80!white]{\textbf{\userId}: #1}}
-\newcommand{\lowtodo}[1]{\todo[inline,backgroundcolor=blue!30!white]{\textbf{\userId}: #1}}
-\newcommand{\ask}[2]{\todo[inline,backgroundcolor=Orchid!40!white]{
-	\textbf{Ask #1} #2}}
-\newcommand{\critical}[1]{\todo[inline, backgroundcolor=BrickRed!50!white]{\textbf{Critical:} #1}}
-\newcommand{\search}[1]{\todo[inline, backgroundcolor=blue!30!white]{\textbf{Search:} #1}}
-\newcommand{\edit}[1]{\todo[inline, backgroundcolor=CornflowerBlue!30!white]{\textbf{Edit:} #1}}
-\newcommand{\verify}[1]{\todo[inline, backgroundcolor=Apricot!50!white]{\textbf{Verify:} #1}}
-\newcommand{\experiment}[1]{\todo[inline, backgroundcolor=Green!50!white]{\textbf{Verify:} #1}}
-\newcommand{\delegate}[2]{\todo[inline, background=Lavender]{\textbf{For #1:} #2}}
-
-% Tips
-\newtcolorbox{tip}{colframe=white, colback=gray!10!white}
-
-% Mettings
-\newcounter{meetingscounter}
-\setcounter{meetingscounter}{1}
-\newtcolorbox{meeting}[4]{colframe=white, colback=white, colbacktitle=gray!10!white, 
-	coltitle=black, fonttitle=\bfseries, breakable,
-	subtitle style={boxrule=0.4pt, colback=white},
-	title={
-		\begin{tabular}{p{2.5cm}p{2.5cm}p{2.5cm}p{2.5cm}l}
-		\underline{Meeting \arabic{meetingscounter}}  &  \stepcounter{meetingscounter} \faCalendar\ #2 &  \faClockO\ #3 & \faMapMarker\ #4 & \faUsers\ #1
-		\end{tabular}
-		}
-	}
 
 % Thick strike out
 \newcommand{\cancelled}[1]{%
