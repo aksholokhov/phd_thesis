@@ -338,71 +338,87 @@ If $\mu > 0$, then $\hat{v} = -\nabla\phi_\mu(\hat{\gamma})$, and if $\mu = 0$, 
 	\end{itemize}
 \end{frame}
 
-\section{Reduced-Order Models}
-\subsection{Intro to Reduced-Order Models (ROMs)}
+\section{PINODE}
 
-\begin{frame}{Reduced-Order Models}
+\subsection{Intro to Physics-Informed Reduced-Order Models (ROMs)}
 
-Schematics, terminology, notation
+\begin{frame}{Data-Driven Modeling of Physical Systems}
+
+1) People used to model physical systems with first-principle knowledge
+2) Data-Driven modelling of dynamical systems became a big thing  
+3) However, it requires a lot of data 
+4) Incorporating prior knowledge is a big recent trend, so history does a spiral
 
 \end{frame}
 
-\begin{frame}{Variations of ROMs}
-	Linear, nonlinear, citations
+
+\begin{frame}{Incorporating Knowledge into Models}
+1) There are multiple ways of incorporating knowledge into system 
+4) The overall umbrella term for it is physics-informed machine learning
+2) Some use the equations that model phenomena
+3) Some take aspects of it, e.g. symmetries and preservation laws, and forces
+A network to respect those
+5) Our work falls into the first category of approaches
 \end{frame}
 
+
+\begin{frame}{Reduced-Order Models (ROMs)}
+\includegraphics[width=\textwidth]{Figures/roms_1}
+\end{frame}
+
+\begin{frame}{Reduced-Order Models (ROMs)}
+\includegraphics[width=\textwidth]{Figures/roms_2}
+\end{frame}
+
+\begin{frame}{Reduced-Order Models (ROMs)}
+\includegraphics[width=\textwidth]{Figures/roms_3}
+\end{frame}
+
+\begin{frame}{Reduced-Order Models (ROMs)}
+\includegraphics[width=\textwidth]{Figures/roms_4}
+\end{frame}
 
 \begin{frame}{Physics-Informed Loss}
-Definition of Physics-informed ML.
+1) We introduce physics to this system by adding a term which regularises latent gradient field. 
+2) In particular, it forces it to be equal to what a true physics should be under such projection.
+3) We can not evaluate physics everywhere but we can at particular carefully-selected points. We call these points collocation points.
+4) We feed a lot of collocation points and ask a network to do interpolation \end{frame}
 
-Derivation of PI loss through chain rule. 
-
-Problem with evaluating RHS of differential equations.
-
-Interpretation with cross-borrowing strength. 
+\begin{frame}{Results: Extrapolation to Unknown Regimes}
+1) We show that network can indeed interpolate between collocations. Moreover, it can fill the whole unknown regimes of behaviour. (Duffing example with explanation)
 \end{frame}
 
-\begin{frame}{Physics-Informed Koopman Networks}
-	Linear latent dynamics
-	
-	Paper
-	
-	Not a rom so not suitable for downstream tasks. 
+\begin{frame}{Results: Stable Long-Term Predictions}
+Fig 3.3.7
 \end{frame}
 
-\begin{frame}{Physics-Informed Neural ODEs (PINODE)}
-	Nonlinearity in latent space
-	- require a lot of data
-	- picky to initialization
-	- good interpolation bad extrapolation	
+\begin{frame}{Results: Learning From Collocations}
+1) Finally we show that collocations can be even more useful than the data itself.
+2) The difference is especially prominent in low-data regime.
+3) It shows that collocations are powerful source of information and that the network can indeed interpolate between them.
 \end{frame}
 
-\begin{frame}{PINODE Results on Burgers}
-	Add PI loss => Fixes most of the issues
-	(example with Burgers)
-	Points learned
-	- Inform the model about unseen conditions
-	Paper reference
+\begin{frame}{Single-Pixel Imaging}
+1) Now we switch gears to show you an application to single-pixel imaging
+2) It shows how powerful these differentiable reduced-order models can be in applications besides forecasting and motivate the need to improve those.
+3) SPI setup is a single-pixel camera with mirror array… 
 \end{frame}
 
-\begin{frame}{PINODE Active}
-	> PIKN: "we use it and it works"
-	> PINODE: "this is how you need to use it right"
-	> PINODE-Active: can we use it right automatically?
-	
-	Loop scheme
+\begin{frame}{Compressive Sensing with Reduced-Order Models}
+	1) We introduce a ROM as a relaxation of a PDE-constrained compressive sensing.
+	2) We search in the latent space of a ROM for the right trajectory that matches both the ROMs predictions and the compressive-sensing observations
 \end{frame}
 
-\begin{frame}{PINODE Active Results}
-	Best result (Burgers)
+\begin{frame}{Results: Burger's Equation}
+	Results on Burgers
+	Maybe results on a harder problem
 \end{frame}
 
-\begin{frame}{PINODE-CS}
-	Application of the above 
-	Loss and setup
+\begin{frame}{Results: Kolmogorov Flow OR Real Example}
+
 \end{frame}
 
-\begin{frame}{PINODE-CS Results}
+\begin{frame}{Conclusion}
 	Results on Burgers
 	Maybe results on a harder problem
 \end{frame}
