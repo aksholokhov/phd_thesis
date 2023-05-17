@@ -376,10 +376,29 @@ A network to respect those
 \end{frame}
 
 \begin{frame}{Physics-Informed Loss}
-1) We introduce physics to this system by adding a term which regularises latent gradient field. 
-2) In particular, it forces it to be equal to what a true physics should be under such projection.
-3) We can not evaluate physics everywhere but we can at particular carefully-selected points. We call these points collocation points.
-4) We feed a lot of collocation points and ask a network to do interpolation \end{frame}
+%1) We introduce physics to this system by adding a term which regularizes latent gradient field. 
+%2) In particular, it forces it to be equal to what a true physics should be under such projection.
+%3) We can not evaluate physics everywhere but we can at particular carefully-selected points. We call these points collocation points.
+%4) We feed a lot of collocation points and ask a network to do interpolation 
+\includegraphics[width=\textwidth]{Figures/collocations_1.png}
+\end{frame}
+
+\begin{frame}{Physics-Informed Loss}
+	\includegraphics[width=\textwidth]{Figures/collocations_2.png}
+\end{frame}
+
+\begin{frame}{Physics-Informed Loss}
+	\includegraphics[width=\textwidth]{Figures/collocations_3.png}
+\end{frame}
+
+\begin{frame}{Physics-Informed Loss}
+	\includegraphics[width=\textwidth]{Figures/collocations_4.png}
+\end{frame}
+
+\begin{frame}{Physics-Informed Loss}
+	\includegraphics[width=\textwidth]{Figures/collocations_5.png}
+\end{frame}
+
 
 \begin{frame}{Results: Extrapolation to Unknown Regimes}
 1) We show that network can indeed interpolate between collocations. Moreover, it can fill the whole unknown regimes of behaviour. (Duffing example with explanation)
@@ -417,12 +436,27 @@ Fig 3.3.7
 \end{frame}
 
 \begin{frame}{Results: Burger's Equation}
-	Results on Burgers
-	Maybe results on a harder problem
+	When we capture 32 samples per frame:
+	\includegraphics[width=\textwidth]{Figures/cs_burgers_comparison_32.pdf}
+\end{frame}
+
+\begin{frame}{Results: Burger's Equation}
+	When we capture 32 samples per frame:
+	\includegraphics[width=\textwidth]{Figures/cs_burgers_comparison_32.pdf}
+	
+	When we capture 2 samples per frame:
+	\includegraphics[width=\textwidth]{Figures/cs_burgers_comparison_2.pdf}
+\end{frame}
+
+\begin{frame}{Results: Burger's Equation}
+	Aggregated results
+\end{frame}
+
+\begin{frame}{Results: Interpretation}
+	
 \end{frame}
 
 \begin{frame}{Results: Kolmogorov Flow OR Real Example}
-	
 \end{frame}
 
 \begin{frame}{Conclusion}
