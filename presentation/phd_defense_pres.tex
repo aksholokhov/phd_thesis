@@ -15,9 +15,9 @@
 \usepackage{lmodern}
 \newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
 \newcommand{\ouralgo}{\ensuremath{\mathcal{MSR}3}}
-\title{Physics-Informed Neural ODEs (PINODE)}
+\title{PhD Defense}
 \date{\today}
-\author{Aleksei Sholokhov, Steven Brunton, J. Nathan Kutz, Hassan Mansour, Saleh Nabi }
+\author{Aleksei Sholokhov}
 %\titlegraphic{\includegraphics[width=0.5\textwidth]{Figures/UW_amath.pdf}\hspace{3em}\includegraphics[height=1cm]{Figures/IHME_Logo.jpg}}
 
 \begin{document}
@@ -400,12 +400,43 @@ A network to respect those
 \end{frame}
 
 
-\begin{frame}{Results: Extrapolation to Unknown Regimes}
-1) We show that network can indeed interpolate between collocations. Moreover, it can fill the whole unknown regimes of behaviour. (Duffing example with explanation)
+\begin{frame}{Results: Extrapolation to Unknown Regions}
+% 1) We show that network can indeed interpolate between collocations. Moreover, it can fill the whole unknown regimes of behavior. (Duffing example with explanation)
+Duffing Oscillator on a low-dimensional (2D) manifold:
+\begin{equation}
+    \label{eq:duffing_definition}
+    \begin{split}
+    \frac{dz_1}{dt} & = z_2 \\ 
+    \frac{dz_2}{dt} & = z_1 - z_1^3
+    \end{split}
+\end{equation}
+
+Projection to a high-dimensional (128) space:
+\begin{equation}
+    \label{eq:duffing_true_decoder}
+    \bd{x} := \mathcal{A}(\bd{z}) = A\bd{z}^3, \quad A \in \mathbb{R}^{128 \times 2}, \quad A_{ij} \sim_{i.i.d.} \mathcal{N}(0, 1)
+\end{equation}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\textwidth]{Figures/duff_results.png}
+\end{figure}
+
 \end{frame}
 
 \begin{frame}{Results: Stable Long-Term Predictions}
-Fig 3.3.7
+\begin{figure}
+	\begin{subfigure}[b]{0.3\textwidth}
+		\includegraphics[width=\textwidth]{Figures/duff_full_train.pdf}
+	\end{subfigure}%
+	\begin{subfigure}[b]{0.7\textwidth}
+		\centering
+		\includegraphics[width=0.7\textwidth]{Figures/duffing_periods.pdf}
+	\end{subfigure}
+\end{figure}
+\begin{figure}
+	\includegraphics[width=0.7\textwidth]{Figures/duffing_periods_examples.png}
+\end{figure}
 \end{frame}
 
 \begin{frame}{Results: Learning From Collocations}
