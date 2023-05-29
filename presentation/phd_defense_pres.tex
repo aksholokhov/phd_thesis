@@ -5,7 +5,7 @@
 
 % \usetheme[progressbar=frametitle]{metropolis}
 \usepackage{appendixnumberbeamer}
-
+\addbibresource{../bibliography.bib}
 
 % PRESETS OF PACKAGES AND MATH %
 
@@ -24,48 +24,9 @@
 
 \maketitle
 
-\section{Introduction}
+%\section{Introduction}
 \begin{frame}{Plan of the Defense}
 Show topics and published papers. Mention covid
-	
-\end{frame}
-
-\section{Linear Mixed-Effect Models}
-\subsection{ Mixed-Effects Models}
-\begin{frame}{Feature Selection for Mixed-Effect Models}
-
-Mixed-effect models
-\begin{itemize}
-	\item Used for analyzing \textbf{combined data} across a range of \textbf{groups}.
-	\item Use covariates to separate the \textbf{population variability} from the \textbf{group variability}.
-	\item \textbf{Borrow strength} across groups to estimate key statistics. % when data within units are sparse or highly variable.
-\end{itemize}
-
-\begin{figure}
-	\centering
-	\includegraphics[width=0.8\textwidth]{Figures/ihme_predictions.png}\footnote{Picture is taken from \href{covid19.healthdata.org}{covid19.healthdata.org} }
-\end{figure}
-
-\end{frame}
-
-\begin{frame}{Feature Selection for Mixed-Effect Models}
-Practitioners:
-\begin{itemize}
-	\item Often seek \textbf{sparse models} that select \textbf{most informative} covariates. 
-	\item Want to be \textbf{flexible but efficient} in using various sparsity-promoting terms.
-	\item Want a library to be \textbf{universal and compatible} with e.g. \texttt{sklearn}.
-\end{itemize}
-\vspace{1em}
-
-Sparse Relaxed Regularized Regression ($\mathcal{SR}3$) \cite{Zheng2018RelaxAndSplit} showed great results for t linear models:
-
-\begin{figure}
-	\includegraphics[width=0.7\textwidth]{Figures/intuition_prev_paper.png}
-\end{figure}
-
-\vspace{1em}
-\textit{\textbf{Goal}: create a feature selection library that uses a relaxation approach for feature-selection in mixed-effect models.}
-
 \end{frame}
 
 
@@ -76,6 +37,9 @@ Sparse Relaxed Regularized Regression ($\mathcal{SR}3$) \cite{Zheng2018RelaxAndS
 		\item 	$X_i \in \R^{n_i \times p}$ -- group $i$ design matrix for fixed features
 		\item 	$Z_i \in \R^{n_i \times q}$ -- group $i$ design matrix for random features
 		\item 	$y_i \in \R^{n_i}$ -- group $i$ observations  
+		\item   $u_i \in \R^q$ -- random effects
+		\item   $\Gamma \in \R^{q \times q}$ -- covariance matrix of random effects, often $\Gamma = \diag{(\gamma)}$
+		\item   $\Lambda_i \in R^{n_i \times n_i}$ -- covariance matrix for observation noise
 	\end{itemize}
 	
 
@@ -91,20 +55,9 @@ Sparse Relaxed Regularized Regression ($\mathcal{SR}3$) \cite{Zheng2018RelaxAndS
    			{\color{red} u_i} & {\color{red}\sim \NN(0, \Gamma)}
    		\end{split}
    		\]
-   		
-   	Equivalently:
-   		\[
-   		\begin{split}
-   			y_i & = X_i\beta + \textcolor{red}{\omega_i} \\
-   			{\color{red} \omega_i} & {\color{red}\sim \NN(0, Z_i\Gamma Z_i^T + \Lambda_i)}
-   		\end{split}
-   		\]
-   	
-   	Simplifying assumption: 
-   	\[
-   		\Gamma = \diag(\gamma)
-   	\]
-   	
+   		   	
+	Unknowns: $\beta$, $u_i$, $\gamma$, sometimes $\Lambda_i$.
+	
     \column{0.5\textwidth}
     	\centering  
    	\begin{figure}
@@ -116,30 +69,52 @@ Sparse Relaxed Regularized Regression ($\mathcal{SR}3$) \cite{Zheng2018RelaxAndS
   \end{columns}
 \end{frame}
 
-\begin{frame}{Notation}
-	\eq{
-   		y_i & = X_i\beta + Z_iu_i + \varepsilon_i \quad i = 1\dots m \\
-   		\varepsilon_i & \sim \NN(0, \Lambda_i) \\
-   		u_i & \sim \NN(0, \Gamma)
-   	}   	
-   	
-   	\begin{itemize}
-   		\item $p$ -- number of fixed features, $q$ -- number of random effects.
-   		\item $\beta \in \R^p$ -- fixed effects, or mean effects
-   		\item $u_i \in \R^q$ -- random effects
-   		\item $\Gamma \in \R^{q \times q}$ -- covariance matrix of random effects, often $\Gamma = \diag{(\gamma)}$
-   		\item $\varepsilon_i \in \R^{n_i}$ -- observation noise
-   		\item $\Lambda_i \in R^{n_i \times n_i}$ -- covariance matrix for noise
-   	\end{itemize}
-   	Unknowns: $\beta$, $u_i$, $\gamma$, sometimes $\Lambda_i$.
+\begin{frame}{Mixed-Effect Models}
+Mixed-effect models
+\begin{itemize}
+	\item Used for analyzing \textbf{combined data} across a range of \textbf{groups}.
+	\item Use covariates to separate the \textbf{population variability} from the \textbf{group variability}.
+	\item \textbf{Borrow strength} across groups to estimate key statistics. % when data within units are sparse or highly variable.
+\end{itemize}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\textwidth]{Figures/ihme_predictions.png}\footnote{Picture is taken from \href{covid19.healthdata.org}{covid19.healthdata.org} }
+\end{figure}
+
 \end{frame}
 
-\begin{frame}{Likelihood for Mixed Models}
-%Maximum likelihood estimates for $\beta$ and $\gamma$ solve the problem:
-%\eq{
-%	\mathcal{LME} \quad \min_{\beta \in \R^p,\, \gamma \in \R^{q}_+} \LL(\beta, \gamma)
-%}
+%\begin{frame}{Notation}
+%	\eq{
+%   		y_i & = X_i\beta + Z_iu_i + \varepsilon_i \quad i = 1\dots m \\
+%   		\varepsilon_i & \sim \NN(0, \Lambda_i) \\
+%   		u_i & \sim \NN(0, \Gamma)
+%   	}   	
+%   	
+%   	\begin{itemize}
+%   		\item $p$ -- number of fixed features, $q$ -- number of random effects.
+%   		\item $\beta \in \R^p$ -- fixed effects, or mean effects
+%   		\item $u_i \in \R^q$ -- random effects
+%   		\item $\Gamma \in \R^{q \times q}$ -- covariance matrix of random effects, often $\Gamma = \diag{(\gamma)}$
+%   		\item $\varepsilon_i \in \R^{n_i}$ -- observation noise
+%   		\item $\Lambda_i \in R^{n_i \times n_i}$ -- covariance matrix for noise
+%   	\end{itemize}
+%   	Unknowns: $\beta$, $u_i$, $\gamma$, sometimes $\Lambda_i$.
+%\end{frame}
 
+%\section{Sparse Relaxed Regularized Regression (SR3) for Linear Mixed-Effects Models}
+%\subsection{ Mixed-Effects Models}
+
+
+\begin{frame}{Feature Selection for Mixed-Effect Models}
+Practitioners:
+\begin{itemize}
+	\item<1-> Often seek \textbf{sparse models} which only use \textbf{most informative} covariates. 
+	\item<2-> Want the algorithm to be \textbf{efficient} but also \textbf{flexible} in using various regularizers.
+	\item<3-> Want a library to be \textbf{universal and compatible} with e.g. \texttt{scikit-learn}.
+\end{itemize}
+\vspace{1em}
+\uncover<4->{
 Optimization problem:
 \eq{
 	\mathcal{FS-LME} \quad \min_{\beta \in \R^p,\, \gamma \in \R^{q}_+} \LL(\beta, \gamma) + R(\beta, \gamma)
@@ -150,14 +125,16 @@ Where $\LL$:
 	\label{eq:lmm_objective}
 	\mathcal{L}(\beta, \gamma) & = \sum_{i = 1}^m \half(y_i - X_i\beta)^T(Z_i\Gamma Z_i^T + \Lambda_i)^{-1}(y_i - X_i\beta) + \\ & + \half\log{\det{\pa{Z_i \Gamma Z_i^T + \Lambda_i}}}, \quad \Gamma = \diag{(\gamma)}
 	}
-
-
+}
+\uncover<5->{
 \begin{itemize}
 	\item $\LL(\beta, \gamma)$ is smooth on its domain, quadratic w.r.t. $\beta$ and $\bar\eta$-weakly-convex w.r.t. $\gamma$.
 	\item $R(\beta, \gamma)$ is closed, proper, with easily computed \textit{prox operator}
 \end{itemize}
+}
 
 \end{frame}
+
 
 \begin{frame}{Regularization}
 \begin{itemize}
@@ -170,9 +147,9 @@ Where $\LL$:
 
 Examples: 
 \begin{itemize}
-	\item $R(x) = \lambda\sum_{j=1}^p w_j\|x_j\|_1$ -- LASSO and Adaptive LASSO penalties \cite{Krishna2008,Lin2013}
-	\item $R(x) = \lambda \|x\|_0$ -- $\ell_0$ penalty \cite{Vaida2005,Jones2011}
-	\item $R(x)$ -- SCAD penalty (\cite{Fan2001,Fan2012})
+	\item $R(x) = \lambda\sum_{j=1}^p w_j\|x_j\|_1$ -- LASSO and Adaptive LASSO penalties \footcite{Krishna2008,Lin2013}
+	\item $R(x) = \lambda \|x\|_0$ -- $\ell_0$ penalty \footcite{Jones2011}
+	\item $R(x)$ -- SCAD penalty \footcite{Fan2012}
 \end{itemize}
 
 \begin{figure}
@@ -203,6 +180,72 @@ Examples:
 
 \end{frame}
 
+\begin{frame}{Proximal Gradient Descent for Feature Selection in MLE}
+\begin{algorithm}[H]
+\TitleOfAlgo{PGD for standard LMEs}
+\SetAlgoLined
+$\beta^+ \leftarrow\beta_0, \quad \gamma^+\leftarrow\gamma_0, \quad \alpha \leftarrow 1/L$ \tcp*[f]{Initialization}\\
+$x^+ = [\beta^+, \gamma^+]$;\\
+\While{\text{making progress}}{
+	$x^+ \leftarrow \prox_{\alpha^{-1}R + \delta_{\mathcal{C}}}(x^+ - \alpha \nabla_x\LL(x^+))$	\tcp*[f]{PGD iterations}\\	
+}
+\Return{$x^+ = [\beta^+, \gamma^+]$}
+\end{algorithm}
+\only<2>{
+\vspace{2em}
+Basic Assumptions for the PGD Algorithm (Theorem 10.15 from \footcite*{AB17})
+\begin{enumerate}
+	\item $R$ is a closed proper convex function
+	\item $\LL$ is closed and proper, $\dom{\LL}$ convex, $\dom R \subset int(\dom\LL)$, and $\LL$ is $L$-smooth over $int(\dom\LL)$.
+	\item The problem has an optimal solution with an optimal value $\LL^*$
+\end{enumerate}
+}
+\only<3>{
+	\begin{columns}[T,onlytextwidth]
+    \column{0.5\textwidth}
+    \vspace{2em}
+    Synthetic Benchmark:
+    \begin{itemize}
+    	\item 100 randomly-generated problems.
+    	\item $p = q = 20$.
+		\item $\beta = \gamma = \frac{1}{2}[1,2,3,\dots,10, 0\dots,0]$
+		\item 9 groups from $3$ to $15$ observations
+		\item $X_i \sim \NN(0, I)^p$, $Z_i = X_i$, $\varepsilon_i \sim \NN(0, 0.3^2I)$
+		\item Golden search for $\lambda \in [0, 10^5]$
+		\item Final model is chosen to maximize BIC
+    \end{itemize}
+	
+    \column{0.5\textwidth}
+    	\vspace{1em}
+    	\centering  
+		\begin{figure}
+			\includegraphics[width=\textwidth]{Figures/benchmark_pgd.jpg}
+		\end{figure}
+  \end{columns}
+}
+\end{frame}
+
+
+\begin{frame}{Sparse Relaxed Regularized Regression ($\mathcal{SR}3$) \footcite{Zheng2018RelaxAndSplit}}
+\begin{equation}
+	\min_{x} f(x) + R(x)\quad \goto \quad \min_{x, w} f(x) + \frac{\eta}{2} \|x-w\|_2^2 + R(w)
+\end{equation}
+
+\begin{figure}
+	\includegraphics[width=0.7\textwidth]{Figures/intuition_prev_paper.png}
+\end{figure}
+
+\textbf{Objectives:}
+\begin{itemize}
+	\item Introduce $\mathcal{SR}3$ relaxation to linear mixed-effects models - $\mathcal{MSR}3$ (see \footcite{sholokhov2022relaxation}).
+	\item Develop theoretical foundations for it (see \footcite{aravkin2022jimtheory}).
+	\item Implement it as a \texttt{scikit-learn}-compatible Python package -- \texttt{pysr3} (see \footcite{sholokhov2023pysr3}).
+\end{itemize}
+\vspace{1em}
+
+\end{frame}
+
+
 \begin{frame}{SR3-Relaxation for Mixed-Effect Models ($\ouralgo$)}
 Original problem $\mathcal{FS-LME}$:
 \eq{
@@ -227,7 +270,7 @@ and the \textit{perspective mapping} $\phi_\mu$ replaces $\gamma \geq 0$ with a 
 } 
 \end{frame}
 
-\begin{frame}{Value Function Reformulation}
+\begin{frame}{Value Function of $\mathcal{MSR}3$}
 $\ouralgo$-relaxation replaces the original likelihood $\LL$ with a \textit{value function} $u_{\eta,\mu}$:
 \eq{
 	\label{eq:value_function_definition}
@@ -235,14 +278,17 @@ $\ouralgo$-relaxation replaces the original likelihood $\LL$ with a \textit{valu
 }
 so $\ouralgo$-formulation~(\ref{eq:msr3_formulation_explicit}) becomes
 \eq{
-	\min_{\beta \in \R^p,\, \gamma \in \R^{q}_+} v_{\eta,\mu}(\tbeta, \tgamma) + R(\tbeta, \tgamma)
+	\min_{\tbeta, \tgamma \in \CC} v_{\eta,\mu}(\tbeta, \tgamma) + R(\tbeta, \tgamma)
 }
-When $\eta$ is larger than the weak-convexity constant
-\begin{itemize}
-	\item $v_{\eta,\mu}$ is well-defined and continuously differentiable.
-	\item As $\mu \rightarrow 0$ and $\eta \rightarrow \infty$, cluster points of solutions to $\ouralgo$ are first-order stationary points for $\mathcal{FS-LME}$ \\ 
-	\item $v_{\eta, \mu}$ don't need to be evaluated precisely.
-\end{itemize}
+
+\textbf{NB:} $v_{\eta,\mu}(\tbeta, \tgamma)$ is smooth on $\CC$ and can be evaluated using Interior Point (IP) method
+
+%When $\eta$ is larger than the weak-convexity constant
+%\begin{itemize}
+%	\item $v_{\eta,\mu}$ is well-defined and continuously differentiable.
+%	\item As $\mu \rightarrow 0$ and $\eta \rightarrow \infty$, cluster points of solutions to $\ouralgo$ are first-order stationary points for $\mathcal{FS-LME}$ \\ 
+%	\item $v_{\eta, \mu}$ don't need to be evaluated precisely.
+%\end{itemize}
 
 % \textbf{Key observation}: in practice, we don't need accurate solutions for~(\ref{eq:value_function_definition}): a few Newton iterations keep the solution close to the central path.
 \end{frame}
@@ -254,40 +300,95 @@ When $\eta$ is larger than the weak-convexity constant
 %\end{figure}
 %\end{frame}
 
-\begin{frame}{Value Function Reformulation}
+\begin{frame}{Value Function of $\mathcal{MSR}3$}
+\[
+	\min_{\beta, \gamma \in \CC} \LL(\beta, \gamma) + R(\beta, \gamma) \quad \text{vs} \quad \min_{\tbeta, \tgamma \in \CC} v_{\eta,\mu}(\tbeta, \tgamma) + R(\tbeta, \tgamma)
+\]
+
 \begin{figure}
 	\includegraphics[width=0.7\textwidth]{Figures/intuition_current.pdf}
-	\caption{\label{fig:intuition_sr3} Comparison of the level-sets for the original likelihood (left) and $\ouralgo$-likelihood (right), for fixed (top) and random (bottom) effects.}
+	\label{fig:intuition_sr3}
 \end{figure}
 \end{frame}
 
-\begin{frame}{Designing an Algorithm}
-	$G_{\nu,\eta}$ encodes both gradient of a Lagrangian (lines 1-2) and the complementarity condition (line 3):
-	\eq{
-		G_{\nu,\eta}((\beta,\gamma,v),(\tbeta,\tgamma)) := \begin{bmatrix}
-			\nabla_\beta \LL(\beta, \gamma) + \eta(\beta-\tbeta) \\
-			\nabla_\gamma \LL(\beta, \gamma) + \eta(\gamma-\tgamma) - v\\
-			v \bigodot \gamma - \mu\textbf{1}
-		\end{bmatrix}
-	}
-	We apply Newton method to $G$ while geometrically decreasing $\mu$. \\
-\textbf{Lemma:} For every $(\mu,\eta) \in \R_+\times\R_{++}$,
-\eq{
-	&(\hat\beta,\hat\gamma) = \argmin_{(\beta,\gamma)}\LL_{\eta,\mu}((\beta, \gamma),(\tbeta, \tgamma)) \\
-	& \iff \\
-	& \exists \hat{v} \in \R_{+}^q \text{ s.t. } G_{\nu,\eta}((\beta,\gamma,\hat{v}),(\tbeta,\tgamma)) = 0
+\begin{frame}{$\mathcal{MSR}3$: Algorithm}
+
+\begin{algorithm}[H]
+\TitleOfAlgo{PGD for $\mathcal{MSR}3$}
+\SetAlgoLined
+$\tbeta^+ \leftarrow \tbeta_0, \quad \tgamma^+ \leftarrow \tgamma_0, \quad \alpha \leftarrow 1/\eta, \quad \eta > \bar{\eta}$ \tcp*[f]{Initialization}\\
+$\tw^+ := [\tbeta^+, \tgamma^+], \quad x^+ := [\beta,\gamma]$ \\	
+\While{\text{making progress in $\tw$}}{
+	\text{$x^+ \leftarrow$ IP solution on $\LL_{\eta,\mu}(x^+, \tw^+)$ s.t. $x^+ \in \CC$} \tcp*[f]{IP Iterations}\\	
+	$\nabla_\tw v_{\eta,0}(\tw^+) \leftarrow  \nabla_\tw\LL_{\eta,0}(x^+, \tw^+)$ \tcp*[f]{Evaluate Gradient} \\ 
+	$\tw^+ \leftarrow \prox_{\alpha^{-1}R + \delta_{\mathcal{C}}}(\tw^+ - \alpha \nabla_\tw v_{\eta,0}(\tw^+))$	\tcp*[f]{PGD on Value Function}\\
 }
-If $\mu > 0$, then $\hat{v} = -\nabla\phi_\mu(\hat{\gamma})$, and if $\mu = 0$, then $\hat{v}$ is the unique KKT multiplier associated with the constraint $0 \leq \gamma$.
+\Return{$\tw^+ = [\tbeta^+, \tgamma^+]$}
+\end{algorithm}
+\only<2>{
+\vspace{1em}
+Theoretical Results \footcite{aravkin2022jimtheory}:
+\begin{enumerate}
+	\item The problem has an optimal solution with an optimal value $\Phi^*$ (\textbf{Theorem 5})
+	\item $v_{\eta,\mu}$ is well-defined (\textbf{Theorem 5}) and continuously differentiable (\textbf{Theorem 10})
+	\item $\nabla v_{\eta,\mu}$ is locally $\widetilde{L}$-continuous when $R$ is 1-coercive (\textbf{Theorem 14})
+	\item As $\mu \rightarrow 0$ (\textbf{Theorem 6}) or $\eta \rightarrow \infty$ (\textbf{Theorem 7}), cluster points of solutions to $\ouralgo$ are FOSPs for $\mathcal{FS-LME}$ 
+\end{enumerate}
+}
 \end{frame}
 
-\begin{frame}{$\ouralgo$-fast Algorithm}
-\input{../extras/08Pseudocode}
+\begin{frame}{$\mathcal{MSR}3$: Results}
+    	\centering  
+		\begin{figure}
+			\includegraphics[width=0.7\textwidth]{Figures/benchmark_pgd_msr3.jpg}
+		\end{figure}
 \end{frame}
+
+\begin{frame}{$\mathcal{MSR}3$: Algorithm}
+
+\begin{algorithm}[H]
+\TitleOfAlgo{PGD for $\mathcal{MSR}3$}
+\SetAlgoLined
+$\tbeta^+ \leftarrow \tbeta_0, \quad \tgamma^+ \leftarrow \tgamma_0, \quad \alpha \leftarrow 1/\eta, \quad \eta > \bar{\eta}$ \tcp*[f]{Initialization}\\
+$\tw^+ := [\tbeta^+, \tgamma^+], \quad x^+ := [\beta,\gamma]$ \\	
+\While{\text{making progress in $\tw$}}{
+	\text{$x^+ \leftarrow$ \textcolor{red}{IP solution on $\LL_{\eta,\mu}(x^+, \tw^+)$ s.t. $x^+ \in \CC$}} \tcp*[f]{IP Iterations}\\	
+	$\nabla_\tw v_{\eta,0}(\tw^+) \leftarrow  \nabla_\tw\LL_{\eta,0}(x^+, \tw^+)$ \tcp*[f]{Evaluate Gradient} \\ 
+	$\tw^+ \leftarrow \prox_{\alpha^{-1}R + \delta_{\mathcal{C}}}(\tw^+ - \alpha \nabla_\tw v_{\eta,0}(\tw^+))$	\tcp*[f]{PGD on Value Function}\\
+}
+\Return{$\tw^+ = [\tbeta^+, \tgamma^+]$}
+\end{algorithm}
+\vspace{2em}
+\only<2>{
+\textbf{Key Observation:} $\nabla_\tw v(\tw)$ does not need to be evaluated exactly. We only need to come close enough to the central path.
+}
+
+\end{frame}
+
+
+\begin{frame}{$\mathcal{MSR}3$-fast: Algorithm}
+\begin{algorithm}[H]
+\TitleOfAlgo{$\mathcal{MSR}3$-fast}
+\SetAlgoLined
+$\tbeta^+ \leftarrow \tbeta_0, \quad \tgamma^+ \leftarrow \tgamma_0, \quad \alpha \leftarrow 1/\eta, \quad \eta > \bar{\eta}$ \tcp*[f]{Initialization}\\
+$\tw^+ := [\tbeta^+, \tgamma^+], \quad x^+ := [\beta,\gamma]$ \\	
+\While{\text{making progress}}{
+	\While{\textcolor{red}{not close enough to the central path}}{
+		\text{$x^+ \leftarrow$ IP iteration on $\LL_{\eta,\mu}(x^+, \tw^+)$ s.t. $x^+ \in \CC$} \tcp*[f]{IP Iterations}\\	
+	}
+	\text{\textcolor{red}{Decrease $\mu$}}\\
+	$\nabla_\tw v_{\eta,\mu}(\tw^+) \leftarrow  \nabla_\tw\LL_{\eta,\mu}(x^+, \tw^+)$ \tcp*[f]{Evaluate Gradient} \\ 
+	$\tw^+ \leftarrow \prox_{\alpha^{-1}R + \delta_{\mathcal{C}}}(\tw^+ - \alpha \nabla_\tw v_{\eta,\mu}(\tw^+))$	\tcp*[f]{PGD on Value Function}\\
+}
+\Return{$\tw^+ = [\tbeta^+, \tgamma^+]$}
+\end{algorithm}
+\end{frame}
+
 
 \section{Experiments}
 \subsection{Application to Synthetic Problems}
 
-\begin{frame}{Application to Synthetic Problems}
+\begin{frame}{$\ouralgo$-fast: Results}
 \begin{itemize}
 	\item The number of fixed effects $p$ and random effects $q$ is 20.
 	\item $\beta = \gamma = \frac{1}{2}[1,2,3,\dots,10, 0\dots,0]$
@@ -298,7 +399,7 @@ If $\mu > 0$, then $\hat{v} = -\nabla\phi_\mu(\hat{\gamma})$, and if $\mu = 0$, 
 	\item Final model is chosen to maximize BIC
 \end{itemize}
 \begin{figure}
-	\includegraphics[width=\textwidth]{Figures/performance_without_msr3.pdf}
+	\includegraphics[width=0.7\textwidth]{Figures/benchmark.jpg}
 \end{figure}
 \begin{itemize}
 	\item[\textcolor{green}{+}] $\ouralgo$-relaxation improves feature selection performance of the original likelihood.
@@ -327,9 +428,10 @@ If $\mu > 0$, then $\hat{v} = -\nabla\phi_\mu(\hat{\gamma})$, and if $\mu = 0$, 
 \end{frame}
 
 \begin{frame}{Software}
-	The code is available on GitHub: \href{github.com/aksholokhov/pysr3}{https://github.com/aksholokhov/pysr3}
+	\includegraphics[width=\textwidth]{Figures/pysr3_screenshot.png}
+	The code is available on GitHub: \href{github.com/aksholokhov/pysr3}{https://github.com/aksholokhov/pysr3}\footfullcite{sholokhov2023pysr3}
 	\begin{itemize}
-		\item All estimators are fully compatible to \texttt{sklearn} library.
+		\item All estimators are fully compatible to \texttt{scikit-learn} library.
 		\item Implements SR3 for linear, generalized-linear, and linear mixed-effect models.
 		\item Has tutorials, tests, and documentation.
 	\end{itemize}
@@ -495,11 +597,32 @@ Projection to a high-dimensional (128) space:
 	Maybe results on a harder problem
 \end{frame}
 
+\appendix
+\begin{frame}{Designing an Algorithm}
+	$G_{\nu,\eta}$ encodes both gradient of a Lagrangian (lines 1-2) and the complementarity condition (line 3):
+	\eq{
+		G_{\nu,\eta}((\beta,\gamma,v),(\tbeta,\tgamma)) := \begin{bmatrix}
+			\nabla_\beta \LL(\beta, \gamma) + \eta(\beta-\tbeta) \\
+			\nabla_\gamma \LL(\beta, \gamma) + \eta(\gamma-\tgamma) - v\\
+			v \bigodot \gamma - \mu\textbf{1}
+		\end{bmatrix}
+	}
+	We apply Newton method to $G$ while geometrically decreasing $\mu$. \\
+\textbf{Lemma:} For every $(\mu,\eta) \in \R_+\times\R_{++}$,
+\eq{
+	&(\hat\beta,\hat\gamma) = \argmin_{(\beta,\gamma)}\LL_{\eta,\mu}((\beta, \gamma),(\tbeta, \tgamma)) \\
+	& \iff \\
+	& \exists \hat{v} \in \R_{+}^q \text{ s.t. } G_{\nu,\eta}((\beta,\gamma,\hat{v}),(\tbeta,\tgamma)) = 0
+}
+If $\mu > 0$, then $\hat{v} = -\nabla\phi_\mu(\hat{\gamma})$, and if $\mu = 0$, then $\hat{v}$ is the unique KKT multiplier associated with the constraint $0 \leq \gamma$.
+\end{frame}
+
+\begin{frame}{$\ouralgo$-fast Algorithm}
+\input{../extras/08Pseudocode}
+\end{frame}
 
 \begin{frame}{References}
-	\textbf{References}: 
-	\bibliographystyle{plain}
-	\bibliography{../bibliography.bib}
+\printbibliography
 \end{frame}
 
 \end{document}

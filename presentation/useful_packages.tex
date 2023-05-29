@@ -5,6 +5,7 @@
 
 % kek 
 \usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+\usepackage{lmodern}
 \usepackage[utf8]{inputenc} % For Spanish characters
 \usepackage[english]{babel} % USEnglish localization
 % =========== General Formatting =============
@@ -40,13 +41,15 @@
 %\usepackage{longtable} % Tables than span multipages
 
 % =============== Bibliography ==========
-\usepackage{natbib} % Lots of useful versions of \cite
+\usepackage{csquotes} % Needed by biblatex
+\usepackage[style=authortitle,backend=biber]{biblatex}
+% \usepackage{natbib} % Lots of useful versions of \cite
 
 % % =============== Listings ============
 \usepackage{listings} % Main package for inserting code
 \usepackage[scaled]{beramono} % For using the beramono font
 % % =============== Algorithms ===============
-\usepackage[linesnumbered,lined,boxed,commentsnumbered]{algorithm2e} % Allows for algorithm description
+\usepackage[linesnumbered,lined,algoruled,commentsnumbered,slide]{algorithm2e} % Allows for algorithm description
 \usepackage[noend]{algpseudocode}
 % =============== Other ===============
 \usepackage{datetime} % Date-Time formatting
