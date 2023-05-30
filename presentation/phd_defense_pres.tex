@@ -20,6 +20,17 @@
 \author{Aleksei Sholokhov}
 %\titlegraphic{\includegraphics[width=0.5\textwidth]{Figures/UW_amath.pdf}\hspace{3em}\includegraphics[height=1cm]{Figures/IHME_Logo.jpg}}
 
+\AtBeginSection[]{
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsectionhead\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
+
 \begin{document}
 
 \maketitle
@@ -29,6 +40,7 @@
 Show topics and published papers. Mention covid
 \end{frame}
 
+\section{$\mathcal{MSR}3$ -- Sparse Relaxed Regularized Regression for Linear Mixed-Effect Models}
 
 \begin{frame}{Linear Mixed-Effect (LME) Models}
 
@@ -237,7 +249,7 @@ Basic Assumptions for the PGD Algorithm (Theorem 10.15 from \footcite*{AB17})
 
 \textbf{Objectives:}
 \begin{itemize}
-	\item Introduce $\mathcal{SR}3$ relaxation to linear mixed-effects models - $\mathcal{MSR}3$ (see \footcite{sholokhov2022relaxation}).
+	\item Extend $\mathcal{SR}3$ relaxation to linear mixed-effects models - $\mathcal{MSR}3$ (see \footcite{sholokhov2022relaxation}).
 	\item Develop theoretical foundations for it (see \footcite{aravkin2022jimtheory}).
 	\item Implement it as a \texttt{scikit-learn}-compatible Python package -- \texttt{pysr3} (see \footcite{sholokhov2023pysr3}).
 \end{itemize}
@@ -384,10 +396,6 @@ $\tw^+ := [\tbeta^+, \tgamma^+], \quad x^+ := [\beta,\gamma]$ \\
 \end{algorithm}
 \end{frame}
 
-
-\section{Experiments}
-\subsection{Application to Synthetic Problems}
-
 \begin{frame}{$\ouralgo$-fast: Results}
 \begin{itemize}
 	\item The number of fixed effects $p$ and random effects $q$ is 20.
@@ -437,44 +445,82 @@ $\tw^+ := [\tbeta^+, \tgamma^+], \quad x^+ := [\beta,\gamma]$ \\
 	\end{itemize}
 \end{frame}
 
-\section{PINODE}
+\section{Physics-Informed Neural ODE (PINODE): Embedding Physics into Models using Collocation Points}
 
 \subsection{Intro to Physics-Informed Reduced-Order Models (ROMs)}
 
 \begin{frame}{Data-Driven Modeling of Physical Systems}
 
-1) People used to model physical systems with first-principle knowledge
-2) Data-Driven modelling of dynamical systems became a big thing  
-3) However, it requires a lot of data 
-4) Incorporating prior knowledge is a big recent trend, so history does a spiral
+%1) People used to model physical systems with first-principle knowledge
+%2) Data-Driven modelling of dynamical systems became a big thing  
+%3) However, it requires a lot of data 
+%4) Incorporating prior knowledge is a big recent trend, so history does a spiral
 
+\uncover<2->{
+\begin{columns}[T,onlytextwidth]
+\column{0.6\textwidth}
+\textcolor{orange}{First-Principle Models:}
+\begin{itemize}
+	\item Require extensive knowledge of the phenomenon
+	\item Require a lot of compute for simulating large-scale phenomena
+\end{itemize}
+\column{0.4\textwidth}
+\centering
+\includegraphics[width=\textwidth]{Figures/NN.jpg}
+\end{columns}
+}
+\vspace{2em}
+\uncover<3->{
+\begin{columns}[T,onlytextwidth]
+\column{0.6\textwidth}
+\textcolor{green}{Data-Driven Models:}
+\begin{itemize}
+	\item Require a lot of data
+	\item Often struggle to extrapolate
+\end{itemize}
+\column{0.4\textwidth}
+\centering
+\includegraphics[width=0.8\textwidth]{Figures/nn_schematics.pdf}
+\end{columns}
+}
+\vspace{2em}
+\uncover<4->{
+\begin{columns}[T,onlytextwidth]
+\column{0.6\textwidth}
+\textcolor{blue}{Hybrid Models: }
+\begin{itemize}
+	\item Incorporate elements of both approaches
+	\item Supplement data with knowledge or priors
+\end{itemize}
+\column{0.4\textwidth}
+\centering
+\includegraphics[width=0.7\textwidth]{Figures/NS_pic.png}
+\end{columns}
+}
 \end{frame}
 
+\begin{frame}{Incorporating Knowledge of Physics into Neural Networks}
+\begin{enumerate}
+	\item<2-> \textbf{Symmetry Based:} incorporate symmetries and conservation laws as hard constraints into a network: E3NNs\footcite{geiger2022e3nn}, LieConv\footcite{Finzi2020}, RiCNN \footcite{chidester2018rotation}
+	\item<3-> \textbf{Model Discovery Based:} use a library of terms to discover simple equations: SINDy\footcite{champion2019data}, Genetic Programming\footcite{schmidt2009distilling}
+	\item<4-> \textbf{Equations Based:} incorporate first-principle models to aid training of networks: PINNs\footcite{raissi2017physics}, UDEs\footcite{rackauckas2020udes}
+\end{enumerate}
 
-\begin{frame}{Incorporating Knowledge into Models}
-1) There are multiple ways of incorporating knowledge into system 
-4) The overall umbrella term for it is physics-informed machine learning
-2) Some use the equations that model phenomena
-3) Some take aspects of it, e.g. symmetries and preservation laws, and forces
-A network to respect those
-5) Our work falls into the first category of approaches
+\begin{columns}[T,onlytextwidth]
+\column{0.3\textwidth}
+	\uncover<2->{\includegraphics[width=0.7\textwidth]{Figures/ricnn.png}}
+\column{0.7\textwidth}
+	\uncover<3->{\includegraphics[width=\textwidth]{Figures/sindy.png}}
+\end{columns}
+
 \end{frame}
 
 
 \begin{frame}{Reduced-Order Models (ROMs)}
-\includegraphics[width=\textwidth]{Figures/roms_1}
-\end{frame}
-
-\begin{frame}{Reduced-Order Models (ROMs)}
-\includegraphics[width=\textwidth]{Figures/roms_2}
-\end{frame}
-
-\begin{frame}{Reduced-Order Models (ROMs)}
-\includegraphics[width=\textwidth]{Figures/roms_3}
-\end{frame}
-
-\begin{frame}{Reduced-Order Models (ROMs)}
-\includegraphics[width=\textwidth]{Figures/roms_4}
+\only<1>{\includegraphics[width=\textwidth]{Figures/roms_1}}
+\only<2>{\includegraphics[width=\textwidth]{Figures/roms_2}}
+\only<3>{\includegraphics[width=\textwidth]{Figures/roms_3}}
+\only<4>{\includegraphics[width=\textwidth]{Figures/roms_4}}
 \end{frame}
 
 \begin{frame}{Physics-Informed Loss}
@@ -482,24 +528,14 @@ A network to respect those
 %2) In particular, it forces it to be equal to what a true physics should be under such projection.
 %3) We can not evaluate physics everywhere but we can at particular carefully-selected points. We call these points collocation points.
 %4) We feed a lot of collocation points and ask a network to do interpolation 
-\includegraphics[width=\textwidth]{Figures/collocations_1.png}
+Using chain rule:
+\only<1>{\includegraphics[width=\textwidth]{Figures/collocations_1.png}}
+\only<2>{\includegraphics[width=\textwidth]{Figures/collocations_2.png}}
+\only<3>{\includegraphics[width=\textwidth]{Figures/collocations_3.png}}
+\only<4>{\includegraphics[width=\textwidth]{Figures/collocations_4.png}}
+\only<5>{\includegraphics[width=\textwidth]{Figures/collocations_5.png}}
 \end{frame}
 
-\begin{frame}{Physics-Informed Loss}
-	\includegraphics[width=\textwidth]{Figures/collocations_2.png}
-\end{frame}
-
-\begin{frame}{Physics-Informed Loss}
-	\includegraphics[width=\textwidth]{Figures/collocations_3.png}
-\end{frame}
-
-\begin{frame}{Physics-Informed Loss}
-	\includegraphics[width=\textwidth]{Figures/collocations_4.png}
-\end{frame}
-
-\begin{frame}{Physics-Informed Loss}
-	\includegraphics[width=\textwidth]{Figures/collocations_5.png}
-\end{frame}
 
 
 \begin{frame}{Results: Extrapolation to Unknown Regions}
@@ -518,12 +554,12 @@ Projection to a high-dimensional (128) space:
     \label{eq:duffing_true_decoder}
     \bd{x} := \mathcal{A}(\bd{z}) = A\bd{z}^3, \quad A \in \mathbb{R}^{128 \times 2}, \quad A_{ij} \sim_{i.i.d.} \mathcal{N}(0, 1)
 \end{equation}
-
+\uncover<2->{
 \begin{figure}
 	\centering
 	\includegraphics[width=0.8\textwidth]{Figures/duff_results.png}
 \end{figure}
-
+}
 \end{frame}
 
 \begin{frame}{Results: Stable Long-Term Predictions}
@@ -536,16 +572,53 @@ Projection to a high-dimensional (128) space:
 		\includegraphics[width=0.7\textwidth]{Figures/duffing_periods.pdf}
 	\end{subfigure}
 \end{figure}
+\uncover<2->{
 \begin{figure}
 	\includegraphics[width=0.7\textwidth]{Figures/duffing_periods_examples.png}
 \end{figure}
+}
+\end{frame}
+
+\begin{frame}{Results: Burgers' Equation}
+Burgers' Equation:
+\begin{equation}
+	\begin{split}
+		& u_t  + uu_x = \nu u_{xx} \\
+	    & u(-\pi, t) = u(\pi, t),\quad \forall t \in [0, T]
+	\end{split}
+\end{equation}
+\uncover<2->{
+\includegraphics[width=\textwidth]{Figures/burgers_examples_of_ics.pdf}
+}
+\uncover<3->{
+\includegraphics[width=\textwidth]{Figures/example_burgers.pdf}
+}
+
 \end{frame}
 
 \begin{frame}{Results: Learning From Collocations}
-1) Finally we show that collocations can be even more useful than the data itself.
-2) The difference is especially prominent in low-data regime.
-3) It shows that collocations are powerful source of information and that the network can indeed interpolate between them.
+\includegraphics[width=\textwidth]{Figures/burgers_examples_of_ics.pdf}
+\includegraphics[width=\textwidth]{Figures/data_vs_collocations.pdf}
 \end{frame}
+
+\begin{frame}{Discussion and Limitations}
+We showed that:
+\begin{itemize}
+	\item Physics-informed loss improves accuracy and forecasting stability of ROMs
+	\item Collocations can supplement data to improve model's performance for unseen initial conditions.
+\end{itemize}
+\vspace{2em}
+Limitations:
+\begin{itemize}
+	\item Optimal choice of collocations is problem-specific
+	\item Need a lot of collocations
+	\begin{itemize}
+		\item \textit{Could} be possible to overcome with smarter sampling techniques
+	\end{itemize}
+\end{itemize}
+\end{frame}
+
+\section{Single pixel imaging of spatio-temporal flows using differentiable latent dynamics}
 
 \begin{frame}{Single-Pixel Imaging}
 %1) Now we switch gears to show you an application to single-pixel imaging
@@ -555,6 +628,7 @@ Projection to a high-dimensional (128) space:
 	\includegraphics[width=\textwidth]{Figures/SPI_setup.pdf}
 \end{figure}
 \end{frame}
+
 
 \begin{frame}{Single-Pixel Imaging}
 	% This is how SPI setup translates into Math
@@ -598,6 +672,7 @@ Projection to a high-dimensional (128) space:
 \end{frame}
 
 \appendix
+\section{Appendix: $\mathcal{MSR}3$}
 \begin{frame}{Designing an Algorithm}
 	$G_{\nu,\eta}$ encodes both gradient of a Lagrangian (lines 1-2) and the complementarity condition (line 3):
 	\eq{
@@ -621,8 +696,8 @@ If $\mu > 0$, then $\hat{v} = -\nabla\phi_\mu(\hat{\gamma})$, and if $\mu = 0$, 
 \input{../extras/08Pseudocode}
 \end{frame}
 
-\begin{frame}{References}
-\printbibliography
+\begin{frame}[noframenumbering,plain,allowframebreaks]{References}
+    \printbibliography[heading=none]
 \end{frame}
 
 \end{document}
