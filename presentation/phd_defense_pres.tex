@@ -46,7 +46,7 @@
 
 \section{$\mathcal{MSR}3$ -- Sparse Relaxed Regularized Regression for Linear Mixed-Effect Models}
 
-\begin{frame}{Research Objectives and Plan}
+\begin{frame}{Research Objectives and Plan of the Talk}
 	
 \textbf{Objectives:}
 \begin{itemize}
@@ -311,7 +311,7 @@ Decoupled problem:
 	\label{eq:msr3_formulation_explicit}
 	\min_{x, w \in \CC} \LL(x) + \frac{\eta}{2}\|x-w\|^2_2 + R(w)
 }
-where $w = [\tbeta, \tgamma]$ and $\eta > \bar\eta$. 
+where $w = [\tbeta, \tgamma]$. 
 }
 
 \uncover<3->{
@@ -398,9 +398,10 @@ $\tw^+ := [\tbeta^+, \tgamma^+], \quad x^+ := [\beta,\gamma]$ \\
 \vspace{1em}
 Theoretical Results \footfullcite{aravkin2022jimtheory}:
 \begin{enumerate}
-	\item The problem has an optimal solution with an optimal value $\Phi^*$ (\textbf{Theorem 5})
+	\item When $\eta > \bar\eta$ the problem has an optimal solution $\Phi^*$ (\textbf{Theorem 5})
 	\item $v_{\eta,\mu}$ is well-defined (\textbf{Theorem 5}) and continuously differentiable (\textbf{Theorem 10})
-	\item $\nabla v_{\eta,\mu}$ is locally $\widetilde{L}$-continuous when $R$ is 1-coercive (\textbf{Theorem 14})
+	\item When $R$ is 1-coercive $\nabla v_{\eta,\mu}$ is locally $\widetilde{L}$-continuous (\textbf{Theorem 14})
+	\item Algorithm converges to a stationary point of $v_{\eta,\mu}$ (\textbf{Theorem 15})
 	\item As $\mu \rightarrow 0$ (\textbf{Theorem 6}) or $\eta \rightarrow \infty$ (\textbf{Theorem 7}), cluster points of solutions to $\ouralgo$ are FOSPs for $\mathcal{FS-LME}$ 
 \end{enumerate}
 }
