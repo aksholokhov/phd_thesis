@@ -4,6 +4,13 @@
 
 
 % \usetheme[progressbar=frametitle]{metropolis}
+\addtobeamertemplate{navigation symbols}{}{%
+    \usebeamerfont{footline}%
+    \usebeamercolor[fg]{footline}%
+    \hspace{1em}%
+    \insertframenumber/\inserttotalframenumber
+}
+
 \usepackage{appendixnumberbeamer}
 \addbibresource{../bibliography.bib}
 
@@ -19,7 +26,7 @@
 %\date{\today}
 %\author{Aleksei Sholokhov}
 %\titlegraphic{\includegraphics[width=0.5\textwidth]{Figures/UW_amath.pdf}\hspace{3em}\includegraphics[height=1cm]{Figures/IHME_Logo.jpg}}
-\title{Optimization Methods for Parameter Identifications \\ in Settings with Only Partial Knowledge}
+\title{Optimization Methods for Parameter Identification \\ in Settings with Only Partial Knowledge}
 \subtitle{Ph.D. Defense}
 \date{\today}
 \author{Aleksei Sholokhov}
@@ -143,7 +150,7 @@ Mixed-effect models
 		\item 	$Z_i \in \R^{n_i \times q}$ -- group $i$ design matrix for random features
 		\item 	$y_i \in \R^{n_i}$ -- group $i$ observations  
 		\item   $u_i \in \R^q$ -- random effects
-		\item   $\Gamma \in \R^{q \times q}$ -- covariance matrix of random effects, often $\Gamma = \diag{(\gamma)}$
+		\item   $\Gamma \in \R^{q \times q}$ -- covariance matrix of random effects, often $\Gamma = \diag{\gamma}$
 		\item   $\Lambda_i \in R^{n_i \times n_i}$ -- covariance matrix for observation noise
 	\end{itemize}
 	
@@ -226,7 +233,7 @@ Where $\LL$:
 $R(\beta, \gamma)$ is closed, proper, with easily computed \textit{prox operator}
 
 \eq{
-	\prox_{\alpha R + \delta_{\CC}}(\tbeta, \tgamma) & := \argmin_{(\beta, \gamma) \in \CC} R(\beta, \gamma) + \frac{1}{2\alpha}\|(\beta, \gamma) - (\tbeta, \tgamma)\|_2^2, \\ & \text{ where } \CC := \R^p \times R^q_+ \\
+	\prox_{\alpha R + \delta_{\CC}}(\tbeta, \tgamma) & := \argmin_{(\beta, \gamma) \in \CC} R(\beta, \gamma) + \frac{1}{2\alpha}\|(\beta, \gamma) - (\tbeta, \tgamma)\|_2^2, \\ & \text{ where } \CC := \R^p \times \mathbb{R}^q_+ \\
 }
 
 %Examples: 
@@ -268,7 +275,7 @@ $R(\beta, \gamma)$ is closed, proper, with easily computed \textit{prox operator
 \only<1-2>{
 Let
 \eq{
-	x := [\beta, \gamma], \quad \CC := \R^p \times R^q_+
+	x := [\beta, \gamma], \quad \CC := \R^p \times \R^q_+
 }
 Optimization problem $\mathcal{FS-LME}$:
 
@@ -290,7 +297,7 @@ $x^+ = [\beta^+, \gamma^+]$;\\
 }
 \only<3>{
 \vspace{1em}
-Basic Assumptions for the PGD Algorithm (Theorem 10.15 from \footcite*{AB17}):
+Basic Assumptions for the PGD Algorithm\footcite*[Theorem 10.15]{AB17}:
 \begin{enumerate}
 	\item $R$ is a closed proper convex function
 	\item $\LL$ is closed and proper, $\dom{\LL}$ convex, $\dom R \subset int(\dom\LL)$, and $\LL$ is $L$-smooth over $int(\dom\LL)$. [$\times$].
@@ -638,7 +645,7 @@ Pictures sources: \footnote{\href{https://en.wikipedia.org/wiki/Navier–Stokes_
 \begin{enumerate}
 	\item<2-> \textbf{Symmetry Based:} incorporate symmetries and conservation laws as hard constraints into a network: E3NNs\footcite{geiger2022e3nn}, LieConv\footcite{Finzi2020}, RiCNN \footcite{chidester2018rotation}
 	\item<3-> \textbf{Model Discovery Based:} use a library of terms to discover simple equations: SINDy\footcite{champion2019data}, Genetic Programming\footcite{schmidt2009distilling}
-	\item<4-> \textbf{Equations Based:} incorporate first-principle models to aid training of networks: PINNs\footcite{raissi2017physics}, UDEs\footcite{rackauckas2020udes}, \textit{PINODE}
+	\item<4-> \textbf{Equation Based:} incorporate first-principle models to aid training of networks: PINNs\footcite{raissi2017physics}, UDEs\footcite{rackauckas2020udes}, \textit{PINODE}
 \end{enumerate}
 
 \begin{columns}[T,onlytextwidth]
@@ -689,6 +696,7 @@ Using chain rule:
 \only<5>{\includegraphics[width=\textwidth]{Figures/collocations_5.png}}
 \only<6>{\includegraphics[width=\textwidth]{Figures/collocations_6.png}}
 \only<7>{\includegraphics[width=\textwidth]{Figures/collocations_7.png}}
+\uncover<6->{\textbf{Collocations:} a set of pairs $(\tilde{x}_i, \dot{\tilde{x}}_i)$, where $\tilde{x}_i$ are s.t. $\dot{\tilde{x}}_i$ are cheap to evaluate.}
 \end{frame}
 
 \begin{frame}{Physics-Informed, Data-Driven, and Hybrid Models}
@@ -868,7 +876,12 @@ Limitations:
 
 \begin{frame}{Results: Burger's Equation}
 	\includegraphics[width=\textwidth]{Figures/cs_burgers_psnr.png}
-	\vspace{2em}
+	
+	\vspace{1em}
+	
+	\hspace{2em} Higher is better \hspace{2.6em} Lower is better \hspace{2.6em} Higher is better
+	
+	\vspace{1em}
 	Metrics:
 	\begin{itemize}
 		\item \textbf{PSNR}: Peak Signal-to-Noise Ratio 
@@ -898,6 +911,8 @@ Limitations:
 
 \begin{frame}{Results: Kolmogorov Flow}
 	\includegraphics[width=\textwidth]{Figures/cs_kolm_aggregate.png}
+	
+	 \hspace{5em} Lower is better \hspace{9em} Higher is better
 \end{frame}
 
 \begin{frame}{Results: Interpretation}
