@@ -19,30 +19,83 @@
 %\date{\today}
 %\author{Aleksei Sholokhov}
 %\titlegraphic{\includegraphics[width=0.5\textwidth]{Figures/UW_amath.pdf}\hspace{3em}\includegraphics[height=1cm]{Figures/IHME_Logo.jpg}}
-\title{$\mathcal{MSR}3$ -- Sparse Relaxed Regularized Regression for Linear Mixed-Effect Models}
+\title{Optimization Methods for Parameter Identifications \\ in Settings with Only Partial Knowledge}
+\subtitle{Ph.D. Defense}
 \date{\today}
-\author{Aleksei Sholokhov \\ \vspace{1em}  Together with James V. Burke, Peng Zheng, Damian Santomauro, \\ and Aleksandr Aravkin}
-\titlegraphic{\includegraphics[width=0.5\textwidth]{Figures/UW_amath.pdf}\hspace{3em}\includegraphics[height=1cm]{Figures/IHME_Logo.jpg}}
+\author{Aleksei Sholokhov}
+\titlegraphic{\vspace{3em}\includegraphics[width=0.5\textwidth]{Figures/UW_amath.pdf}}
 
-%\AtBeginSection[]{
-%  \begin{frame}
-%  \vfill
-%  \centering
-%  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
-%    \usebeamerfont{title}\insertsectionhead\par%
-%  \end{beamercolorbox}
-%  \vfill
-%  \end{frame}
-%}
+\AtBeginSection[]{
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsectionhead\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
 
 \begin{document}
 
 \maketitle
 
-%\section{Introduction}
-%\begin{frame}{Plan of the Defense}
-%Show topics and published papers. Mention covid
-%\end{frame}
+\begin{frame}{Plan of the Defense}
+\uncover<2->{
+\includegraphics[height=35pt]{figures/sasha.png}
+\includegraphics[height=35pt]{figures/jim.jpg}
+\includegraphics[height=35pt]{figures/peng.jpg}
+}
+\uncover<3->{
+\includegraphics[height=35pt]{figures/hassan.jpg}
+\includegraphics[height=35pt]{figures/saleh.jpeg}
+\includegraphics[height=35pt]{figures/yuying.jpeg}
+}
+\uncover<4->{
+\includegraphics[height=35pt]{figures/nathan.jpg}
+\includegraphics[height=35pt]{figures/steve.jpeg}
+\includegraphics[height=35pt]{figures/josh.jpg}
+}
+
+\vspace{1em}
+\uncover<2->{
+\textbf{Sparse Relaxed Regularized Regression for Linear Mixed-Effect Models}\\
+{\small
+Together with Aleksandr Aravkin, James Burke, Damian Santomauro, and Peng Zheng
+\begin{itemize}
+	\item \only<1-4>{``A Relaxation Approach to Feature Selection for Linear Mixed Effects Models''}\only<5->{\underline{\textcolor{teal}{``A Relaxation Approach to Feature Selection for Linear Mixed Effects Models''}}} \\ \textit{submitted to Journal of Computational and Graphical Statistics (JCGS)}
+	\item ``Analysis of Relaxation Methods for Feature Selection in Mixed Effects Models'' \\ \textit{submitted to Journal of Computational Optimization and Applications (COAP)}
+	\item ``\texttt{pysr3}: A Python Package for Spare Relaxed Regularized Regression'' \\ \textit{Journal of Open-Source Software (JOSS), 2023, ICCOPT 2022, SIAM OPT 2023}
+\end{itemize}
+}
+}
+
+\vspace{1em}
+\uncover<3->{
+\textbf{PINODE: Physics-Informed Neural ODEs}\\
+{\small
+Together with Hassan Mansour, Saleh Nabi, and Yuying Liu
+\begin{itemize}
+	\item ``Physics-Informed Koopman Network'' \\
+	\textit{SIAM ADS 2023, arXiv:2211.09419}
+	\item \only<1-4>{``Physics-Informed Neural ODE: Embedding Physics into Models using Collocation Points''}\only<5->{\underline{\textcolor{teal}{``Physics-Informed Neural ODE: Embedding Physics into Models using Collocation Points''}}} \\
+	\textit{Submitted to Nature Special Issue on Physics-Informed Machine Learning}
+\end{itemize}
+}
+}
+\uncover<4->{
+\vspace{1em}
+\textbf{Single-Pixel Imaging with Reduced-Order Models}\\
+{\small
+Together with J. Nathan Kutz, Steven Brunton, Joshua Rapp, Hassan Mansour, and Saleh Nabi
+\begin{itemize}
+	\item \only<1-4>{``Single pixel imaging of spatio-temporal flows using differentiable latent dynamics''}\only<5->{\underline{\textcolor{teal}{``Single pixel imaging of spatio-temporal flows using differentiable latent dynamics''}}} \textit{in preparation}
+\end{itemize}
+}
+}
+
+
+\end{frame}
 
 \section{$\mathcal{MSR}3$ -- Sparse Relaxed Regularized Regression for Linear Mixed-Effect Models}
 
@@ -435,7 +488,6 @@ $\tw^+ := [\tbeta^+, \tgamma^+], \quad x^+ := [\beta,\gamma]$ \\
 
 \end{frame}
 
-
 \begin{frame}{$\mathcal{MSR}3$-fast: Algorithm}
 \begin{algorithm}[H]
 \TitleOfAlgo{$\mathcal{MSR}3$-fast}
@@ -452,6 +504,29 @@ $\tw^+ := [\tbeta^+, \tgamma^+], \quad x^+ := [\beta,\gamma]$ \\
 }
 \Return{$\tw^+ = [\tbeta^+, \tgamma^+]$}
 \end{algorithm}
+\end{frame}
+
+\begin{frame}{Designing an Algorithm}
+	$G_{\nu,\eta}$ encodes both gradient of a Lagrangian (lines 1-2) and the complementarity condition (line 3):
+	\eq{
+		G_{\nu,\eta}((\beta,\gamma,v),(\tbeta,\tgamma)) := \begin{bmatrix}
+			\nabla_\beta \LL(\beta, \gamma) + \eta(\beta-\tbeta) \\
+			\nabla_\gamma \LL(\beta, \gamma) + \eta(\gamma-\tgamma) - v\\
+			v \bigodot \gamma - \mu\textbf{1}
+		\end{bmatrix}
+	}
+	We apply Newton method to $G$ while geometrically decreasing $\mu$. \\
+\textbf{Lemma:} For every $(\mu,\eta) \in \R_+\times\R_{++}$,
+\eq{
+	&(\hat\beta,\hat\gamma) = \argmin_{(\beta,\gamma)}\LL_{\eta,\mu}((\beta, \gamma),(\tbeta, \tgamma)) \\
+	& \iff \\
+	& \exists \hat{v} \in \R_{+}^q \text{ s.t. } G_{\nu,\eta}((\beta,\gamma,\hat{v}),(\tbeta,\tgamma)) = 0
+}
+If $\mu > 0$, then $\hat{v} = -\nabla\phi_\mu(\hat{\gamma})$, and if $\mu = 0$, then $\hat{v}$ is the unique KKT multiplier associated with the constraint $0 \leq \gamma$.
+\end{frame}
+
+\begin{frame}{$\ouralgo$-fast Algorithm}
+\input{../extras/08Pseudocode}
 \end{frame}
 
 \begin{frame}{$\ouralgo$-fast: Results}
@@ -493,7 +568,7 @@ $\tw^+ := [\tbeta^+, \tgamma^+], \quad x^+ := [\beta,\gamma]$ \\
 	\end{figure}
 \end{frame}
 
-\begin{frame}{Thank you!}
+\begin{frame}{Software}
 	\includegraphics[width=\textwidth]{Figures/pysr3_screenshot.png}
 	The code is available on GitHub: \href{github.com/aksholokhov/pysr3}{https://github.com/aksholokhov/pysr3}\footfullcite{sholokhov2023pysr3}
 	\begin{itemize}
@@ -507,7 +582,7 @@ $\tw^+ := [\tbeta^+, \tgamma^+], \quad x^+ := [\beta,\gamma]$ \\
 
 \subsection{Intro to Physics-Informed Reduced-Order Models (ROMs)}
 
-\begin{frame}{Data-Driven Modeling of Physical Systems}
+\begin{frame}{Modeling of Physical Systems}
 
 %1) People used to model physical systems with first-principle knowledge
 %2) Data-Driven modelling of dynamical systems became a big thing  
@@ -531,7 +606,7 @@ $\tw^+ := [\tbeta^+, \tgamma^+], \quad x^+ := [\beta,\gamma]$ \\
 \uncover<3->{
 \begin{columns}[T,onlytextwidth]
 \column{0.6\textwidth}
-\textcolor{green}{Data-Driven Models}
+\textcolor{teal}{Data-Driven Models}
 \begin{itemize}
 	\item Require a lot of data
 	\item Often struggle to extrapolate
@@ -563,7 +638,7 @@ Pictures sources: \footnote{\href{https://en.wikipedia.org/wiki/Navier–Stokes_
 \begin{enumerate}
 	\item<2-> \textbf{Symmetry Based:} incorporate symmetries and conservation laws as hard constraints into a network: E3NNs\footcite{geiger2022e3nn}, LieConv\footcite{Finzi2020}, RiCNN \footcite{chidester2018rotation}
 	\item<3-> \textbf{Model Discovery Based:} use a library of terms to discover simple equations: SINDy\footcite{champion2019data}, Genetic Programming\footcite{schmidt2009distilling}
-	\item<4-> \textbf{Equations Based:} incorporate first-principle models to aid training of networks: PINNs\footcite{raissi2017physics}, UDEs\footcite{rackauckas2020udes}
+	\item<4-> \textbf{Equations Based:} incorporate first-principle models to aid training of networks: PINNs\footcite{raissi2017physics}, UDEs\footcite{rackauckas2020udes}, \textit{PINODE}
 \end{enumerate}
 
 \begin{columns}[T,onlytextwidth]
@@ -583,6 +658,24 @@ Pictures sources: \footnote{\href{https://en.wikipedia.org/wiki/Navier–Stokes_
 \only<4>{\includegraphics[width=\textwidth]{Figures/roms_4}}
 \end{frame}
 
+\begin{frame}{Reduced-Order Models: Data-Driven Loss}
+\includegraphics[width=\textwidth]{Figures/just_rom.png}
+\vspace{0.5em}
+
+Notation:
+\begin{itemize}
+	\item $k$ trajectories $x_i(t_j)$, $p$ timesteps each ($i = 1, \dots, k$, $j = 1, \dots, p$)
+	\item $\sigma$ -- observation noise variance
+	\item $\omega_1$, $\omega_2$ -- weights (hyper-parameters) 
+\end{itemize}
+
+\begin{align}
+    \LL^{data}_\theta & = \frac{1}{2\sigma^2}\sum_{i = 1}^k \left[\frac{\omega_1}{p}\sum_{j=1}^p\underbrace{\left\|\bd{x_i}(t_j) - \psi_\theta(\phi_\theta(\bd{x_i}(t_j)))\right\|^2}_{\text{reconstruction loss}}\right. + \\
+     & + \left.\frac{\omega_2}{p}\sum_{j=1}^p \underbrace{\left\|\psi_\theta\left(\phi_\theta(\bd{x_i}(t_1)) + \int_{t_1}^{t_j}h(z(t))dt\right) - \bd{x_i}(t_j)\right\|^2}_{\text{prediction loss}} \right]
+\end{align}
+
+\end{frame}
+
 \begin{frame}{Physics-Informed Loss}
 %1) We introduce physics to this system by adding a term which regularizes latent gradient field. 
 %2) In particular, it forces it to be equal to what a true physics should be under such projection.
@@ -594,10 +687,17 @@ Using chain rule:
 \only<3>{\includegraphics[width=\textwidth]{Figures/collocations_3.png}}
 \only<4>{\includegraphics[width=\textwidth]{Figures/collocations_4.png}}
 \only<5>{\includegraphics[width=\textwidth]{Figures/collocations_5.png}}
+\only<6>{\includegraphics[width=\textwidth]{Figures/collocations_6.png}}
+\only<7>{\includegraphics[width=\textwidth]{Figures/collocations_7.png}}
 \end{frame}
 
 \begin{frame}{Physics-Informed, Data-Driven, and Hybrid Models}
-	
+	Values of $\omega_1$, $\omega_2$, $\omega_3$, and $\omega_4$ control the type of the ROM:
+	\begin{itemize}
+		\item If $\omega_1 = \omega_2 = 0$ then $\LL_\theta^\text{data} = 0$. Thus, the model is purely \textcolor{orange}{Physics-Informed}
+		\item If $\omega_3 = \omega_4 = 0$ then $\LL_\theta^\text{physics} = 0$. Thus, the model is purely \textcolor{teal}{Data-Driven}
+		\item Otherwise the model is \textcolor{blue}{Hybrid}
+	\end{itemize}
 \end{frame}
 
 \begin{frame}{Results: Extrapolation to Unknown Regions}
@@ -642,16 +742,53 @@ Projection to a high-dimensional (128) space:
 \end{frame}
 
 \begin{frame}{Results: Burgers' Equation}
-Burgers' Equation:
 \begin{equation}
 	\begin{split}
 		& u_t  + uu_x = \nu u_{xx} \\
-	    & u(-\pi, t) = u(\pi, t),\quad \forall t \in [0, T]
+	    & u(-\pi, t) = u(\pi, t),\quad \forall t \in [0, T], \quad \nu = 0.01
 	\end{split}
 \end{equation}
 \uncover<2->{
 \includegraphics[width=\textwidth]{Figures/burgers_examples_of_ics.pdf}
 }
+
+\only<2>{
+\small
+ICs and Collocations:
+\begin{columns}[T,onlytextwidth]
+\column{0.3\textwidth}
+Harmonic:
+\begin{equation*}
+	\begin{split}
+		& u(x) = \sum_{k=1}^{30}a_k \sin(2\pi x/k) \\ & + b_k \cos(2\pi x/k) \\
+		& a_k = \alpha_ks_k \\
+		& \alpha_k \sim \mathcal{U}(0, 1) \\
+		& s_k \sim \mathcal{B}e(0.5)
+	\end{split}
+\end{equation*}
+	
+\column{0.3\textwidth}
+Bell-curve:
+\begin{equation*}
+	\begin{split}
+		& u(x) = \frac{1}{\sqrt{2\pi \sigma^2}}\exp^{\frac{-(x-x_0)^2}{2\sigma^2}} \\
+		& \sigma \sim \mathcal{U}(0, 3) \\
+		& x_0 \sim \mathcal{U}(-\pi, \pi) 
+	\end{split}
+\end{equation*}
+
+\column{0.3\textwidth}
+Bumps:
+	\begin{equation*}
+		\begin{split}
+			& u(x) = \frac{a}{1+\exp^{-k(x-x_0)}} \\ & - \frac{a}{1 + \exp^{-k(x-x_1)}} \\
+			& k \sim \mathcal{U}(5, 20) \\
+			& x_0, x_1 \sim \mathcal{U}(-\pi, \pi) 
+		\end{split}
+	\end{equation*}
+\end{columns}
+}
+
 \uncover<3->{
 \includegraphics[width=\textwidth]{Figures/example_burgers.pdf}
 }
@@ -695,6 +832,14 @@ Limitations:
 \begin{frame}{Single-Pixel Imaging}
 	% This is how SPI setup translates into Math
 	\includegraphics[width=\textwidth]{Figures/spi_math.png}
+	\uncover<2->{
+		\centering
+		\textit{Single-Pixel Image Recovery}: find $\textbf{x}$ using $\textbf{y}$ and $\textbf{A}$.
+		
+		\vspace{1em}
+				
+		\textbf{SPF rate}, \% = Number of samples per frame / number of pixels per frame * 100
+	}
 \end{frame}
 
 
@@ -706,11 +851,15 @@ Limitations:
 
 \begin{frame}{Results: Burger's Equation}
 	\uncover<1->{
-	When we capture 32 samples per frame:
+	Recovery with SPF=25\%:
 	\includegraphics[width=\textwidth]{Figures/cs_burgers_comparison_32.pdf}
 	}
 	\uncover<2->{
-	When we capture 2 samples per frame:
+	Recovery with SPF=6.25\%:
+	\includegraphics[width=\textwidth]{Figures/cs_burgers_comparison_8.pdf}
+	}
+	\uncover<3->{
+	Recovery with SPF=1.5\%:
 	\includegraphics[width=\textwidth]{Figures/cs_burgers_comparison_2.pdf}
 	}
 	
@@ -719,9 +868,31 @@ Limitations:
 
 \begin{frame}{Results: Burger's Equation}
 	\includegraphics[width=\textwidth]{Figures/cs_burgers_psnr.png}
+	\vspace{2em}
+	Metrics:
+	\begin{itemize}
+		\item \textbf{PSNR}: Peak Signal-to-Noise Ratio 
+		\item \textbf{RMSE}: Residual Mean Square Error
+		\item \textbf{SSIM}: Structural Similarity Index Measure
+	\end{itemize}
 \end{frame}
 
 \begin{frame}[label=again]{Results: Kolmogorov Flow}
+	A 2D velocity field $\bd{u}(x, y, t)$:
+
+	\begin{align}
+	\label{eq:kolmogorov_flow_definition}
+	& \partial_t \bd{u} + \bd{u} \cdot \nabla \bd{u} = -\nabla p + \nu\nabla^2\bd{u} + f \\
+	& \nabla \cdot \bd{u} = 0
+	\end{align}
+	where 
+	\begin{itemize}
+		\item $p$ is a 2D pressure field
+		\item $f = \alpha\sin(ky)x$ - driving force with amplitude $A$ and wavenumber $k$ ($k=4$)
+		\item $\nu = 1/\text{Re}$ is the non-dimensional viscosity. Re=40
+	\end{itemize}
+	\vspace{1em}
+	Reconstruction with SPF rate = $0.18$\% (8 SPI samples per a frame of $66\times 66$ pixels):  
 	\animategraphics[loop,width=\textwidth]{5}{Figures/kolm_example_anim_}{0}{19}
 \end{frame}
 
@@ -754,41 +925,66 @@ Limitations:
 \againframe{again}
 
 \begin{frame}{Results: Gas Monitoring}
-	
+	\vspace{2em}
+	Gas monitoring problem:
+	\begin{itemize}
+		\item 494 240$\times$320 video recordings, 10 steps each
+		\item 512 samples per frame, SPF rate of 0.67\%
+		\item Background noise
+	\end{itemize}
+	\centering
+	\animategraphics[loop,width=0.6\textwidth]{5}{Figures/gas_frames_}{1}{9}
 \end{frame}
 
+\begin{frame}{Thank You!}
+\includegraphics[height=35pt]{figures/sasha.png}
+\includegraphics[height=35pt]{figures/jim.jpg}
+\includegraphics[height=35pt]{figures/peng.jpg}
+\includegraphics[height=35pt]{figures/hassan.jpg}
+\includegraphics[height=35pt]{figures/saleh.jpeg}
+\includegraphics[height=35pt]{figures/yuying.jpeg}
+\includegraphics[height=35pt]{figures/nathan.jpg}
+\includegraphics[height=35pt]{figures/steve.jpeg}
+\includegraphics[height=35pt]{figures/josh.jpg}
 
-\begin{frame}{Conclusion and Acknowledgments}
-
-\end{frame}
-
-\appendix
-\section{Appendix: $\mathcal{MSR}3$}
-\begin{frame}{Designing an Algorithm}
-	$G_{\nu,\eta}$ encodes both gradient of a Lagrangian (lines 1-2) and the complementarity condition (line 3):
-	\eq{
-		G_{\nu,\eta}((\beta,\gamma,v),(\tbeta,\tgamma)) := \begin{bmatrix}
-			\nabla_\beta \LL(\beta, \gamma) + \eta(\beta-\tbeta) \\
-			\nabla_\gamma \LL(\beta, \gamma) + \eta(\gamma-\tgamma) - v\\
-			v \bigodot \gamma - \mu\textbf{1}
-		\end{bmatrix}
-	}
-	We apply Newton method to $G$ while geometrically decreasing $\mu$. \\
-\textbf{Lemma:} For every $(\mu,\eta) \in \R_+\times\R_{++}$,
-\eq{
-	&(\hat\beta,\hat\gamma) = \argmin_{(\beta,\gamma)}\LL_{\eta,\mu}((\beta, \gamma),(\tbeta, \tgamma)) \\
-	& \iff \\
-	& \exists \hat{v} \in \R_{+}^q \text{ s.t. } G_{\nu,\eta}((\beta,\gamma,\hat{v}),(\tbeta,\tgamma)) = 0
+\vspace{1em}
+\textbf{Sparse Relaxed Regularized Regression for Linear Mixed-Effect Models}\\
+{\small
+Together with Aleksandr Aravkin, James Burke, Damian Santomauro, and Peng Zheng
+\begin{itemize}
+	\item ``A Relaxation Approach to Feature Selection for Linear Mixed Effects Models''\\ \textit{submitted to Journal of Computational and Graphical Statistics (JCGS)}
+	\item ``Analysis of Relaxation Methods for Feature Selection in Mixed Effects Models'' \\ \textit{submitted to Journal of Computational Optimization and Applications (COAP)}
+	\item ``\texttt{pysr3}: A Python Package for Spare Relaxed Regularized Regression'' \\ \textit{Journal of Open-Source Software (JOSS), 2023, ICCOPT 2022, SIAM OPT 2023}
+\end{itemize}
 }
-If $\mu > 0$, then $\hat{v} = -\nabla\phi_\mu(\hat{\gamma})$, and if $\mu = 0$, then $\hat{v}$ is the unique KKT multiplier associated with the constraint $0 \leq \gamma$.
-\end{frame}
 
-\begin{frame}{$\ouralgo$-fast Algorithm}
-\input{../extras/08Pseudocode}
+\vspace{1em}
+\textbf{PINODE: Physics-Informed Neural ODEs}\\
+{\small
+Together with Hassan Mansour, Saleh Nabi, and Yuying Liu
+\begin{itemize}
+	\item ``Physics-Informed Koopman Network'' \\
+	\textit{SIAM ADS 2023, arXiv:2211.09419}
+	\item ``Physics-Informed Neural ODE: Embedding Physics into Models using Collocation Points''\\
+	\textit{Submitted to Nature Special Issue on Physics-Informed Machine Learning}
+\end{itemize}
+}
+
+\vspace{1em}
+\textbf{Single-Pixel Imaging with Reduced-Order Models}\\
+{\small
+Together with J. Nathan Kutz, Steven Brunton, Joshua Rapp, Hassan Mansour, and Saleh Nabi
+\begin{itemize}
+	\item ``Single pixel imaging of spatio-temporal flows using differentiable latent dynamics'' \textit{in preparation}
+\end{itemize}
+}
 \end{frame}
 
 \begin{frame}[noframenumbering,plain,allowframebreaks]{References}
     \printbibliography[heading=none]
 \end{frame}
+
+\appendix
+\section{Appendix: $\mathcal{MSR}3$}
 
 \end{document}
