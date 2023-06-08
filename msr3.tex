@@ -2,7 +2,7 @@
 including cohort studies, longitudinal data analysis, and meta-analysis.  Design and analysis of variable selection methods for LMEs is more difficult than for linear regression because LME models are nonlinear. In this work we 
 propose a relaxation strategy and optimization methods that enable a wide range of variable selection methods for LMEs using both convex and nonconvex regularizers, including  $\ell_1$, Adaptive-$\ell_1$, SCAD, and $\ell_0$. 
 The computational framework only requires the proximal operator for each regularizer to be available, and the implementation is available in an open source \texttt{python} package \texttt{pysr3}, consistent 
-with the \texttt{sklearn} standard. 
+with the \texttt{scikit-learn} standard. 
 The numerical results on simulated data sets indicate that the proposed strategy improves on the state of the art for both accuracy and compute time. 
 The variable selection techniques are also validated on a real example using a data set on bullying victimization.
 
@@ -77,14 +77,14 @@ we extend the sparse relaxed regularized regression (SR3) framework~{(\cite{Zhen
 This idea is supported
 by the success of SR3 in the context of linear regression where it
 accelerates and improves the performance of regularization strategies.
-This extension and its mathematical foundations in \cite{Theory1} constitute
+This extension and its mathematical foundations in \cite{aravkin2022jimtheory} constitute
 the major innovations of this work.
 Here we introduce the modeling framework and its relaxation, discuss the 
 resulting algorithms and their implementation details, and  validate the method on both
 simulated and real data sets, while the 
 %highly technical 
 mathematical 
-foundations are presented in \cite{Theory1}.
+foundations are presented in \cite{aravkin2022jimtheory}.
 The SR3 framework introduces auxiliary variables $x$ and $w$ to 
 decouple the likelihood $\LL$ and sparsity regularizer $R$ which are tied
 together by adding a multiple of the norm squared difference 
@@ -257,7 +257,7 @@ $f(\cdot)+\frac{\eta}{2}\|\cdot\|^2$ is convex.
 
 The negative log likelihood~\eqref{eq:ml_lme_optimization_setup}  is nonlinear and nonconvex, and requires an iterative numerical solver.
 However, it is convex with respect to $\beta$, and weakly convex with respect to $\gamma$, with a weak convexity constant $\overline \eta$
-computed in~\cite[Section 5.1]{Theory1} . The expected value of the posterior mode $\beta$ given $\Gamma$ has the closed form representation 
+computed in~\cite[Section 5.1]{aravkin2022jimtheory} . The expected value of the posterior mode $\beta$ given $\Gamma$ has the closed form representation 
 	
 \begin{equation}
 	\label{eq:beta_formula}
@@ -298,8 +298,8 @@ entry $\gamma_j$ takes the  value $0$ the corresponding coordinates of all rando
 
 Verification of the existence to solutions to \eqref{eq:lme_diagonal_setup}
 and, more generally, \eqref{eq:ml_lme_optimization_setup} follows from the work of \cite{zheng2021trimmed}.
-Standalone proofs for the existence of minimizers are developed in~\cite[Theorem 1]{Theory1},
-and extended to the presence of regularizers in~\cite[Theorem 2]{Theory1}. %, restated below for convenience. 
+Standalone proofs for the existence of minimizers are developed in~\cite[Theorem 1]{aravkin2022jimtheory},
+and extended to the presence of regularizers in~\cite[Theorem 2]{aravkin2022jimtheory}. %, restated below for convenience. 
 
 
 %%Here we streamline these techniques and extend to the regularized case, 
@@ -310,7 +310,7 @@ and extended to the presence of regularizers in~\cite[Theorem 2]{Theory1}. %, re
 %\eqref{eq:ml_lme_optimization_setup} exist.
 %\end{theorem}
 %
-%Feature selection methods  include sparsity-inducing penalties or constraints. See~\cite[Theorem 1]{Theory1}
+%Feature selection methods  include sparsity-inducing penalties or constraints. See~\cite[Theorem 1]{aravkin2022jimtheory}
 %for an existence result under weak assumptions on the regularizer. 
 %
 %
@@ -481,7 +481,7 @@ $\delta_{\CC}(x) :=0$ for $x \in \CC$ and $+\infty$ otherwise.
 %\[
 %    \delta_{\CC}(x) := \begin{cases} 0, &  x \in \CC \\ +\infty, & x \not\in \CC .\end{cases}
 %\]  
-By \cite[Theorem 2]{Theory1}, solutions to \eqref{eq:lme_loss_original_in_x}
+By \cite[Theorem 2]{aravkin2022jimtheory}, solutions to \eqref{eq:lme_loss_original_in_x}
 always exist when $R$ has compact lower level sets.
 % or 
 % $\LL(\beta, \gamma)=\LL_{REML}(\beta,\Diag(\gamma))$ in \eqref{eq:reml_objective} with 
@@ -738,7 +738,7 @@ components of $x$ for sufficiently large $\eta$: \\
 \end{equation}
 
 with $\eta\ge\bar\eta$ where $\bar \eta$ is the weak convexity constant
-computed in~\cite[Section 5.1]{Theory1}.
+computed in~\cite[Section 5.1]{aravkin2022jimtheory}.
 As $\eta \uparrow \infty$, the extended objective~\eqref{eq:lme_loss_sr3} converges in an epigraphical sense to the original objective~\eqref{eq:lme_loss_original_in_x}. 
 However, feature selection accuracy does not require this continuation, 
 indeed, we show that a fixed 
@@ -772,7 +772,7 @@ In the case of linear regression,
 the function $u_\eta$ has a closed form solution~\cite{Zheng2019SR3}. However, in both  the linear regression context of~\cite{Zheng2019SR3} 
 and in the LME context studied here, we need only compute $S_\eta(w)$ 
 in order to optimize~\eqref{eq:value_function_optimization}. 
-Indeed, in \cite[Section 5]{Theory1} it is shown that 
+Indeed, in \cite[Section 5]{aravkin2022jimtheory} it is shown that 
 there exists a computable $\bar\eta>0$, which we have called the weak convexity constant, such that
 $\LL+\delta_\CC+\kappa_\eta(\cdot -w)$ is strongly convex for all 
 $\eta>\bar\eta$ regardless of the choice of $w$. This allows us to show
@@ -816,7 +816,7 @@ We apply PGD to optimize the regularized value function $u_\eta$ which yields th
 	\label{eq:pgd_for_value_function}
 	w^+ = \prox_{\alpha^{-1}R}(w - \alpha\nabla u_\eta(w))
 }
-The results in \cite{Theory1} show that all components of the iteration~(\ref{eq:pgd_for_value_function}) are well-defined. 
+The results in \cite{aravkin2022jimtheory} show that all components of the iteration~(\ref{eq:pgd_for_value_function}) are well-defined. 
 The equivalence of Algorithm \ref{alg:pgd_for_value} and 
 \eqref{eq:pgd_for_value_function} is established in the following lemma, 
 which extends the relationship studied by~\cite{Zheng2019SR3} to the case of $x = (\beta, \gamma)$. 
@@ -850,7 +850,7 @@ $w = w_0$ \\
 \end{algorithm}
 \smallskip
 
-In \cite[Theorem 6]{Theory1}, it is shown that
+In \cite[Theorem 6]{aravkin2022jimtheory}, it is shown that
 for any sequence $\eta_k\uparrow\infty$ the associated optimal solutions $(x^k,w^k)$ 
 to (11) satisfy
 \(
@@ -1131,7 +1131,7 @@ $\nabla^2_{\gamma\gamma}\LL_{\mu,\eta}(\beta, \gamma)$ is
 negative-(semi)definite. Negative definite Hessians can hamper the convergence of 
 second-order methods (e.g., see \cite{nocedal2006numerical}). 
 Therefore, one must take care in selecting $\eta$. For this, we recall from
-\cite[Lemma 3]{Theory1} that
+\cite[Lemma 3]{aravkin2022jimtheory} that
 \[
 \nabla^2\LL{(\beta,\gam)}=\sum_{i=1}^m
 S_i^T\begin{bmatrix}X_i^T\\ -Z_i^T\end{bmatrix}
@@ -1398,13 +1398,15 @@ The dataset consists of $m=60$ groups (countries or states), the detailed descri
 
 Feature selection results for four particular locations (Alaska, Slovenia, Turkey, and Switherland) are presented on Figures \ref{fig:covid_feature_selection_1} and \ref{fig:covid_feature_selection_2}, with coefficients for the rest of the locations attached in supplementary materials. \ouralgo was charged with a task to produce a fit using only three covariates, one of which had to be mean-only (no random effects). On the left we see the original data (\texttt{Data}, in {\color{blue} blue}), and predictions of three models: IHME Projections (\texttt{IHME}, in {\color{orange} orange}), a linear mixed model fit with no selection (\texttt{Dense MM}, in {\color{red} red}), and a sparse fit of \ouralgo (\ouralgo in {\color{green} green}). The \ouralgo model has chosen to use \texttt{intercept}, \texttt{mobility\_lift}, and \texttt{temperature} covariates, with the later only as a fixed covariate; \texttt{testing\_reference} and \texttt{proportion\_over\_1k} were left out. On the plots to the left we see that the exclusion of two covariates did not significantly affect the quality of predictions. The residual errors (RMSE) to the right support this statement: the difference in RSME is within 10\% of RSME of a "dense" model which uses all the covariates, as well as from IHME's original model which fit all the locations via sequence of independent regressions. This choice also seems reasonable given the timespan: the proliferation of testing during the spring was not yet significant, so it did not inform predictions in a major way. The exclusion of \texttt{proportion\_over\_1k} could have been due to the scale of grouping: locations were grouped on the level of states and countries, not on the level of individual counties where the influence of population-based covariates could have been more significant. 
 
+\newpage
 \section{Theoretical Analysis}
 \label{sec:theory-paper}
 \input{msr3-theory}
 
+\newpage
 \section{Software Implementation}
 \label{sec:software-paper}
-To ensure reproducibility of this research, all new algorithms have been implemented as a part of the \texttt{pysr3}\footnote{Available at \href{https://github.com/aksholokhov/pysr3}{https://github.com/aksholokhov/pysr3}} library~(\cite{sholokhov2023pysr3}). This library implements functionality for fitting linear mixed models and selecting covariates. The user interface was designed to be fully compliant with the standards\footnote{\href{https://scikit-learn.org/stable/developers/develop.html}{https://scikit-learn.org/stable/developers/develop.html}} of \texttt{sklearn} library to minimize learning time. 
+To ensure reproducibility of this research, all new algorithms have been implemented as a part of the \texttt{pysr3}\footnote{Available at \href{https://github.com/aksholokhov/pysr3}{https://github.com/aksholokhov/pysr3}} library~(\cite{sholokhov2023pysr3}). This library implements functionality for fitting linear mixed models and selecting covariates. The user interface was designed to be fully compliant with the standards\footnote{\href{https://scikit-learn.org/stable/developers/develop.html}{https://scikit-learn.org/stable/developers/develop.html}} of \texttt{scikit-learn} library to minimize learning time. 
 
 The baseline optimization method of PySR3 is proximal gradient descent (PGD). Each regularizer included in PySR3 can also be used in its relaxed SR3 form. More information about the structure of the library can be found in the documentation\footnote{https://aksholokhov.github.io/pysr3/} as well as in the package's companion paper~(\cite{sholokhov2023pysr3}).
 

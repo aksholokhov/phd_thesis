@@ -2,7 +2,6 @@
 \input{useful_packages}
 \input{math_macros}
 
-
 % \usetheme[progressbar=frametitle]{metropolis}
 \addtobeamertemplate{navigation symbols}{}{%
     \usebeamerfont{footline}%
@@ -19,7 +18,7 @@
 \usepackage{xspace}
 \usepackage{caption}
 \usepackage{subcaption}
-\usepackage{lmodern}
+
 \newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
 \newcommand{\ouralgo}{\ensuremath{\mathcal{MSR}3}}
 %\title{PhD Defense}
@@ -104,7 +103,7 @@ Together with J. Nathan Kutz, Steven Brunton, Joshua Rapp, Hassan Mansour, and S
 
 \end{frame}
 
-\section{$\mathcal{MSR}3$ -- Sparse Relaxed Regularized Regression for Linear Mixed-Effect Models}
+\section{\texorpdfstring{$\mathcal{MSR}3$}{MSR3} -- Sparse Relaxed Regularized Regression for Linear Mixed-Effect Models}
 
 \begin{frame}{Research Objectives and Plan of the Talk}
 	
@@ -890,11 +889,10 @@ Limitations:
 	\end{itemize}
 \end{frame}
 
-\begin{frame}[label=again]{Results: Kolmogorov Flow}
+\begin{frame}{Results: Kolmogorov Flow}
 	A 2D velocity field $\bd{u}(x, y, t)$:
 
 	\begin{align}
-	\label{eq:kolmogorov_flow_definition}
 	& \partial_t \bd{u} + \bd{u} \cdot \nabla \bd{u} = -\nabla p + \nu\nabla^2\bd{u} + f \\
 	& \nabla \cdot \bd{u} = 0
 	\end{align}
@@ -921,7 +919,7 @@ Limitations:
 	\only<3>{\includegraphics[width=\textwidth]{Figures/cs_int_3.png}}
 \end{frame}
 
-\againframe{again}
+%\againframe{again}
 
 \begin{frame}{Results: Interpretation}
 	\only<1>{\includegraphics[width=\textwidth]{Figures/cs_int_3.png}}
@@ -929,7 +927,7 @@ Limitations:
 	\only<3>{\includegraphics[width=\textwidth]{Figures/cs_int_5.png}}
 \end{frame}
 
-\againframe{again}
+%\againframe{again}
 
 \begin{frame}{Results: Interpretation}
 	\only<1>{\includegraphics[width=\textwidth]{Figures/cs_int_5.png}}
@@ -937,7 +935,7 @@ Limitations:
 	\only<3>{\includegraphics[width=\textwidth]{Figures/cs_int_7.png}}
 \end{frame}
 
-\againframe{again}
+%\againframe{again}
 
 \begin{frame}{Results: Gas Monitoring}
 	\vspace{2em}
@@ -1000,6 +998,6 @@ Together with J. Nathan Kutz, Steven Brunton, Joshua Rapp, Hassan Mansour, and S
 \end{frame}
 
 \appendix
-\section{Appendix: $\mathcal{MSR}3$}
+\section{Appendix: \texorpdfstring{$\mathcal{MSR}3$}{MSR3}}
 
 \end{document}
